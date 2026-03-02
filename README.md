@@ -87,4 +87,4 @@ This project is licensed under the **MIT License**.
 
 ---
 
-**Crafted for developers and presenters who value privacy and speed.** Built by **Chris Glaske**.
+**Crafted for developers and presenters who value privacy and speed.** Built by **Chris Glaske** with ♥️.
