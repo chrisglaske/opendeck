@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Version](https://img.shields.io/badge/Version-1.0.0-green)
 ![Privacy](https://img.shields.io/badge/Privacy-100%25_Local-blueviolet)
-[![Wiki](https://img.shields.io/badge/Documentation-Wiki-orange.svg)](https://github.com/your-username/opendeck/wiki)
+[![Wiki](https://img.shields.io/badge/Documentation-Wiki-orange.svg)](https://github.com/chrisglaske/opendeck/wiki)
 
 ---
 
