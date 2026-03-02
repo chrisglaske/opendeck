@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Version](https://img.shields.io/badge/Version-1.0.0-green)
 ![Privacy](https://img.shields.io/badge/Privacy-100%25_Local-blueviolet)
+[![Wiki](https://img.shields.io/badge/Documentation-Wiki-orange.svg)](https://github.com/your-username/opendeck/wiki)
 
 ---
 
@@ -14,6 +15,7 @@ OpenDeck is designed to be highly portable. You can use it in two ways:
 
 1.  **Cloud Hosted**: Visit [OpenDeck](https://https://opendeck.pages.dev/) to start building instantly.
 2.  **Local Environment**: Clone this repository and open `index.html` in any modern browser. Since it uses standard ES6 and local storage, no `npm install` or local server is required.
+3.  * **📖 Documentation**: [Full Wiki & Developer Guides](https://github.com/chrisglaske/opendeck/wiki)
 
 ---
 
@@ -87,4 +89,6 @@ This project is licensed under the **MIT License**.
 
 ---
 
-**Crafted for developers and presenters who value privacy and speed.** Built by **Chris Glaske** with ♥️.
+**Crafted for developers and presenters who value privacy and speed.**
+
+Built by **Chris Glaske** with ♥️.
