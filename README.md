@@ -12,7 +12,7 @@
 
 OpenDeck is designed to be highly portable. You can use it in two ways:
 
-1.  **Cloud Hosted**: Visit [your-cloudflare-link.pages.dev](https://https://opendeck.pages.dev/) to start building instantly.
+1.  **Cloud Hosted**: Visit [OpenDeck](https://https://opendeck.pages.dev/) to start building instantly.
 2.  **Local Environment**: Clone this repository and open `index.html` in any modern browser. Since it uses standard ES6 and local storage, no `npm install` or local server is required.
 
 ---
