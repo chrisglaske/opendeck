@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDeck - Open Source Presentation Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS/libs/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS/dist/pptxgen.bundle.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&family=Space+Grotesk:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="tut-overlay" id="tutOverlay"></div>
+    <div class="tut-tooltip" id="tutTooltip"></div>
+
+    <div id="dashboardView">
+        <header class="header">
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-blue-600/20">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight leading-none text-white">OpenDeck</h1>
+                    <span class="text-xs text-slate-400">Open Source Studio</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="startInteractiveTutorial()"
+                    class="text-slate-400 hover:text-white px-3 py-2 rounded-lg transition font-bold text-sm flex items-center gap-2 border border-transparent hover:border-slate-700 hover:bg-slate-800">
+                    <i class="fa-solid fa-graduation-cap text-yellow-500"></i> Guided Tour
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <label for="importOdeck"
+                    class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center gap-2 !mb-0 group relative">
+                    <i class="fa-solid fa-file-import text-blue-400 group-hover:scale-110 transition"></i> Import .odeck
+                </label>
+                <input type="file" id="importOdeck" accept=".odeck,.json" class="hidden"
+                    onchange="importProject(event)">
+
+                <button id="btnNewPresentation" onclick="createNewProject()"
+                    class="text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(59,130,246,0.4)] transition flex items-center gap-2 hover:scale-105"
+                    style="background-color: var(--accent-color)">
+                    <i class="fa-solid fa-plus"></i> New Deck
+                </button>
+            </div>
+        </header>
+
+        <div
+            class="bg-blue-950/40 border-b border-blue-900/50 p-3 flex justify-center items-center text-sm text-blue-200 shrink-0 shadow-inner">
+            <i class="fa-solid fa-shield-halved text-blue-400 mr-3 text-lg"></i>
+            <span><strong>Secure Local Storage:</strong> Presentations are saved entirely within your browser.
+                <strong>Do not clear your cache</strong> or they will be deleted. Use the <strong>Export .odeck</strong>
+                feature on your cards to backup!</span>
+        </div>
+
+        <div class="flex-grow p-10 w-full max-w-[1600px] mx-auto flex flex-col">
+
+            <div id="dashHeader" style="display:none;" class="justify-between items-end mb-8 w-full">
+                <div>
+                    <h2 class="text-4xl font-extrabold text-white tracking-tight mb-2">Your Presentations</h2>
+                    <p class="text-slate-400 text-lg" id="dashboardStats"></p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-[11px] text-slate-500 z-10"></i>
+                        <input type="text" id="searchBar" placeholder="Search presentations..."
+                            oninput="renderDashboard()"
+                            class="search-input !mb-0 w-64 bg-slate-900 border-slate-700 rounded-full relative">
+                    </div>
+                    <select id="sortSelect" onchange="renderDashboard()"
+                        class="!mb-0 w-48 bg-slate-900 border-slate-700 rounded-full text-sm font-bold">
+                        <option value="newest">Sort: Newest First</option>
+                        <option value="oldest">Sort: Oldest First</option>
+                        <option value="alpha">Sort: A-Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="loadingSequence" class="flex-grow flex flex-col items-center justify-center text-slate-500 pb-20">
+                <i
+                    class="fa-solid fa-hard-drive text-5xl text-blue-500 mb-6 animate-bounce shadow-blue-500 rounded-full"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="loadingText">Initializing workspace...</h3>
+                <div
+                    class="w-72 bg-slate-800 rounded-full h-3 mt-4 overflow-hidden shadow-inner border border-slate-700">
+                    <div class="bg-blue-500 h-full rounded-full w-0 transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                        id="loadingBar"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full pb-10"
+                id="projectGrid" style="display:none;">
+            </div>
+
+            <footer class="mt-auto pt-10 pb-4 text-center text-sm text-slate-600 border-t border-slate-800/50">
+                Powered by OpenDeck <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i> Built for the open
+                source community
+            </footer>
+        </div>
+    </div>
+
+
+    <div id="builderView">
+        <header class="header">
+            <div class="flex items-center gap-4">
+                <button onclick="returnToDashboard()"
+                    class="text-slate-400 hover:text-white transition flex items-center gap-2 font-bold text-sm bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 hover:bg-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> Dashboard
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <input type="text" id="projectTitleInput"
+                    class="!mb-0 !py-1 !px-2 !bg-transparent !border-transparent hover:!border-slate-700 focus:!border-slate-600 font-bold text-xl tracking-tight text-white w-64 rounded transition"
+                    onblur="updateProjectTitle(this.value)">
+                <span id="saveIndicator"
+                    class="text-xs font-mono text-slate-500 ml-2 flex items-center gap-1 transition-all duration-300 opacity-50"><i
+                        class="fa-solid fa-cloud-arrow-up text-green-500"></i> Saved</span>
+            </div>
+            <div class="flex items-center gap-3" id="tutHeaderControls">
+                <button onclick="openSettingsModal()"
+                    class="text-slate-400 hover:text-white p-2 rounded transition border border-transparent hover:border-slate-700 bg-slate-800 hover:bg-slate-700"
+                    title="Global Settings">
+                    <i class="fa-solid fa-gear text-lg"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <button onclick="exportToPDF()"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
+                    title="Print to PDF">
+                    <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
+                </button>
+                <button onclick="exportToPPTX()"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
+                    title="Export for Google Slides">
+                    <i class="fa-solid fa-file-powerpoint text-orange-500"></i> PPTX
+                </button>
+                <button onclick="exportPresentation()"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
+                    title="Export Standalone HTML">
+                    <i class="fa-solid fa-code text-blue-400"></i> HTML
+                </button>
+                <button onclick="presentInBrowser()"
+                    class="text-white px-5 py-2 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)] transition flex items-center gap-2 hover:scale-105 ml-2"
+                    style="background-color: var(--accent-color)">
+                    <i class="fa-solid fa-play"></i> Present Now
+                </button>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <div class="sidebar-left bg-slate-900" id="tutSidebar">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Outline</span>
+                    <span id="slideCountBadge"
+                        class="text-xs bg-slate-800 px-2 py-1 rounded font-bold text-slate-300">0</span>
+                </div>
+                <div class="flex-grow overflow-y-auto p-2" id="slideList"></div>
+                <div class="p-4 border-t border-slate-800">
+                    <button onclick="openTemplateModal()"
+                        class="w-full text-white px-4 py-3 rounded-lg transition font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:brightness-110"
+                        style="background-color: var(--accent-color)">
+                        <i class="fa-solid fa-plus"></i> Add Slide
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-pane" id="previewArea">
+                <div class="preview-wrapper" id="livePreview"></div>
+                <div
+                    class="absolute bottom-6 bg-slate-800/90 backdrop-blur text-xs text-slate-300 px-5 py-2.5 rounded-full border border-slate-600 shadow-2xl flex items-center gap-3 transition hover:opacity-0 cursor-default pointer-events-none">
+                    <i class="fa-solid fa-wand-magic-sparkles text-yellow-400"></i>
+                    <span>Everything is connected: Edit text on the slide, or use the inspector panel!</span>
+                </div>
+            </div>
+
+            <div class="sidebar-right bg-slate-900" id="tutInspector">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
+                    <h2 class="text-xs font-bold text-slate-200 uppercase tracking-widest"><i
+                            class="fa-solid fa-sliders mr-2 text-slate-400"></i> Inspector</h2>
+                </div>
+                <div class="p-5 flex-grow overflow-y-auto" id="editorForm"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tutorialModal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="text-center mb-6">
+                <div
+                    class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                    <i class="fa-solid fa-graduation-cap text-white"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold mb-2" id="tutTitle">Loading...</h2>
+                <p class="text-slate-400" id="tutSubtitle">Loading...</p>
+            </div>
+            <div id="tutContent"
+                class="bg-slate-900 border border-slate-700 p-6 rounded-xl text-slate-300 space-y-4 text-sm mb-8 min-h-[150px] flex flex-col justify-center shadow-inner">
+            </div>
+            <div class="flex justify-between items-center border-t border-slate-800 pt-6">
+                <button onclick="skipTutorial()"
+                    class="text-slate-500 hover:text-slate-300 text-sm font-bold transition">Skip Tutorial</button>
+                <div class="flex gap-2" id="tutDots"></div>
+                <button onclick="nextTutorialStep()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold text-sm transition shadow-lg"
+                    id="tutNextBtn">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tutCompleteModal">
+        <div class="modal-content" style="width: 450px; text-align: center;">
+            <div
+                class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-[0_0_30px_rgba(34,197,94,0.4)]">
+                <i class="fa-solid fa-check text-white"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold mb-3 text-white">You're a Pro!</h2>
+            <p class="text-slate-400 mb-8 text-lg">The tutorial is complete. What would you like to do next?</p>
+            <div class="flex flex-col gap-4">
+                <button onclick="finishTutorialCreateNew()"
+                    class="w-full text-white px-6 py-3.5 rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.3)] transition hover:scale-105"
+                    style="background-color: var(--accent-color)">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Create New Presentation
+                </button>
+                <button onclick="finishTutorialDashboard()"
+                    class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-6 py-3.5 rounded-xl font-bold text-lg transition">
+                    <i class="fa-solid fa-layer-group mr-2"></i> Return to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="templateModal">
+        <div class="modal-content" style="width: 1100px;">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-extrabold text-white"><i
+                        class="fa-solid fa-layer-group mr-3 text-slate-400"></i> Slide Library</h2>
+                <button onclick="closeTemplateModal()" class="text-slate-400 hover:text-white text-2xl transition"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="flex border-b border-slate-700 mb-6">
+                <button onclick="switchTemplateTab('tech')" id="tabBtn_tech" class="template-tab active">Modern
+                    Tech</button>
+                <button onclick="switchTemplateTab('corp')" id="tabBtn_corp" class="template-tab">Corporate
+                    Edge</button>
+                <button onclick="switchTemplateTab('pitch')" id="tabBtn_pitch" class="template-tab">Creative
+                    Pitch</button>
+            </div>
+
+            <div id="tabContent_tech" class="grid grid-cols-3 gap-6">
+                <div class="template-card" onclick="addSlide('intro')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 opacity-20"
+                            style="background: radial-gradient(circle at 50% 50%, var(--accent-color) 0%, transparent 70%);">
+                        </div>
+                        <div
+                            class="w-8 h-8 rounded-full border border-slate-500 flex items-center justify-center mb-2 z-10">
+                            <i class="fa-solid fa-desktop text-[10px] text-slate-300"></i>
+                        </div>
+                        <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
+                        <div class="h-1.5 w-1/2 bg-slate-500 rounded z-10"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Title / Hero</h3>
+                    <p class="text-xs text-slate-400">Large centered text, perfect for opening introductions.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('split')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex border border-slate-700 p-2 gap-2 shadow-inner">
+                        <div class="w-1/2 flex flex-col justify-center gap-1.5">
+                            <div class="h-2 w-full bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-500 rounded"></div>
+                            <div class="h-1 w-4/5 bg-slate-500 rounded mb-1"></div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 rounded-full" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-2/3 bg-slate-600 rounded"></div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 rounded-full" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-1/2 bg-slate-600 rounded"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="w-1/2 bg-slate-800 border border-slate-600 rounded flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-0.5" style="background:var(--accent-color)">
+                            </div><i class="fa-solid fa-image text-slate-500"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Side-by-Side</h3>
+                    <p class="text-xs text-slate-400">Context text/bullets on left, highlighted box on right.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('grid')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col border border-slate-700 p-2 shadow-inner">
+                        <div class="h-2 w-1/2 bg-white rounded mb-2 mx-auto"></div>
+                        <div class="flex gap-2 flex-grow">
+                            <div
+                                class="flex-1 bg-slate-800 rounded border border-slate-600 flex flex-col items-center justify-center p-1">
+                                <div class="h-3 w-3 rounded-sm mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-full bg-white rounded mb-0.5"></div>
+                                <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                            </div>
+                            <div
+                                class="flex-1 bg-slate-800 rounded border border-slate-600 flex flex-col items-center justify-center p-1">
+                                <div class="h-3 w-3 rounded-sm mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-full bg-white rounded mb-0.5"></div>
+                                <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                            </div>
+                            <div
+                                class="flex-1 bg-slate-800 rounded border border-slate-600 flex flex-col items-center justify-center p-1">
+                                <div class="h-3 w-3 rounded-sm mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-full bg-white rounded mb-0.5"></div>
+                                <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Feature Grid</h3>
+                    <p class="text-xs text-slate-400">Display 2-4 cards in a grid layout. Great for features.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('list')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex border border-slate-700 p-2 gap-2 items-center shadow-inner">
+                        <div class="w-1/2 flex flex-col gap-2">
+                            <div class="h-2 w-full bg-white rounded mb-1"></div>
+                            <div
+                                class="w-full bg-slate-800 h-4 rounded border border-slate-600 flex justify-between items-center px-1">
+                                <div class="h-1 w-1/2 bg-slate-400 rounded"></div>
+                                <div class="h-1.5 w-1/4 rounded" style="background:var(--accent-color)"></div>
+                            </div>
+                            <div
+                                class="w-full bg-slate-800 h-4 rounded border border-slate-600 flex justify-between items-center px-1">
+                                <div class="h-1 w-1/2 bg-slate-400 rounded"></div>
+                                <div class="h-1.5 w-1/4 rounded" style="background:var(--accent-color)"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="w-1/2 bg-slate-800 border border-slate-600 rounded h-full flex items-center justify-center">
+                            <i class="fa-solid fa-list-check text-xl" style="color:var(--accent-color)"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Status Checklist</h3>
+                    <p class="text-xs text-slate-400">A robust checklist format for requirements or compliances.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('code')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col border border-slate-700 p-2 shadow-inner">
+                        <div class="h-2 w-1/2 bg-white rounded mb-2"></div>
+                        <div
+                            class="flex-grow bg-slate-950 rounded border border-slate-800 flex flex-col overflow-hidden">
+                            <div class="h-3 w-full bg-slate-800 flex items-center px-1 gap-0.5">
+                                <div class="w-1 h-1 rounded-full bg-red-500"></div>
+                                <div class="w-1 h-1 rounded-full bg-yellow-500"></div>
+                                <div class="w-1 h-1 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="p-1 flex flex-col gap-1 mt-1">
+                                <div class="h-1 w-1/3 bg-slate-600 rounded"></div>
+                                <div class="h-1 w-2/3 bg-green-400 rounded"></div>
+                                <div class="h-1 w-1/2 bg-green-400 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Code / Terminal</h3>
+                    <p class="text-xs text-slate-400">Syntax block for showing scripts, JSON, or commands.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('cta')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner">
+                        <i class="fa-solid fa-rocket text-2xl text-white mb-2"></i>
+                        <div class="h-3 w-3/4 bg-white rounded mb-1"></div>
+                        <div
+                            class="h-4 w-1/3 bg-slate-800 border border-slate-600 rounded mt-2 flex items-center justify-center">
+                            <div class="h-1 w-1/2 rounded" style="background:var(--accent-color)"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Big Focus / CTA</h3>
+                    <p class="text-xs text-slate-400">Giant icon and massive text to draw attention to a link.</p>
+                </div>
+            </div>
+
+            <div id="tabContent_corp" class="grid grid-cols-3 gap-6 hidden">
+                <div class="template-card" onclick="addSlide('corp_title')">
+                    <div
+                        class="w-full h-24 bg-slate-100 rounded mb-4 flex flex-col justify-center px-4 border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="h-4 w-3/4 bg-slate-800 rounded mb-2"></div>
+                        <div class="h-1 w-12 rounded mb-4" style="background:var(--accent-color)"></div>
+                        <div class="h-2 w-1/2 bg-slate-400 rounded mb-1"></div>
+                        <div class="h-1.5 w-1/3 bg-slate-300 rounded mt-auto mb-2"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Executive Title</h3>
+                    <p class="text-xs text-slate-400">Sharp, clean title slide with an author attribution line.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('corp_quote')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center px-6 border border-slate-700 shadow-inner text-center">
+                        <i class="fa-solid fa-quote-left text-lg mb-2 opacity-50" style="color:var(--accent-color)"></i>
+                        <div class="h-2 w-full bg-white rounded mb-1"></div>
+                        <div class="h-2 w-4/5 bg-white rounded mb-3"></div>
+                        <div class="h-1.5 w-1/4 bg-slate-500 rounded"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Massive Quote</h3>
+                    <p class="text-xs text-slate-400">Highlight a customer quote or visionary statement.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('corp_image_text')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex border border-slate-700 shadow-inner overflow-hidden">
+                        <div class="w-1/2 h-full bg-slate-700 flex items-center justify-center"><i
+                                class="fa-solid fa-image text-slate-500"></i></div>
+                        <div class="w-1/2 p-2 flex flex-col justify-center">
+                            <div class="h-2 w-full bg-white rounded mb-2"></div>
+                            <div class="h-1 w-full bg-slate-500 rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-500 rounded mb-1"></div>
+                            <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Magazine Layout</h3>
+                    <p class="text-xs text-slate-400">Clean 50/50 split of an image and editorial text block.</p>
+                </div>
+            </div>
+
+            <div id="tabContent_pitch" class="grid grid-cols-3 gap-6 hidden">
+                <div class="template-card" onclick="addSlide('pitch_hero')">
+                    <div
+                        class="w-full h-24 bg-slate-800 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-900 to-transparent opacity-50"></div>
+                        <div class="h-4 w-4/5 bg-white rounded mb-2 z-10 shadow"></div>
+                        <div class="h-2 w-1/2 bg-white/70 rounded z-10"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Cinematic Hero</h3>
+                    <p class="text-xs text-slate-400">Full-bleed background image with massive overlay text.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('pitch_stats')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner p-2">
+                        <div class="flex w-full justify-around mt-2">
+                            <div class="flex flex-col items-center">
+                                <div class="h-5 w-8 rounded mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1.5 w-6 bg-slate-500 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="h-5 w-8 rounded mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1.5 w-6 bg-slate-500 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="h-5 w-8 rounded mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1.5 w-6 bg-slate-500 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Key Metrics</h3>
+                    <p class="text-xs text-slate-400">Three massive numbers to highlight growth or stats.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('pitch_timeline')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col justify-center border border-slate-700 shadow-inner px-2 relative">
+                        <div class="absolute w-full h-1 bg-slate-700 top-1/2 -mt-0.5 left-0"></div>
+                        <div class="flex justify-between relative z-10 px-2">
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full border-2 border-slate-900"
+                                    style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-4 bg-white mt-1 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full border-2 border-slate-900"
+                                    style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-4 bg-white mt-1 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full border-2 border-slate-900"
+                                    style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-4 bg-white mt-1 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Journey Timeline</h3>
+                    <p class="text-xs text-slate-400">A horizontal progression to show roadmaps or history.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="iconModal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold"><i class="fa-solid fa-icons mr-2 text-slate-400"></i> Select an Icon</h2>
+                <button onclick="closeIconModal()" class="text-slate-400 hover:text-white text-2xl"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="grid grid-cols-6 gap-3" id="iconGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold"><i class="fa-solid fa-gear mr-2 text-slate-400"></i> Global Settings</h2>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-2xl"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="form-group">
+                <label>Global Brand Theme Color</label>
+                <select id="globalTheme" onchange="updateGlobalSetting('theme', this.value)">
+                    <option value="#3B82F6">Ocean Blue (#3B82F6)</option>
+                    <option value="#FF6900">Sunset Orange (#FF6900)</option>
+                    <option value="#10B981">Success Green (#10B981)</option>
+                    <option value="#8B5CF6">Tech Purple (#8B5CF6)</option>
+                    <option value="#EF4444">Alert Red (#EF4444)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Global Font Family</label>
+                <select id="globalFont" onchange="updateGlobalSetting('font', this.value)">
+                    <option value="'Inter', sans-serif">Inter (Modern Sans)</option>
+                    <option value="'Roboto', sans-serif">Roboto (Clean Sans)</option>
+                    <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Sans)</option>
+                    <option value="'Playfair Display', serif">Playfair (Elegant Serif)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Top Navigation Header Text</label>
+                <input type="text" id="globalHeaderText" oninput="updateGlobalSetting('headerText', this.value)">
+            </div>
+            <div class="form-group">
+                <label>Top Navigation Icon Text (1-2 chars)</label>
+                <input type="text" id="globalHeaderIcon" maxlength="2"
+                    oninput="updateGlobalSetting('headerIcon', this.value)">
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-800">
+                <button onclick="clearAllData()"
+                    class="w-full bg-red-900/30 hover:bg-red-600 text-red-400 hover:text-white border border-red-900 px-4 py-3 rounded-lg transition font-bold text-sm flex items-center justify-center">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Wipe Browser Storage (Reset App)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/globals.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/tutorial.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+
+</html>
