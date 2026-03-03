@@ -357,6 +357,53 @@ function renderEditor() {
         }
         html += closeBlock;
     }
+    else if (slide.type === 'corp_team') {
+        html += openBlock('Team Members', 'fa-users');
+        (slide.team || []).forEach((member, i) => {
+            html += `<div class="bg-[#0b1121] border border-slate-700/50 rounded-lg p-3 mb-3 relative group transition hover:border-slate-500">
+                        <div class="absolute -top-2 -right-2 bg-slate-800 hover:bg-red-500 text-slate-400 hover:text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] cursor-pointer opacity-0 group-hover:opacity-100 transition-all border border-slate-600 shadow-md" onclick="removeArrayItem('team', ${i})"><i class="fa-solid fa-trash"></i></div>
+                        ${member.image ? `<img src="${member.image}" class="w-16 h-16 object-cover rounded-full mx-auto mb-3 border-2 border-slate-700"> <button class="w-full bg-red-900/30 hover:bg-red-500 text-red-400 hover:text-white border border-red-900/50 text-[10px] font-bold py-1.5 rounded transition mb-3" onclick="removeImage('image', 'team', ${i})">Remove</button>` : `<div class="flex justify-between items-center mb-2"><label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Avatar</label><button class="text-[9px] bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white px-2 py-0.5 rounded transition" onclick="injectRandomImage('image', 'team', ${i})">Random</button></div> <input type="file" class="w-full text-[10px] text-slate-400 file:bg-slate-800 file:border-0 file:text-white file:px-2 file:py-1 file:rounded file:cursor-pointer file:hover:bg-slate-700 mb-3" accept="image/*" onchange="handleImageUpload(event, 'image', 'team', ${i})">`}
+                        <div class="flex flex-col gap-1.5 mb-2">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Name</label>
+                            <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(member.name)}" oninput="updateArrayItem('team', ${i}, 'name', this.value)">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Role</label>
+                            <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(member.role)}" oninput="updateArrayItem('team', ${i}, 'role', this.value)">
+                        </div>
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors" onclick="addArrayItem('team', {name:'New Member', role:'Job Title', image:''})"><i class="fa-solid fa-plus mr-2"></i>Add Member</button>`;
+        html += closeBlock;
+    }
+    else if (slide.type === 'pitch_pricing') {
+        html += openBlock('Pricing Tiers', 'fa-tags');
+        (slide.tiers || []).forEach((tier, i) => {
+            html += `<div class="bg-[#0b1121] border border-slate-700/50 rounded-lg p-3 mb-3 relative group transition hover:border-slate-500">
+                        <div class="absolute -top-2 -right-2 bg-slate-800 hover:bg-red-500 text-slate-400 hover:text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] cursor-pointer opacity-0 group-hover:opacity-100 transition-all border border-slate-600 shadow-md" onclick="removeArrayItem('tiers', ${i})"><i class="fa-solid fa-trash"></i></div>
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Highlight this tier?</label>
+                            <input type="checkbox" class="cursor-pointer" ${tier.highlight ? 'checked' : ''} onchange="updateArrayItem('tiers', ${i}, 'highlight', this.checked)">
+                        </div>
+                        <div class="flex gap-3 mb-3">
+                            <div class="flex flex-col gap-1.5 w-1/2">
+                                <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Plan Name</label>
+                                <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(tier.name)}" oninput="updateArrayItem('tiers', ${i}, 'name', this.value)">
+                            </div>
+                            <div class="flex flex-col gap-1.5 w-1/2">
+                                <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Price</label>
+                                <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(tier.price)}" oninput="updateArrayItem('tiers', ${i}, 'price', this.value)">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Main Feature</label>
+                            <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(tier.feature)}" oninput="updateArrayItem('tiers', ${i}, 'feature', this.value)">
+                        </div>
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors" onclick="addArrayItem('tiers', {name:'New Plan', price:'$99', feature:'Description', highlight:false})"><i class="fa-solid fa-plus mr-2"></i>Add Tier</button>`;
+        html += closeBlock;
+    }
     else {
         html += `<div class="bg-blue-900/20 border border-blue-800 rounded-xl p-4 text-xs text-blue-200 leading-relaxed shadow-inner mb-6"><i class="fa-solid fa-wand-magic-sparkles text-blue-400 mr-2 text-lg float-left"></i> This template is fully editable directly on the slide preview.</div>`;
     }
@@ -423,20 +470,27 @@ function addSlide(type) {
     slideCounter++;
     let newSlide = { id: 'slide_' + Date.now() + '_' + Math.floor(Math.random() * 1000), type: type, navName: 'New Slide', title: 'Main Topic Heading', transition: 'fade-in', bgOverride: 'bg-default', notes: '' };
 
-    if (type === 'intro') { newSlide.subtitle = 'Subtitle or presenter name'; newSlide.icon = 'fa-desktop'; newSlide.tags = []; }
-    if (type === 'split') { newSlide.subtitle = 'Explain the details of this topic here in a few sentences.'; newSlide.bullets = ['First key point', 'Second point']; newSlide.boxTitle = 'Highlight'; newSlide.boxText = 'Important takeaway goes here'; newSlide.boxIcon = 'fa-info-circle'; }
-    if (type === 'grid') { newSlide.subtitle = 'Break down your topic into key areas.'; newSlide.cards = [{ title: 'Feature 1', text: 'Description of feature 1.', icon: 'fa-cube', color: '#3B82F6' }, { title: 'Feature 2', text: 'Description of feature 2.', icon: 'fa-bolt', color: '#10B981' }]; }
-    if (type === 'list') { newSlide.subtitle = 'List out requirements, status, or steps.'; newSlide.items = [{ label: 'Step 1', value: 'DONE', icon: 'fa-check-circle', color: '#10B981' }]; }
-    if (type === 'code') { newSlide.subtitle = 'Description of the code snippet below.'; newSlide.codeHeader = 'script.sh'; newSlide.codeContent = '#!/bin/bash\necho "Hello World"'; newSlide.codeColor = 'text-green-400'; }
-    if (type === 'cta') { newSlide.subtitle = 'What should the audience do next?'; newSlide.icon = 'fa-rocket'; newSlide.link = 'go.company.com/action'; }
+    // Enhanced "Empty State" text for existing templates
+    if (type === 'intro') { newSlide.subtitle = 'Type your subtitle or presenter name here'; newSlide.icon = 'fa-desktop'; newSlide.tags = []; }
+    if (type === 'split') { newSlide.subtitle = 'Explain the core details of this concept in a few sentences here. Click to edit.'; newSlide.bullets = ['Type your first supporting point here', 'Add a secondary detail here']; newSlide.boxTitle = 'Key Takeaway'; newSlide.boxText = 'Summarize the most important metric or outcome here.'; newSlide.boxIcon = 'fa-lightbulb'; }
+    if (type === 'grid') { newSlide.subtitle = 'Break down your topic into key areas or features.'; newSlide.cards = [{ title: 'First Feature', text: 'Describe the value proposition here.', icon: 'fa-cube', color: '#3B82F6' }, { title: 'Second Feature', text: 'Highlight a technical advantage here.', icon: 'fa-bolt', color: '#10B981' }]; }
+    if (type === 'list') { newSlide.subtitle = 'List out requirements, status flags, or compliance steps.'; newSlide.items = [{ label: 'Define project scope', value: 'DONE', icon: 'fa-check-circle', color: '#10B981' }]; }
+    if (type === 'code') { newSlide.subtitle = 'Explain what this code block or configuration does.'; newSlide.codeHeader = 'setup.sh'; newSlide.codeContent = '#!/bin/bash\necho "Start typing your code here"'; newSlide.codeColor = 'text-green-400'; }
+    if (type === 'cta') { newSlide.subtitle = 'Tell the audience what action they should take next.'; newSlide.icon = 'fa-rocket'; newSlide.link = 'go.company.com/action'; }
 
-    if (type === 'corp_title') { newSlide.subtitle = 'Subtitle or department here'; newSlide.author = 'Presenter Name'; newSlide.bgOverride = 'bg-purewhite'; }
-    if (type === 'corp_quote') { newSlide.title = 'Innovation distinguishes between a leader and a follower.'; newSlide.author = 'Steve Jobs'; }
-    if (type === 'corp_image_text') { newSlide.subtitle = 'Detailed description goes here.'; newSlide.bullets = ['Supporting detail one', 'Supporting detail two']; }
+    // Enhanced Empty States & NEW TEMPLATES
+    if (type === 'corp_title') { newSlide.subtitle = 'Department or presentation context'; newSlide.author = 'Presenter Name'; newSlide.bgOverride = 'bg-purewhite'; }
+    if (type === 'corp_quote') { newSlide.title = 'Type a powerful customer quote or visionary statement here.'; newSlide.author = 'Client Name / Role'; }
+    if (type === 'corp_image_text') { newSlide.subtitle = 'Type a detailed editorial description here to support the visual.'; newSlide.bullets = ['First supporting detail', 'Second supporting detail']; }
 
-    if (type === 'pitch_hero') { newSlide.subtitle = 'The big idea.'; }
-    if (type === 'pitch_stats') { newSlide.subtitle = 'Key performance indicators.'; newSlide.stats = [{ value: '99%', label: 'Uptime', color: '#3B82F6' }, { value: '10x', label: 'Growth', color: '#10B981' }]; }
-    if (type === 'pitch_timeline') { newSlide.subtitle = 'Our journey.'; newSlide.timeline = [{ year: '2023', text: 'Launch', color: '#3B82F6' }, { year: '2024', text: 'Scale', color: '#3B82F6' }]; }
+    // NEW: Title & Content, Team, Pricing
+    if (type === 'corp_basic') { newSlide.subtitle = 'Type your comprehensive slide content here. This free-form area is perfect for paragraphs, meeting notes, or extended thoughts.'; newSlide.bgOverride = 'bg-purewhite'; }
+    if (type === 'corp_team') { newSlide.subtitle = 'The minds behind the magic.'; newSlide.team = [{ name: 'Jane Doe', role: 'CEO & Founder', image: '' }, { name: 'John Smith', role: 'Lead Developer', image: '' }, { name: 'Alice Jones', role: 'Designer', image: '' }]; }
+    if (type === 'pitch_pricing') { newSlide.subtitle = 'Choose the plan that fits your needs.'; newSlide.tiers = [{ name: 'Starter', price: 'Free', feature: 'Basic features', highlight: false }, { name: 'Pro', price: '$29', feature: 'All premium features', highlight: true }, { name: 'Enterprise', price: 'Custom', feature: 'Dedicated support', highlight: false }]; }
+
+    if (type === 'pitch_hero') { newSlide.subtitle = 'State your big visionary idea here.'; }
+    if (type === 'pitch_stats') { newSlide.subtitle = 'Highlight your key performance indicators.'; newSlide.stats = [{ value: '99%', label: 'Uptime', color: '#3B82F6' }, { value: '10x', label: 'Growth', color: '#10B981' }]; }
+    if (type === 'pitch_timeline') { newSlide.subtitle = 'Showcase your roadmap or history.'; newSlide.timeline = [{ year: '2025', text: 'Launch Phase', color: '#3B82F6' }, { year: '2026', text: 'Scale Operations', color: '#3B82F6' }]; }
 
     slides.push(newSlide);
     currentSlideId = newSlide.id;
@@ -674,6 +728,58 @@ function generateSlideHTML(slide, isExport = false) {
                     <div class="absolute top-4 left-12 right-12 h-1.5 rounded-full bg-slate-800 z-0"></div>
                     ${timeHtml}
                 </div>
+            </div>
+        `;
+    }
+    else if (slide.type === 'corp_basic') {
+        let textColor = slide.bgOverride === 'bg-purewhite' ? 'text-black' : 'text-white';
+        let bodyColor = slide.bgOverride === 'bg-purewhite' ? 'text-slate-600' : 'text-slate-300';
+        return `
+            <div class="w-full max-w-5xl px-12 ${animClass} flex flex-col justify-start items-start text-left h-full py-16">
+                <div class="w-16 h-1.5 mb-8 rounded-full shadow-[0_0_15px_var(--accent-color)]" style="background:var(--accent-color)"></div>
+                ${createEditableTag('h2', `text-5xl font-black mb-10 tracking-tight w-full leading-tight ${textColor}`, slide.title, 'title')}
+                ${createEditableTag('p', `text-2xl font-light w-full block leading-relaxed ${bodyColor}`, slide.subtitle, 'subtitle')}
+            </div>
+        `;
+    }
+    else if (slide.type === 'corp_team') {
+        let teamHtml = (slide.team || []).map((member, i) => `
+            <div class="flex flex-col items-center group">
+                ${member.image ? `<img src="${member.image}" class="w-40 h-40 rounded-full object-cover mb-6 border-4 shadow-xl transition-transform group-hover:scale-105" style="border-color: var(--accent-color)">` : `<div class="w-40 h-40 rounded-full mb-6 border-4 flex items-center justify-center bg-slate-800 shadow-xl transition-transform group-hover:scale-105" style="border-color: var(--accent-color)"><i class="fa-solid fa-user text-5xl text-slate-500"></i></div>`}
+                ${createEditableTag('h4', 'text-2xl font-bold text-white mb-2 w-full text-center block', member.name, 'name', 'team', i)}
+                ${createEditableTag('p', 'text-sm text-slate-400 uppercase tracking-widest font-semibold w-full text-center block', member.role, 'role', 'team', i)}
+            </div>
+        `).join('');
+        return `
+            <div class="w-full max-w-6xl px-12 ${animClass} flex flex-col justify-center h-full">
+                ${createEditableTag('h2', 'text-5xl font-bold mb-4 w-full text-center text-white', slide.title, 'title')}
+                ${createEditableTag('p', 'text-xl text-slate-400 mb-16 w-full text-center block font-light', slide.subtitle, 'subtitle')}
+                <div class="flex justify-center gap-16 w-full">${teamHtml}</div>
+            </div>
+        `;
+    }
+    else if (slide.type === 'pitch_pricing') {
+        let tiersHtml = (slide.tiers || []).map((tier, i) => {
+            let isHigh = tier.highlight;
+            let bgClass = isHigh ? 'bg-slate-800' : 'bg-slate-900/50';
+            let borderClass = isHigh ? `border-2` : 'border';
+            let scaleClass = isHigh ? 'scale-105 z-10 shadow-2xl' : 'scale-100 z-0 shadow-lg';
+            return `
+                <div class="${bgClass} ${borderClass} rounded-2xl p-8 flex flex-col items-center text-center transition-transform ${scaleClass}" style="border-color: ${isHigh ? 'var(--accent-color)' : '#334155'}">
+                    ${isHigh ? `<div class="bg-blue-600 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4 -mt-12 shadow-md" style="background:var(--accent-color)">Most Popular</div>` : ''}
+                    ${createEditableTag('h4', 'text-2xl font-bold text-white mb-2 w-full block', tier.name, 'name', 'tiers', i)}
+                    ${createEditableTag('div', 'text-5xl font-black text-white mb-6 w-full block tracking-tight', tier.price, 'price', 'tiers', i)}
+                    <div class="h-px w-full bg-slate-700 mb-6"></div>
+                    ${createEditableTag('p', 'text-slate-400 mb-8 w-full block leading-relaxed', tier.feature, 'feature', 'tiers', i)}
+                    <div class="w-full py-3 rounded-lg font-bold text-sm transition-colors border pointer-events-none" style="${isHigh ? 'background:var(--accent-color); color:white; border-color:var(--accent-color);' : 'background:transparent; color:white; border-color:#475569;'}">Get Started</div>
+                </div>
+            `;
+        }).join('');
+        return `
+            <div class="w-full max-w-6xl px-12 ${animClass} flex flex-col justify-center h-full">
+                ${createEditableTag('h2', 'text-5xl font-bold mb-4 w-full text-center text-white', slide.title, 'title')}
+                ${createEditableTag('p', 'text-xl text-slate-400 mb-16 w-full text-center block font-light', slide.subtitle, 'subtitle')}
+                <div class="grid grid-cols-${Math.max(1, slide.tiers?.length || 3)} gap-6 w-full items-center">${tiersHtml}</div>
             </div>
         `;
     }
