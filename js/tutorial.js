@@ -87,9 +87,9 @@ function showTutStep(step) {
 
     setTimeout(() => {
         if (step === 1) positionTooltip(document.getElementById('tutSidebar'), "<strong>1. The Outline</strong><br><br>This is your slide navigator. You can <strong>drag and drop</strong> slides to reorder them, or duplicate/delete them.", "right", 1);
-        else if (step === 2) positionTooltip(document.getElementById('previewArea'), "<strong>2. Click-to-Edit</strong><br><br>Editing is magic! Click <strong>ANY text</strong> inside the preview to type directly onto the slide. The Inspector panel stays perfectly in sync.", "top", 2);
-        else if (step === 3) positionTooltip(document.getElementById('tutInspector'), "<strong>3. The Inspector</strong><br><br>Use this panel to change slide layouts, pick icons, upload background images, and write Speaker Notes.", "left", 3);
-        else if (step === 4) positionTooltip(document.getElementById('tutHeaderControls'), "<strong>4. Exporting</strong><br><br>When you're done, Export to Google Slides/PPTX, PDF, or present directly in your browser!", "bottom-left", 4);
+        else if (step === 2) positionTooltip(document.getElementById('previewArea'), "<strong>2. Click-to-Edit</strong><br><br>Editing is magic! Click <strong>ANY text</strong> inside the preview to type directly onto the slide. The properties panel stays perfectly in sync.", "top", 2);
+        else if (step === 3) positionTooltip(document.getElementById('tutInspector'), "<strong>3. Properties Panel</strong><br><br>Use this panel to change slide layouts, pick icons, select colors, upload images, and write Speaker Notes.", "left", 3);
+        else if (step === 4) positionTooltip(document.getElementById('tutHeaderControls'), "<strong>4. Exporting</strong><br><br>When you're done, Export to Google Slides/PPTX, PDF, or present directly in your browser with dual-window Speaker Notes!", "bottom-left", 4);
     }, 300);
 }
 
@@ -107,7 +107,11 @@ function positionTooltip(targetEl, text, position, step) {
         </div>
     `;
 
+    // Ensure it uses fixed positioning so scrolling doesn't disconnect it from the UI target
+    tooltip.style.position = 'fixed';
     tooltip.style.display = 'block';
+
+    // Force DOM update to get correct tooltip dimensions
     void tooltip.offsetWidth;
 
     setTimeout(() => {
@@ -119,6 +123,7 @@ function positionTooltip(targetEl, text, position, step) {
         else if (position === 'top') { top = rect.top + 40; left = rect.left + (rect.width / 2) - (tRect.width / 2); }
         else if (position === 'bottom-left') { top = rect.bottom + 20; left = rect.right - tRect.width; }
 
+        // Contain within screen bounds
         left = Math.max(20, Math.min(left, window.innerWidth - tRect.width - 20));
         top = Math.max(20, Math.min(top, window.innerHeight - tRect.height - 20));
 

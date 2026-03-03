@@ -19,31 +19,65 @@ var iconLibrary = [
     'fa-apple', 'fa-windows', 'fa-linux', 'fa-github', 'fa-slack', 'fa-image', 'fa-list-check', 'fa-link', 'fa-quote-left', 'fa-bullseye', 'fa-timeline'
 ];
 
-// BOOTSTRAP
-window.onload = () => { bootApp(); };
+// Universal text escaper attached immediately so the UI loop NEVER throws an undefined error
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 
-function bootApp() {
+// BOOTSTRAP WITH STATE PERSISTENCE
+window.onload = () => {
+    // If this is the exported Speaker View, DO NOT boot the main app UI!
+    if (window.location.hash === '#presenter' || window.isPresenterOverride) return;
+
+    // Load DB silently to check for projects
+    if (window.loadProjects) loadProjects();
+
+    // Check where the user was last before they refreshed
+    const appState = localStorage.getItem('openDeckAppState');
+
+    if (appState === 'dashboard') {
+        document.getElementById('landingView').style.display = 'none';
+        bootAppToDashboard();
+    } else if (appState && appState.startsWith('proj_')) {
+        document.getElementById('landingView').style.display = 'none';
+        // If the project still exists, open it directly!
+        if (projects.some(p => p.id === appState)) {
+            // Give UI a millisecond to render before pushing project data
+            setTimeout(() => { if (window.openProject) openProject(appState); }, 50);
+        } else {
+            // Fallback if they deleted the project in another tab
+            bootAppToDashboard();
+        }
+    }
+    // If no state is saved, it naturally stays on the beautiful landing page.
+};
+
+function bootAppToDashboard() {
     const loadingScreen = document.getElementById('loadingSequence');
     const dashGrid = document.getElementById('projectGrid');
     const dashHeader = document.getElementById('dashHeader');
     const bar = document.getElementById('loadingBar');
     const text = document.getElementById('loadingText');
 
-    setTimeout(() => { bar.style.width = '30%'; text.innerText = 'Connecting to Local Database...'; }, 300);
-    setTimeout(() => {
-        loadProjects();
-        bar.style.width = '70%';
-        text.innerText = `Found ${projects.length} presentations...`;
-    }, 800);
-    setTimeout(() => { bar.style.width = '100%'; text.innerText = 'Rendering assets...'; }, 1300);
+    document.getElementById('dashboardView').style.display = 'flex';
+    loadingScreen.style.display = 'flex';
+    dashHeader.style.display = 'none';
+    dashGrid.style.display = 'none';
+
+    // Snappy loading sequence
+    setTimeout(() => { bar.style.width = '30%'; text.innerText = 'Connecting to Local Database...'; }, 150);
+    setTimeout(() => { bar.style.width = '70%'; text.innerText = `Found ${projects.length} presentations...`; }, 400);
+    setTimeout(() => { bar.style.width = '100%'; text.innerText = 'Rendering assets...'; }, 700);
     setTimeout(() => {
         loadingScreen.style.display = 'none';
         dashHeader.style.display = 'flex';
         dashGrid.style.display = 'grid';
-        renderDashboard();
-        checkTutorial();
-    }, 1800);
+        if (window.renderDashboard) renderDashboard();
+        if (window.checkTutorial) checkTutorial();
+    }, 1000);
 }
 
 // Explicitly expose to window
-window.bootApp = bootApp;
+window.escapeHtml = escapeHtml;
+window.bootAppToDashboard = bootAppToDashboard;

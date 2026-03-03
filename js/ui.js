@@ -1,6 +1,13 @@
 // ==========================================
 // 4. DASHBOARD & UI LOGIC
 // ==========================================
+
+function startAppFromLanding() {
+    localStorage.setItem('openDeckAppState', 'dashboard');
+    document.getElementById('landingView').style.display = 'none';
+    bootAppToDashboard();
+}
+
 function renderDashboard() {
     const grid = document.getElementById('projectGrid');
     const search = document.getElementById('searchBar') ? document.getElementById('searchBar').value.toLowerCase() : '';
@@ -32,10 +39,11 @@ function renderDashboard() {
 
     filtered.forEach(p => {
         const date = new Date(p.lastModified).toLocaleDateString() + ' ' + new Date(p.lastModified).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const slideCount = p.data.slides ? p.data.slides.length : 0;
+        // Safe access in case p.data is undefined
+        const slideCount = (p.data && p.data.slides) ? p.data.slides.length : 0;
 
         let previewHtml = '';
-        if (p.data.slides && p.data.slides.length > 0) {
+        if (p.data && p.data.slides && p.data.slides.length > 0) {
             const s1 = p.data.slides[0];
             const themeCol = (p.data.globalSettings && p.data.globalSettings.theme) ? p.data.globalSettings.theme : '#3B82F6';
 
@@ -95,17 +103,27 @@ function createNewProject() {
         }
     };
     projects.push(newProj);
+    // Crucial fix: do not save the empty global state to the new project! We just pushed it to array.
     saveProjects(false);
     openProject(id);
 }
 
 function openProject(id) {
-    activeProjectId = id;
     const p = projects.find(x => x.id === id);
-    slides = p.data.slides || [];
-    slideCounter = p.data.slideCounter || slides.length;
-    globalSettings = p.data.globalSettings || { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
+    if (!p) {
+        returnToDashboard();
+        return;
+    }
+
+    // CRITICAL BUG FIX: Load globals BEFORE making the project active, so background saves don't overwrite it!
+    slides = (p.data && p.data.slides) ? p.data.slides : [];
+    slideCounter = (p.data && p.data.slideCounter) ? p.data.slideCounter : slides.length;
+    globalSettings = (p.data && p.data.globalSettings) ? p.data.globalSettings : { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
     currentSlideId = slides.length > 0 ? slides[0].id : null;
+
+    // NOW it is safe to set the active project
+    activeProjectId = id;
+    localStorage.setItem('openDeckAppState', id);
 
     document.documentElement.style.setProperty('--accent-color', globalSettings.theme);
     document.documentElement.style.setProperty('--global-font', globalSettings.font || "'Inter', sans-serif");
@@ -113,7 +131,8 @@ function openProject(id) {
 
     document.getElementById('dashboardView').style.display = 'none';
     document.getElementById('builderView').style.display = 'flex';
-    renderApp(); // This lives in editor.js!
+
+    if (window.renderApp) renderApp();
 }
 
 function presentDirectly(id) {
@@ -124,10 +143,10 @@ function presentDirectly(id) {
     const tempSlides = slides;
     const tempSettings = globalSettings;
 
-    slides = p.data.slides || [];
-    globalSettings = p.data.globalSettings || { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
+    slides = (p.data && p.data.slides) ? p.data.slides : [];
+    globalSettings = (p.data && p.data.globalSettings) ? p.data.globalSettings : { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
 
-    presentInBrowser(); // This lives in export.js!
+    if (window.presentInBrowser) presentInBrowser();
 
     activeProjectId = originalId;
     slides = tempSlides;
@@ -135,8 +154,11 @@ function presentDirectly(id) {
 }
 
 function returnToDashboard() {
-    saveProjects(false);
+    if (activeProjectId) saveProjects(false);
     activeProjectId = null;
+
+    localStorage.setItem('openDeckAppState', 'dashboard');
+
     document.getElementById('builderView').style.display = 'none';
     document.getElementById('dashboardView').style.display = 'flex';
     renderDashboard();
@@ -226,7 +248,7 @@ function importProject(event) {
 function showModal(id) {
     const m = document.getElementById(id);
     m.style.display = 'flex';
-    void m.offsetWidth; // force reflow
+    void m.offsetWidth;
     m.classList.add('show');
 }
 
@@ -287,25 +309,8 @@ function openIconModal(callback) {
 }
 function closeIconModal() { hideModal('iconModal'); activeIconCallback = null; }
 
-function renderIconInput(label, value, onUpdateStr) {
-    const randId = Math.random().toString(36).substr(2, 5);
-    window[`iconCallback_${randId}`] = function (icon) {
-        const func = new Function('icon', `${onUpdateStr.replace('this.value', 'icon')}; renderApp();`);
-        func(icon);
-    };
-
-    return `
-        <div class="form-group mb-4">
-            <label>${label}</label>
-            <div class="flex gap-2">
-                <input type="text" value="${escapeHtml(value)}" oninput="${onUpdateStr}" class="!mb-0 flex-grow font-mono text-sm">
-                <button onclick="openIconModal(window.iconCallback_${randId})" class="bg-slate-700 hover:bg-slate-600 px-4 rounded-lg text-white border border-slate-600 transition" title="Choose Icon"><i class="fa-solid fa-icons"></i></button>
-            </div>
-        </div>
-    `;
-}
-
 // Explicitly expose to window
+window.startAppFromLanding = startAppFromLanding;
 window.renderDashboard = renderDashboard;
 window.createNewProject = createNewProject;
 window.openProject = openProject;
@@ -326,4 +331,3 @@ window.closeSettingsModal = closeSettingsModal;
 window.updateGlobalSetting = updateGlobalSetting;
 window.openIconModal = openIconModal;
 window.closeIconModal = closeIconModal;
-window.renderIconInput = renderIconInput;

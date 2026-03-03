@@ -1,6 +1,7 @@
 // ==========================================
 // 2. CORE STORAGE FUNCTIONS
 // ==========================================
+
 function loadProjects() {
     try {
         const data = localStorage.getItem('openDeckDB_v2');
@@ -34,10 +35,14 @@ function showSaveIndicator() {
 }
 
 function clearAllData() {
-    if (confirm("Are you absolutely sure? This will delete ALL presentations permanently.")) {
+    const confirmation = prompt("WARNING: This will permanently delete ALL your presentations.\n\nTo confirm, please type exactly:\nWIPE MY DATA");
+
+    if (confirmation === "WIPE MY DATA") {
         localStorage.removeItem('openDeckDB_v2');
         localStorage.removeItem('openDeckTutSeen');
         location.reload();
+    } else if (confirmation !== null) {
+        alert("Data wipe canceled. You must type 'WIPE MY DATA' exactly to confirm.");
     }
 }
 
