@@ -869,21 +869,23 @@
 
     <div class="modal-overlay" id="settingsModal">
         <div
-            class="modal-content !w-[600px] !p-0 !bg-transparent !border-0 !box-shadow-none flex flex-col justify-center">
-            <div class="bg-[#0f172a] border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
-                <div class="bg-slate-900 px-6 py-5 border-b border-slate-800 flex justify-between items-center">
+            class="modal-content !w-[600px] !p-0 !bg-transparent !border-0 !box-shadow-none flex flex-col justify-center max-h-[90vh]">
+            <div
+                class="bg-[#0f172a] border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                <div
+                    class="bg-slate-900 px-6 py-5 border-b border-slate-800 flex justify-between items-center shrink-0">
                     <h2 class="text-lg font-extrabold text-white flex items-center"><i
                             class="fa-solid fa-gear text-blue-500 mr-3"></i> Global Settings</h2>
                     <button onclick="closeSettingsModal()" class="text-slate-500 hover:text-white transition"><i
                             class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <div class="p-6 space-y-6 text-left">
+                <div class="p-6 space-y-6 text-left overflow-y-auto custom-scrollbar">
                     <div class="flex flex-col gap-2">
                         <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Brand Theme
                             Color</label>
                         <div class="flex items-center gap-4">
                             <input type="color" id="globalTheme" onchange="updateGlobalSetting('theme', this.value)"
-                                class="w-12 h-10 rounded-lg cursor-pointer bg-slate-900 border border-slate-700 p-0">
+                                class="w-12 h-10 rounded-lg cursor-pointer bg-slate-900 border border-slate-700 p-0 shrink-0">
                             <span class="text-xs text-slate-500">Used for accents, buttons, and graphics.</span>
                         </div>
                     </div>
@@ -891,11 +893,7 @@
                         <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Global Font
                             Family</label>
                         <select id="globalFont" onchange="updateGlobalSetting('font', this.value)"
-                            class="w-full bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors">
-                            <option value="'Inter', sans-serif">Inter (Modern Sans)</option>
-                            <option value="'Roboto', sans-serif">Roboto (Clean Sans)</option>
-                            <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Sans)</option>
-                            <option value="'Playfair Display', serif">Playfair (Elegant Serif)</option>
+                            class="w-full bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors font-bold cursor-pointer">
                         </select>
                     </div>
                     <div class="flex flex-col gap-2">
@@ -911,137 +909,184 @@
                             oninput="updateGlobalSetting('headerIcon', this.value)"
                             class="w-24 text-center bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors font-bold uppercase">
                     </div>
-                    <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
-                        <button onclick="hideModal('settingsModal'); setTimeout(() => openCookieSettings(), 300);"
-                            class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-shield-halved text-blue-400"></i> Privacy Policy & Analytics
-                        </button>
-                        <button onclick="clearAllData()"
-                            class="w-full bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Wipe Browser Storage (Reset App)
-                        </button>
+
+                    <div class="flex flex-col gap-3 border-t border-slate-800/80 pt-6 mt-2">
+                        <label
+                            class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest text-blue-400"><i
+                                class="fa-solid fa-wand-magic-sparkles mr-1"></i> Pro Features</label>
+
+                        <div class="flex flex-col gap-2 mt-1">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Company
+                                Logo / Watermark</label>
+                            <div class="flex items-center gap-4">
+                                <input type="file" accept="image/*" onchange="handleLogoUpload(event)"
+                                    class="text-xs text-slate-400 file:bg-slate-800 file:border-0 file:text-white file:px-3 file:py-1.5 file:rounded file:cursor-pointer file:hover:bg-slate-700 w-48 shrink-0">
+                                <div id="logoPreview" class="flex items-center"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Appears in the bottom right corner of every slide
+                                automatically.</p>
+                        </div>
+                        <div class="flex flex-col gap-2 mt-3">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Add Custom
+                                Google Font</label>
+                            <div class="bg-slate-900/50 border border-slate-700 p-4 rounded-lg space-y-3 shadow-inner">
+                                <p class="text-[11px] text-slate-400 leading-relaxed mb-3">
+                                    <strong class="text-white">1.</strong> Go to fonts.google.com and pick a font.<br>
+                                    <strong class="text-white">2.</strong> Click "Get Font" -> "Get embed code".<br>
+                                    <strong class="text-white">3.</strong> Copy <strong>ONLY</strong> the web link
+                                    inside the <strong>href="..."</strong> quotes and paste it below.
+                                </p>
+                                <input type="text" id="newFontUrl"
+                                    placeholder="e.g. https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap"
+                                    class="w-full bg-[#020617] border border-slate-700 text-white text-xs rounded-md px-3 py-2.5 outline-none focus:border-blue-500 font-mono transition-colors">
+                                <button onclick="addCustomFont()"
+                                    class="w-full bg-slate-800 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-md border border-slate-600 transition shadow-lg mt-1"><i
+                                        class="fa-solid fa-wand-magic-sparkles mr-1 text-yellow-500"></i> Extract & Save
+                                    Font</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
+                            <button onclick="hideModal('settingsModal'); setTimeout(() => openCookieSettings(), 300);"
+                                class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-shield-halved text-blue-400"></i> Privacy Policy & Analytics
+                            </button>
+                            <button onclick="clearAllData()"
+                                class="w-full bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Wipe Browser Storage (Reset App)
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal-overlay" id="tagModal">
-        <div class="modal-content" style="width: 500px;">
-            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-tags text-blue-500 mr-2"></i> Manage Tags
-                </h2>
-                <button onclick="hideModal('tagModal')" class="text-slate-500 hover:text-white transition"><i
-                        class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label
-                        class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Comma-Separated
-                        Tags</label>
-                    <input type="text" id="tagInput" placeholder="e.g. Sales, Q3, Client Pitch"
-                        class="w-full bg-[#020617] border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition-colors">
+        <div class="modal-overlay" id="tagModal">
+            <div class="modal-content" style="width: 500px;">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                    <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-tags text-blue-500 mr-2"></i> Manage
+                        Tags
+                    </h2>
+                    <button onclick="hideModal('tagModal')" class="text-slate-500 hover:text-white transition"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <p class="text-xs text-slate-500">Tags allow you to quickly search and filter presentations on your
-                    dashboard.</p>
-            </div>
-            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-800">
-                <button onclick="hideModal('tagModal')"
-                    class="px-5 py-2.5 rounded-lg font-bold text-slate-300 hover:bg-slate-800 transition">Cancel</button>
-                <button onclick="saveTags()"
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transition">Save
-                    Tags</button>
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Comma-Separated
+                            Tags</label>
+                        <input type="text" id="tagInput" placeholder="e.g. Sales, Q3, Client Pitch"
+                            class="w-full bg-[#020617] border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <p class="text-xs text-slate-500">Tags allow you to quickly search and filter presentations on your
+                        dashboard.</p>
+                </div>
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button onclick="hideModal('tagModal')"
+                        class="px-5 py-2.5 rounded-lg font-bold text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                    <button onclick="saveTags()"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transition">Save
+                        Tags</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="cookieBanner"
-        style="z-index: 6000; display: none; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;"
-        class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 md:p-6 shadow-2xl">
-        <div class="text-slate-400 text-sm leading-relaxed" style="flex: 1 1 300px;">
-            <strong>Your Privacy:</strong> OpenDeck uses your browser's Local Storage strictly to save your
-            presentations on your device. We also use privacy-first, cookie-less analytics to monitor site performance.
-            <button onclick="showModal('legalModal')" class="text-blue-400 hover:text-blue-300 underline ml-1">Read our
-                Privacy Policy</button>.
-        </div>
-        <div class="flex gap-3 shrink-0" style="flex: 0 0 auto;">
-            <button onclick="handleCookieConsent(false)"
-                class="px-5 py-2.5 rounded-lg font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Decline</button>
-            <button onclick="handleCookieConsent(true)"
-                class="px-5 py-2.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 transition shadow-lg">Got
-                it</button>
-        </div>
-    </div>
-
-    <div id="cookieSettingsModal" class="modal-overlay" style="z-index: 6000;">
-        <div class="modal-content" style="width: 650px; max-width: 90vw; padding: 2rem;">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-shield-halved text-blue-400 mr-2"></i>
-                    Privacy Policy & Settings</h2>
-                <button onclick="hideModal('cookieSettingsModal')"
-                    class="text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+        <div id="cookieBanner"
+            style="z-index: 6000; display: none; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;"
+            class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 md:p-6 shadow-2xl">
+            <div class="text-slate-400 text-sm leading-relaxed" style="flex: 1 1 300px;">
+                <strong>Your Privacy:</strong> OpenDeck uses your browser's Local Storage strictly to save your
+                presentations on your device. We also use privacy-first, cookie-less analytics to monitor site
+                performance.
+                <button onclick="showModal('legalModal')" class="text-blue-400 hover:text-blue-300 underline ml-1">Read
+                    our
+                    Privacy Policy</button>.
             </div>
+            <div class="flex gap-3 shrink-0" style="flex: 0 0 auto;">
+                <button onclick="handleCookieConsent(false)"
+                    class="px-5 py-2.5 rounded-lg font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Decline</button>
+                <button onclick="handleCookieConsent(true)"
+                    class="px-5 py-2.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 transition shadow-lg">Got
+                    it</button>
+            </div>
+        </div>
 
-            <div class="bg-slate-800/50 border border-slate-700 p-4 md:p-5 rounded-xl mb-6 shadow-inner">
-                <p id="cookieSettingsText" class="text-slate-300 text-sm leading-relaxed mb-5">
-                    Loading...
-                </p>
+        <div id="cookieSettingsModal" class="modal-overlay" style="z-index: 6000;">
+            <div class="modal-content" style="width: 650px; max-width: 90vw; padding: 2rem;">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white"><i
+                            class="fa-solid fa-shield-halved text-blue-400 mr-2"></i>
+                        Privacy Policy & Settings</h2>
+                    <button onclick="hideModal('cookieSettingsModal')"
+                        class="text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 p-4 md:p-5 rounded-xl mb-6 shadow-inner">
+                    <p id="cookieSettingsText" class="text-slate-300 text-sm leading-relaxed mb-5">
+                        Loading...
+                    </p>
+
+                    <div
+                        class="flex items-center justify-between bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-sm">
+                        <span class="text-white font-bold text-sm">Allow Cloudflare Analytics</span>
+
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="cookieToggle" class="sr-only"
+                                onchange="toggleCookieConsent(this.checked)">
+                            <div id="toggleTrack"
+                                class="w-12 h-6 bg-slate-700 rounded-full transition-colors duration-300">
+                            </div>
+                            <div id="toggleKnob"
+                                class="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform duration-300 transform shadow-md"
+                                style="transform: translateX(0px);"></div>
+                        </label>
+                    </div>
+                </div>
 
                 <div
-                    class="flex items-center justify-between bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-sm">
-                    <span class="text-white font-bold text-sm">Allow Cloudflare Analytics</span>
+                    class="overflow-y-auto text-slate-300 text-sm space-y-4 pr-2 custom-scrollbar max-h-48 mb-6 bg-slate-900/30 p-5 rounded-xl border border-slate-800/50">
+                    <div>
+                        <h3 class="text-white font-bold mb-1 text-base">1. 100% Local Storage</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is a "Vanilla+" local-first
+                            application.
+                            Your presentations, slides, and settings are saved exclusively in your browser's
+                            LocalStorage.
+                            We do not transmit, save, or have access to your presentation data or any content you
+                            create.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold mb-1 text-base">2. Analytics</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">We use Cloudflare Web Analytics to measure
+                            website
+                            traffic and performance. This is a privacy-first analytics service that does
+                            <strong>not</strong> use cookies or track individual users across the web.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold mb-1 text-base">3. MIT License</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is open-source software provided
+                            under
+                            the MIT License. The software is provided "as is", without warranty of any kind, express or
+                            implied.</p>
+                    </div>
+                </div>
 
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="cookieToggle" class="sr-only"
-                            onchange="toggleCookieConsent(this.checked)">
-                        <div id="toggleTrack" class="w-12 h-6 bg-slate-700 rounded-full transition-colors duration-300">
-                        </div>
-                        <div id="toggleKnob"
-                            class="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform duration-300 transform shadow-md"
-                            style="transform: translateX(0px);"></div>
-                    </label>
+                <div class="flex justify-end pt-4 border-t border-slate-800">
+                    <button onclick="hideModal('cookieSettingsModal')"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold transition shadow-lg">Done</button>
                 </div>
-            </div>
-
-            <div
-                class="overflow-y-auto text-slate-300 text-sm space-y-4 pr-2 custom-scrollbar max-h-48 mb-6 bg-slate-900/30 p-5 rounded-xl border border-slate-800/50">
-                <div>
-                    <h3 class="text-white font-bold mb-1 text-base">1. 100% Local Storage</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is a "Vanilla+" local-first application.
-                        Your presentations, slides, and settings are saved exclusively in your browser's LocalStorage.
-                        We do not transmit, save, or have access to your presentation data or any content you create.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-white font-bold mb-1 text-base">2. Analytics</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">We use Cloudflare Web Analytics to measure website
-                        traffic and performance. This is a privacy-first analytics service that does
-                        <strong>not</strong> use cookies or track individual users across the web.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-white font-bold mb-1 text-base">3. MIT License</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is open-source software provided under
-                        the MIT License. The software is provided "as is", without warranty of any kind, express or
-                        implied.</p>
-                </div>
-            </div>
-
-            <div class="flex justify-end pt-4 border-t border-slate-800">
-                <button onclick="hideModal('cookieSettingsModal')"
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold transition shadow-lg">Done</button>
             </div>
         </div>
-    </div>
 
-    <script src="js/globals.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/tutorial.js"></script>
-    <script src="js/editor.js"></script>
-    <script src="js/export.js"></script>
-    <script src="js/ui.js"></script>
+        <script src="js/globals.js"></script>
+        <script src="js/storage.js"></script>
+        <script src="js/tutorial.js"></script>
+        <script src="js/editor.js"></script>
+        <script src="js/export.js"></script>
+        <script src="js/ui.js"></script>
 </body>
 
 </html>

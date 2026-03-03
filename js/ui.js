@@ -8,6 +8,51 @@ function startAppFromLanding() {
     bootAppToDashboard();
 }
 
+function applyGlobalSettings() {
+    document.documentElement.style.setProperty('--accent-color', globalSettings.theme || '#3B82F6');
+
+    let fontToUse = globalSettings.font || "'Inter', sans-serif";
+
+    // Backward compatibility: Migrate the old standalone fields into the new array system
+    if (globalSettings.customFontFamily) {
+        fontToUse = globalSettings.customFontFamily;
+        if (!globalSettings.savedFonts) globalSettings.savedFonts = [];
+        if (!globalSettings.savedFonts.some(f => f.family === fontToUse)) {
+            globalSettings.savedFonts.push({
+                name: fontToUse.replace(/['"]/g, '').split(',')[0].trim() + ' (Custom)',
+                family: fontToUse,
+                url: globalSettings.customFontUrl
+            });
+        }
+        delete globalSettings.customFontFamily;
+        delete globalSettings.customFontUrl;
+        globalSettings.font = fontToUse;
+        saveProjects();
+    }
+
+    document.documentElement.style.setProperty('--global-font', fontToUse);
+
+    // Inject custom Google Font link if selected from saved list
+    let fontUrl = '';
+    if (globalSettings.savedFonts) {
+        let match = globalSettings.savedFonts.find(f => f.family === fontToUse);
+        if (match) fontUrl = match.url;
+    }
+
+    let link = document.getElementById('dynamicCustomFont');
+    if (fontUrl) {
+        if (!link) {
+            link = document.createElement('link');
+            link.id = 'dynamicCustomFont';
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+        }
+        link.href = fontUrl;
+    } else {
+        if (link) link.remove();
+    }
+}
+
 function renderDashboard() {
     const grid = document.getElementById('projectGrid');
     const search = document.getElementById('searchBar') ? document.getElementById('searchBar').value.toLowerCase() : '';
@@ -136,11 +181,11 @@ function createNewProject() {
     const id = 'proj_' + Math.random().toString(36).substr(2, 9);
     const newProj = {
         id: id, name: 'Untitled Presentation', lastModified: Date.now(),
-        folderId: currentFolderId, // Assigns to active folder
+        folderId: currentFolderId,
         tags: [],
         data: {
             slideCounter: 1,
-            globalSettings: { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' },
+            globalSettings: { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD', customFontUrl: '', customFontFamily: '', companyLogo: '' },
             slides: [{ id: 'slide_' + Date.now() + Math.floor(Math.random() * 1000), type: 'intro', navName: 'Welcome', title: 'New Presentation', subtitle: 'A catchy subtitle', icon: 'fa-desktop', tags: [], notes: '' }]
         }
     };
@@ -230,18 +275,15 @@ function openProject(id) {
         return;
     }
 
-    // CRITICAL BUG FIX: Load globals BEFORE making the project active, so background saves don't overwrite it!
     slides = (p.data && p.data.slides) ? p.data.slides : [];
     slideCounter = (p.data && p.data.slideCounter) ? p.data.slideCounter : slides.length;
-    globalSettings = (p.data && p.data.globalSettings) ? p.data.globalSettings : { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
+    globalSettings = (p.data && p.data.globalSettings) ? p.data.globalSettings : { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD', customFontUrl: '', customFontFamily: '', companyLogo: '' };
     currentSlideId = slides.length > 0 ? slides[0].id : null;
 
-    // NOW it is safe to set the active project
     activeProjectId = id;
     localStorage.setItem('openDeckAppState', id);
 
-    document.documentElement.style.setProperty('--accent-color', globalSettings.theme);
-    document.documentElement.style.setProperty('--global-font', globalSettings.font || "'Inter', sans-serif");
+    applyGlobalSettings();
     document.getElementById('projectTitleInput').value = p.name;
 
     document.getElementById('dashboardView').style.display = 'none';
@@ -259,7 +301,7 @@ function presentDirectly(id) {
     const tempSettings = globalSettings;
 
     slides = (p.data && p.data.slides) ? p.data.slides : [];
-    globalSettings = (p.data && p.data.globalSettings) ? p.data.globalSettings : { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
+    globalSettings = (p.data && p.data.globalSettings) ? p.data.globalSettings : { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD', customFontUrl: '', customFontFamily: '', companyLogo: '' };
 
     if (window.presentInBrowser) presentInBrowser();
 
@@ -405,21 +447,118 @@ function switchTemplateTab(tab) {
     document.getElementById('tabContent_' + tab).classList.remove('hidden');
 }
 
+const defaultFonts = [
+    { name: 'Inter (Modern Sans)', value: "'Inter', sans-serif" },
+    { name: 'Roboto (Clean Sans)', value: "'Roboto', sans-serif" },
+    { name: 'Space Grotesk (Tech Sans)', value: "'Space Grotesk', sans-serif" },
+    { name: 'Playfair Display (Elegant Serif)', value: "'Playfair Display', serif" }
+];
+
 function openSettingsModal() {
-    document.getElementById('globalTheme').value = globalSettings.theme;
-    document.getElementById('globalFont').value = globalSettings.font || "'Inter', sans-serif";
-    document.getElementById('globalHeaderText').value = globalSettings.headerText;
-    document.getElementById('globalHeaderIcon').value = globalSettings.headerIcon;
+    document.getElementById('globalTheme').value = globalSettings.theme || '#3B82F6';
+    document.getElementById('globalHeaderText').value = globalSettings.headerText || 'OpenDeck';
+    document.getElementById('globalHeaderIcon').value = globalSettings.headerIcon || 'OD';
+
+    const fontSelect = document.getElementById('globalFont');
+    fontSelect.innerHTML = '';
+
+    // Populate Default Fonts
+    defaultFonts.forEach(f => {
+        fontSelect.innerHTML += `<option value="${f.value}">${f.name}</option>`;
+    });
+
+    // Populate Saved Custom Fonts
+    if (globalSettings.savedFonts && globalSettings.savedFonts.length > 0) {
+        const group = document.createElement('optgroup');
+        group.label = "Your Custom Fonts";
+        globalSettings.savedFonts.forEach(f => {
+            group.innerHTML += `<option value="${f.family}">${f.name}</option>`;
+        });
+        fontSelect.appendChild(group);
+    }
+
+    fontSelect.value = globalSettings.font || "'Inter', sans-serif";
+
+    const logoPreview = document.getElementById('logoPreview');
+    if (logoPreview) {
+        if (globalSettings.companyLogo) {
+            logoPreview.innerHTML = `<img src="${globalSettings.companyLogo}" class="h-10 object-contain ml-3 border border-slate-700 rounded bg-white p-1"><button onclick="removeCompanyLogo()" class="text-xs text-red-400 hover:text-red-300 ml-3 transition font-bold">Remove</button>`;
+        } else {
+            logoPreview.innerHTML = `<span class="text-xs text-slate-600 ml-3 italic">No logo uploaded</span>`;
+        }
+    }
+
     showModal('settingsModal');
+}
+
+function addCustomFont() {
+    const url = document.getElementById('newFontUrl').value.trim();
+
+    if (!url) return alert("Please provide the Google Font URL.");
+    if (!url.includes('fonts.googleapis.com/css')) return alert("Please provide a valid Google Fonts CSS URL.");
+
+    try {
+        // Automatically parse the URL to extract the font name
+        const urlObj = new URL(url);
+        const familyParam = urlObj.searchParams.get('family');
+
+        if (!familyParam) throw new Error("No family parameter found in URL.");
+
+        // Google Fonts formats it like "Montserrat:ital,wght@0,100..900" or "Playfair+Display"
+        // We split by ':' to remove weights, and replace '+' with spaces
+        const rawFontName = familyParam.split(':')[0].replace(/\+/g, ' ');
+
+        const family = `'${rawFontName}', sans-serif`;
+        const name = `${rawFontName} (Custom)`;
+
+        if (!globalSettings.savedFonts) globalSettings.savedFonts = [];
+
+        // Prevent duplicates
+        if (!globalSettings.savedFonts.some(f => f.family === family)) {
+            globalSettings.savedFonts.push({ name, family, url });
+        }
+
+        // Auto-select the newly extracted font
+        globalSettings.font = family;
+        applyGlobalSettings();
+        saveProjects();
+
+        document.getElementById('newFontUrl').value = '';
+        openSettingsModal();
+
+    } catch (e) {
+        alert("Could not extract the font name. Please ensure you pasted the exact URL from the href=\"...\" attribute.");
+        console.error("Font extraction error:", e);
+    }
 }
 
 function closeSettingsModal() { hideModal('settingsModal'); }
 
 function updateGlobalSetting(key, value) {
     globalSettings[key] = value;
-    if (key === 'theme') document.documentElement.style.setProperty('--accent-color', value);
-    if (key === 'font') document.documentElement.style.setProperty('--global-font', value);
+    applyGlobalSettings();
+    if (key === 'companyLogo' && window.renderPreview) renderPreview();
     saveProjects();
+}
+
+function handleLogoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        if (window.resizeImageForStorage) {
+            window.resizeImageForStorage(e.target.result, (resizedUrl) => {
+                updateGlobalSetting('companyLogo', resizedUrl);
+                openSettingsModal();
+            });
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeCompanyLogo() {
+    updateGlobalSetting('companyLogo', '');
+    openSettingsModal();
 }
 
 var activeIconCallback = null;
@@ -652,3 +791,6 @@ window.dropProjectToFolder = dropProjectToFolder;
 window.dropProjectToRoot = dropProjectToRoot;
 window.openTagModal = openTagModal;
 window.saveTags = saveTags;
+window.handleLogoUpload = handleLogoUpload;
+window.removeCompanyLogo = removeCompanyLogo;
+window.addCustomFont = addCustomFont;

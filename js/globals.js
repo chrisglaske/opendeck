@@ -9,7 +9,7 @@ var activeProjectId = null;
 var slides = [];
 var slideCounter = 0;
 var currentSlideId = null;
-var globalSettings = { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' };
+var globalSettings = { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD', companyLogo: '', savedFonts: [] };
 
 var iconLibrary = [
     'fa-desktop', 'fa-laptop', 'fa-mobile', 'fa-server', 'fa-database', 'fa-cloud', 'fa-network-wired', 'fa-wifi',

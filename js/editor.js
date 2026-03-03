@@ -530,9 +530,11 @@ function generateSlideHTML(slide, isExport = false) {
     let animClass = slide.transition || 'fade-in';
     if (!isExport) animClass = 'fade-in';
 
+    let html = '';
+
     if (slide.type === 'intro') {
         let tagsHtml = (slide.tags || []).map((t, i) => `<span class="flex items-center"><i class="fa-solid ${escapeHtml(t.icon)} mr-2" style="color: ${t.color || 'var(--accent-color)'}"></i>${createEditableTag('span', '', t.text, 'text', 'tags', i)}</span>`).join('');
-        return `
+        html = `
             <div class="theme-card text-center ${animClass}">
                 <div class="mb-6 inline-block p-4 rounded-3xl border" style="background-color: color-mix(in srgb, var(--accent-color) 10%, transparent); border-color: color-mix(in srgb, var(--accent-color) 20%, transparent);">
                     <i class="fa-solid ${escapeHtml(slide.icon)} text-6xl accent-text drop-shadow-[0_0_15px_var(--accent-color)]"></i>
@@ -553,7 +555,7 @@ function generateSlideHTML(slide, isExport = false) {
                 ${createEditableTag('p', 'text-slate-400 leading-relaxed w-full', slide.boxText, 'boxText')}
             </div>`;
 
-        return `
+        html = `
             <div class="theme-card border-l-8 ${animClass}" style="border-left-color: var(--accent-color)">
                 ${createEditableTag('h2', 'text-4xl font-bold mb-10 w-full', slide.title, 'title')}
                 <div class="grid grid-cols-2 gap-16 items-center">
@@ -575,7 +577,7 @@ function generateSlideHTML(slide, isExport = false) {
                 ${createEditableTag('p', 'text-sm text-slate-400 leading-relaxed w-full block', c.text, 'text', 'cards', i)}
             </div>
         `).join('');
-        return `
+        html = `
             <div class="theme-card ${animClass}">
                 ${createEditableTag('h2', 'text-4xl font-bold mb-4 w-full text-center', slide.title, 'title')}
                 ${createEditableTag('p', 'text-slate-400 mb-10 text-lg w-full text-center block', slide.subtitle, 'subtitle')}
@@ -592,7 +594,7 @@ function generateSlideHTML(slide, isExport = false) {
                 </div>
             </li>
         `).join('');
-        return `
+        html = `
             <div class="theme-card border-l-8 ${animClass}" style="border-left-color: var(--accent-color)">
                 ${createEditableTag('h2', 'text-4xl font-bold mb-10 w-full', slide.title, 'title')}
                 <div class="grid grid-cols-2 gap-12 items-center w-full">
@@ -610,7 +612,7 @@ function generateSlideHTML(slide, isExport = false) {
     }
     else if (slide.type === 'code') {
         let codeColor = slide.codeColor || 'text-green-400';
-        return `
+        html = `
             <div class="theme-card ${animClass}">
                 ${createEditableTag('h2', 'text-4xl font-bold mb-4 w-full', slide.title, 'title')}
                 ${createEditableTag('p', 'text-slate-400 mb-8 text-lg w-full block', slide.subtitle, 'subtitle')}
@@ -628,7 +630,7 @@ function generateSlideHTML(slide, isExport = false) {
         `;
     }
     else if (slide.type === 'cta') {
-        return `
+        html = `
             <div class="theme-card text-center ${animClass}">
                 ${slide.image ? `<img src="${slide.image}" class="h-40 mx-auto object-cover rounded-2xl mb-8 shadow-2xl border border-slate-700">` : `<i class="fa-solid ${escapeHtml(slide.icon)} text-7xl text-white mb-8 drop-shadow-lg"></i>`}
                 ${createEditableTag('h2', 'text-6xl font-extrabold mb-6 tracking-tighter w-full', slide.title, 'title')}
@@ -645,7 +647,7 @@ function generateSlideHTML(slide, isExport = false) {
             </div>
         `).join('');
 
-        return `
+        html = `
             <div class="w-full max-w-6xl px-12 ${animClass}">
                 ${createEditableTag('h2', 'text-5xl font-bold mb-4 w-full text-center', slide.title, 'title')}
                 ${createEditableTag('p', 'text-xl text-slate-400 mb-20 w-full text-center block', slide.subtitle, 'subtitle')}
@@ -656,7 +658,7 @@ function generateSlideHTML(slide, isExport = false) {
     else if (slide.type === 'corp_title') {
         let textColor = slide.bgOverride === 'bg-purewhite' ? 'text-black' : 'text-white';
         let authorColor = slide.bgOverride === 'bg-purewhite' ? 'text-slate-600' : 'text-slate-300';
-        return `
+        html = `
             <div class="w-full max-w-5xl px-12 ${animClass} flex flex-col justify-center items-start text-left h-full">
                 <div class="w-24 h-2 mb-10 rounded-full shadow-[0_0_15px_var(--accent-color)]" style="background:var(--accent-color)"></div>
                 ${createEditableTag('h1', `text-7xl font-black mb-6 tracking-tight w-full leading-tight ${textColor}`, slide.title, 'title')}
@@ -670,7 +672,7 @@ function generateSlideHTML(slide, isExport = false) {
     }
     else if (slide.type === 'corp_quote') {
         let textColor = slide.bgOverride === 'bg-purewhite' ? 'text-black' : 'text-white';
-        return `
+        html = `
             <div class="w-full max-w-6xl text-center px-12 ${animClass} flex flex-col items-center justify-center h-full">
                 <i class="fa-solid fa-quote-left text-8xl mb-12 opacity-50 drop-shadow-lg" style="color:var(--accent-color)"></i>
                 ${createEditableTag('h2', `text-5xl md:text-6xl font-serif italic mb-16 leading-relaxed w-full block drop-shadow ${textColor}`, slide.title, 'title')}
@@ -685,7 +687,7 @@ function generateSlideHTML(slide, isExport = false) {
     else if (slide.type === 'corp_image_text') {
         let bulletsHtml = (slide.bullets || []).map((b, i) => `<li class="flex items-start w-full"><div class="w-3 h-3 mt-2.5 mr-5 rounded-full shrink-0 shadow-[0_0_10px_var(--accent-color)]" style="background:var(--accent-color)"></div> ${createEditablePrimitive('span', 'flex-grow w-full block text-slate-300', b, 'bullets', i)}</li>`).join('');
         let leftHtml = slide.image ? `<img src="${slide.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex flex-col items-center justify-center text-slate-600 bg-slate-900"><i class="fa-solid fa-image text-8xl mb-4"></i><span class="text-sm font-bold uppercase tracking-widest">Image Placeholder</span></div>`;
-        return `
+        html = `
             <div class="theme-card p-0 overflow-hidden flex h-[650px] max-w-6xl ${animClass} shadow-2xl border-0 ring-1 ring-slate-700/50">
                 <div class="w-1/2 h-full relative">
                     ${leftHtml}
@@ -701,7 +703,7 @@ function generateSlideHTML(slide, isExport = false) {
     }
     else if (slide.type === 'pitch_hero') {
         let bgStyle = slide.image ? `background-image: url(${slide.image}); background-size: cover; background-position: center;` : `background: radial-gradient(circle at 50% 50%, var(--accent-color) 0%, #000000 100%);`;
-        return `
+        html = `
             <div class="absolute inset-0 z-0 ${animClass} transition-all duration-700" style="${bgStyle}">
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent"></div>
@@ -720,7 +722,7 @@ function generateSlideHTML(slide, isExport = false) {
                 ${createEditableTag('p', 'text-base text-slate-400 w-full text-center block leading-relaxed font-medium', item.text, 'text', 'timeline', i)}
             </div>
         `).join('');
-        return `
+        html = `
             <div class="w-full max-w-6xl px-12 ${animClass} flex flex-col justify-center h-full">
                 ${createEditableTag('h2', 'text-6xl font-extrabold mb-6 w-full text-center tracking-tight text-white', slide.title, 'title')}
                 ${createEditableTag('p', 'text-2xl text-slate-400 mb-28 w-full text-center block font-light', slide.subtitle, 'subtitle')}
@@ -734,7 +736,7 @@ function generateSlideHTML(slide, isExport = false) {
     else if (slide.type === 'corp_basic') {
         let textColor = slide.bgOverride === 'bg-purewhite' ? 'text-black' : 'text-white';
         let bodyColor = slide.bgOverride === 'bg-purewhite' ? 'text-slate-600' : 'text-slate-300';
-        return `
+        html = `
             <div class="w-full max-w-5xl px-12 ${animClass} flex flex-col justify-start items-start text-left h-full py-16">
                 <div class="w-16 h-1.5 mb-8 rounded-full shadow-[0_0_15px_var(--accent-color)]" style="background:var(--accent-color)"></div>
                 ${createEditableTag('h2', `text-5xl font-black mb-10 tracking-tight w-full leading-tight ${textColor}`, slide.title, 'title')}
@@ -750,7 +752,7 @@ function generateSlideHTML(slide, isExport = false) {
                 ${createEditableTag('p', 'text-sm text-slate-400 uppercase tracking-widest font-semibold w-full text-center block', member.role, 'role', 'team', i)}
             </div>
         `).join('');
-        return `
+        html = `
             <div class="w-full max-w-6xl px-12 ${animClass} flex flex-col justify-center h-full">
                 ${createEditableTag('h2', 'text-5xl font-bold mb-4 w-full text-center text-white', slide.title, 'title')}
                 ${createEditableTag('p', 'text-xl text-slate-400 mb-16 w-full text-center block font-light', slide.subtitle, 'subtitle')}
@@ -775,7 +777,7 @@ function generateSlideHTML(slide, isExport = false) {
                 </div>
             `;
         }).join('');
-        return `
+        html = `
             <div class="w-full max-w-6xl px-12 ${animClass} flex flex-col justify-center h-full">
                 ${createEditableTag('h2', 'text-5xl font-bold mb-4 w-full text-center text-white', slide.title, 'title')}
                 ${createEditableTag('p', 'text-xl text-slate-400 mb-16 w-full text-center block font-light', slide.subtitle, 'subtitle')}
@@ -783,8 +785,16 @@ function generateSlideHTML(slide, isExport = false) {
             </div>
         `;
     }
+    else {
+        html = `<div class="theme-card ${animClass}">${createEditableTag('h2', 'text-4xl font-bold mb-10 w-full', slide.title, 'title')}</div>`;
+    }
 
-    return `<div class="theme-card ${animClass}">${createEditableTag('h2', 'text-4xl font-bold mb-10 w-full', slide.title, 'title')}</div>`;
+    // --- NEW: Persistent Company Logo Watermark ---
+    if (globalSettings.companyLogo) {
+        html += `<img src="${globalSettings.companyLogo}" class="absolute bottom-10 right-12 max-h-12 max-w-[200px] object-contain z-[100] opacity-80 pointer-events-none drop-shadow-lg">`;
+    }
+
+    return html;
 }
 
 function renderPreview() {

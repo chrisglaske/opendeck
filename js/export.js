@@ -15,15 +15,21 @@ async function exportToPPTX() {
     let pres = new PptxGenJS();
     pres.layout = 'LAYOUT_16x9';
 
+    let masterObjects = [
+        { rect: { x: 0.5, y: 0.3, w: 0.3, h: 0.3, fill: { color: globalSettings.theme.replace('#', '') } } },
+        { text: { text: globalSettings.headerIcon, options: { x: 0.5, y: 0.3, w: 0.3, h: 0.3, align: "center", valign: "middle", color: "FFFFFF", bold: true, fontSize: 14 } } },
+        { text: { text: globalSettings.headerText, options: { x: 0.9, y: 0.3, w: 5, h: 0.3, color: "94A3B8", bold: true, fontSize: 12 } } },
+        { line: { x: 0.5, y: 5.3, w: 9, h: 0, line: { color: "1E293B", width: 1 } } }
+    ];
+
+    if (globalSettings.companyLogo) {
+        masterObjects.push({ image: { data: globalSettings.companyLogo, x: 8.5, y: 4.8, w: 1.0, h: 0.5, sizing: { type: 'contain' } } });
+    }
+
     pres.defineSlideMaster({
         title: "MASTER_SLIDE",
         background: { color: "0F172A" },
-        objects: [
-            { rect: { x: 0.5, y: 0.3, w: 0.3, h: 0.3, fill: { color: globalSettings.theme.replace('#', '') } } },
-            { text: { text: globalSettings.headerIcon, options: { x: 0.5, y: 0.3, w: 0.3, h: 0.3, align: "center", valign: "middle", color: "FFFFFF", bold: true, fontSize: 14 } } },
-            { text: { text: globalSettings.headerText, options: { x: 0.9, y: 0.3, w: 5, h: 0.3, color: "94A3B8", bold: true, fontSize: 12 } } },
-            { line: { x: 0.5, y: 5.3, w: 9, h: 0, line: { color: "1E293B", width: 1 } } }
-        ]
+        objects: masterObjects
     });
 
     let accentHex = globalSettings.theme.replace('#', '');
@@ -109,9 +115,17 @@ function getCompiledHTML(isPDF = false) {
         }
     ` : '';
 
-    let fontImport = globalSettings.font.includes('Roboto') ? "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" :
-        globalSettings.font.includes('Space Grotesk') ? "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" :
-            "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap";
+    let fontImport = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap";
+
+    if (globalSettings.font.includes('Roboto')) fontImport = "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap";
+    else if (globalSettings.font.includes('Space Grotesk')) fontImport = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap";
+    else if (globalSettings.font.includes('Playfair')) fontImport = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap";
+
+    // Inject custom font URL if it exists in the saved list
+    if (globalSettings.savedFonts) {
+        let match = globalSettings.savedFonts.find(f => f.family === globalSettings.font);
+        if (match) fontImport = match.url;
+    }
 
     // The output string utilizes BroadcastChannel for pristine cross-tab communication
     return `<!DOCTYPE html>
