@@ -108,6 +108,80 @@ function createNewProject() {
     openProject(id);
 }
 
+function createDemoProject() {
+    const demoId = 'proj_demo_' + Date.now();
+    const demoProj = {
+        id: demoId,
+        name: '✨ Interactive Demo Deck',
+        lastModified: Date.now(),
+        data: {
+            slideCounter: 7,
+            globalSettings: { theme: '#8B5CF6', font: "'Space Grotesk', sans-serif", headerText: 'OpenDeck Studio', headerIcon: 'OD' },
+            slides: [
+                {
+                    id: 'slide_demo_1', type: 'pitch_hero', navName: 'Welcome',
+                    title: 'Unleash Your Ideas 🚀', subtitle: 'The zero-config, privacy-first presentation studio.',
+                    transition: 'fade-in', bgOverride: 'bg-midnight',
+                    notes: 'Welcome to OpenDeck! This speaker view is completely local and synced in real-time.'
+                },
+                {
+                    id: 'slide_demo_2', type: 'pitch_stats', navName: 'Performance',
+                    title: 'Lightning Fast. Zero Bloat.', subtitle: 'Built for speed, privacy, and developers.',
+                    stats: [
+                        { value: '0MB', label: 'Node Modules', color: '#10B981' },
+                        { value: '100%', label: 'Local & Private', color: '#8B5CF6' },
+                        { value: '60fps', label: 'Render Speed', color: '#F43F5E' }
+                    ],
+                    transition: 'slide-up', bgOverride: 'bg-deepblue', notes: 'No dependencies. No backend. Just pure web performance.'
+                },
+                {
+                    id: 'slide_demo_3', type: 'split', navName: 'Features',
+                    title: 'Developer-Ready Workflows', subtitle: 'Finally, an editor that respects your time and data.',
+                    bullets: ['No mandatory accounts or subscriptions', 'Version-control friendly backups (.odeck)', 'Click anywhere to edit instantly', 'Export to standalone HTML or PPTX'],
+                    boxTitle: '100% Secure',
+                    boxText: "Your presentations never leave your browser's Local Storage.",
+                    boxIcon: 'fa-shield-halved',
+                    transition: 'fade-in', bgOverride: 'bg-default', notes: 'Try clicking on the text in the main preview window to edit it directly!'
+                },
+                {
+                    id: 'slide_demo_4', type: 'grid', navName: 'Layouts',
+                    title: 'Beautiful Layouts Out-of-the-Box', subtitle: 'Stop fighting with alignments. Just pick a template and type.',
+                    cards: [
+                        { title: 'Modern Tech', text: 'Terminal blocks, code snippets, and tech grids.', icon: 'fa-code', color: '#10B981' },
+                        { title: 'Corporate Edge', text: 'Clean splits, executive quotes, and imagery.', icon: 'fa-building', color: '#3B82F6' },
+                        { title: 'Creative Pitch', text: 'Cinematic heroes, giant metrics, and timelines.', icon: 'fa-rocket', color: '#F59E0B' }
+                    ],
+                    transition: 'zoom-in', bgOverride: 'bg-deepblue', notes: 'Each layout is responsive and scales perfectly to any screen or PDF export.'
+                },
+                {
+                    id: 'slide_demo_5', type: 'code', navName: 'Code',
+                    title: 'Code That Looks Good', subtitle: 'Drop in your scripts, JSON, or commands with beautiful syntax highlighting.',
+                    codeHeader: 'deploy.sh', codeContent: '#!/bin/bash\n\n# Clone the OpenDeck repository\ngit clone https://github.com/chrisglaske/opendeck.git\n\n# Open directly in any browser\n# No build tools, no npm install, no servers needed.\nopen index.html\n\necho "Happy Presenting! 🎉"', codeColor: 'text-pink-400',
+                    transition: 'slide-up', bgOverride: 'bg-default', notes: 'Change the syntax color theme using the right-hand Inspector panel.'
+                },
+                {
+                    id: 'slide_demo_6', type: 'list', navName: 'Checklist',
+                    title: 'Launch Checklist', subtitle: 'Ready to share your presentation with the world?',
+                    items: [
+                        { label: 'Write Content', value: 'DONE', icon: 'fa-check-circle', color: '#10B981' },
+                        { label: 'Pick Brand Theme', value: 'DONE', icon: 'fa-check-circle', color: '#10B981' },
+                        { label: 'Export to HTML', value: 'READY', icon: 'fa-rocket', color: '#3B82F6' }
+                    ],
+                    transition: 'fade-in', bgOverride: 'bg-deepblue', notes: 'Lists are great for tracking progress, roadmaps, or technical requirements.'
+                },
+                {
+                    id: 'slide_demo_7', type: 'cta', navName: 'Get Started',
+                    title: 'Ready to build?', subtitle: 'Return to the dashboard to create your own masterpiece.',
+                    icon: 'fa-wand-magic-sparkles', link: 'opendeck.work',
+                    transition: 'zoom-in', bgOverride: 'bg-pitchblack', notes: 'Thanks for trying out the demo!'
+                }
+            ]
+        }
+    };
+    projects.push(demoProj);
+    saveProjects(false);
+}
+
 function openProject(id) {
     const p = projects.find(x => x.id === id);
     if (!p) {
@@ -441,3 +515,4 @@ window.returnToLanding = returnToLanding;
 window.handleCookieConsent = handleCookieConsent;
 window.openCookieSettings = openCookieSettings;
 window.toggleCookieConsent = toggleCookieConsent;
+window.createDemoProject = createDemoProject;

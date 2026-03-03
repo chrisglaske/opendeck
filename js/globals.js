@@ -73,11 +73,17 @@ function bootAppToDashboard() {
         loadingScreen.style.display = 'none';
         dashHeader.style.display = 'flex';
         dashGrid.style.display = 'grid';
+
+        // --- NEW: SEED DEMO PROJECT ON FIRST BOOT ---
+        if (projects.length === 0 && !localStorage.getItem('openDeckDemoSeeded')) {
+            if (window.createDemoProject) createDemoProject();
+            localStorage.setItem('openDeckDemoSeeded', 'true');
+        }
+
         if (window.renderDashboard) renderDashboard();
         if (window.checkTutorial) checkTutorial();
     }, 1000);
 }
-
 // Explicitly expose to window
 window.escapeHtml = escapeHtml;
 window.bootAppToDashboard = bootAppToDashboard;

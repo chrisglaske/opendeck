@@ -40,6 +40,8 @@ function clearAllData() {
     if (confirmation === "WIPE MY DATA") {
         localStorage.removeItem('openDeckDB_v2');
         localStorage.removeItem('openDeckTutSeen');
+        localStorage.removeItem('openDeckDemoSeeded'); // Resets the demo deck
+        localStorage.removeItem('openDeckAppState');
         location.reload();
     } else if (confirmation !== null) {
         alert("Data wipe canceled. You must type 'WIPE MY DATA' exactly to confirm.");
