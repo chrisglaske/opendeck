@@ -5,8 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenDeck - Open Source Presentation Builder</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; 
+        style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; 
+        font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; 
+        img-src 'self' data: blob: https://picsum.photos; 
+        connect-src 'self' https://picsum.photos https://cdn.jsdelivr.net;
+    ">
+
+    <link rel="stylesheet" href="tailwind-build.css?v=2.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS/libs/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS/dist/pptxgen.bundle.js"></script>
 
@@ -14,7 +28,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&family=Space+Grotesk:wght@400;700&display=swap"
         rel="stylesheet">
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0">
 
     <style>
         @keyframes floatMockup {
@@ -253,7 +267,7 @@
                 </div>
             </div>
             <footer class="mt-24 pt-8 border-t border-slate-800/50 w-full text-center text-slate-500 text-sm">
-                OpenDeck - Built by Chris Glaske for the
+                OpenDeck - by Chris Glaske for the
                 open source community <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i>
                 <a href="https://github.com/chrisglaske/opendeck"
                     class="text-blue-400 hover:text-blue-300 hover:underline">View on
@@ -287,13 +301,16 @@
 
     <div id="dashboardView" style="display:none;">
         <header class="header">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="returnToLanding()"
+                title="Return to Landing Page">
                 <div
-                    class="bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-blue-600/20">
+                    class="bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-xl tracking-tight leading-none text-white">OpenDeck</h1>
+                    <h1
+                        class="font-bold text-xl tracking-tight leading-none text-white group-hover:text-blue-400 transition-colors">
+                        OpenDeck</h1>
                     <span class="text-xs text-slate-400">Open Source Studio</span>
                 </div>
             </div>
@@ -369,7 +386,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full pb-10"
                 id="projectGrid" style="display:none;"></div>
             <footer class="mt-auto pt-10 pb-4 text-center text-sm text-slate-600 border-t border-slate-800/50">
-                OpenDeck - Built by Chris Glaske for the
+                OpenDeck - by Chris Glaske for the
                 open source community <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i>
             </footer>
         </div>
@@ -808,12 +825,12 @@
         </div>
     </div>
 
-    <script src="/js/globals.js"></script>
-    <script src="/js/storage.js"></script>
-    <script src="/js/tutorial.js"></script>
-    <script src="/js/editor.js"></script>
-    <script src="/js/export.js"></script>
-    <script src="/js/ui.js"></script>
+    <script src="js/globals.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/tutorial.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/ui.js"></script>
 </body>
 
 </html>

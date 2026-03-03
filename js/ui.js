@@ -164,6 +164,20 @@ function returnToDashboard() {
     renderDashboard();
 }
 
+function returnToLanding() {
+    // Save any open project just in case
+    if (activeProjectId) saveProjects(false);
+    activeProjectId = null;
+
+    // Clear the auto-resume state
+    localStorage.removeItem('openDeckAppState');
+
+    // Hide studio views and show the landing page
+    document.getElementById('builderView').style.display = 'none';
+    document.getElementById('dashboardView').style.display = 'none';
+    document.getElementById('landingView').style.display = 'flex';
+}
+
 function updateProjectTitle(val) {
     const p = projects.find(x => x.id === activeProjectId);
     if (p) { p.name = val || 'Untitled Presentation'; saveProjects(); }
@@ -331,3 +345,4 @@ window.closeSettingsModal = closeSettingsModal;
 window.updateGlobalSetting = updateGlobalSetting;
 window.openIconModal = openIconModal;
 window.closeIconModal = closeIconModal;
+window.returnToLanding = returnToLanding;
