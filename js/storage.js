@@ -6,6 +6,9 @@ function loadProjects() {
     try {
         const data = localStorage.getItem('openDeckDB_v2');
         if (data) projects = JSON.parse(data);
+
+        const folderData = localStorage.getItem('openDeckFolders_v1');
+        if (folderData) folders = JSON.parse(folderData);
     } catch (e) { console.error("Could not load projects", e); }
 }
 
@@ -19,6 +22,7 @@ function saveProjects(triggerIndicator = true) {
     }
     try {
         localStorage.setItem('openDeckDB_v2', JSON.stringify(projects));
+        localStorage.setItem('openDeckFolders_v1', JSON.stringify(folders));
         if (triggerIndicator && activeProjectId) showSaveIndicator();
     } catch (e) {
         alert("Storage limit reached! Please remove large images or export/delete old presentations.");

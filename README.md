@@ -3,7 +3,7 @@
 **OpenDeck** is a high-performance, privacy-centric presentation builder designed for the modern web. It enables users to create beautiful, branded tech talks and corporate decks with zero backend dependencies, zero tracking, and 100% data ownership.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Version](https://img.shields.io/badge/Version-1.1.0-green)
+![Version](https://img.shields.io/badge/Version-1.0-green)
 ![Privacy](https://img.shields.io/badge/Privacy-100%25_Local-blueviolet)
 [![Wiki](https://img.shields.io/badge/Documentation-Wiki-orange.svg)](https://github.com/chrisglaske/opendeck/wiki)
 
@@ -20,6 +20,10 @@ OpenDeck is designed to be highly portable. You can use it in two ways:
 ---
 
 ## ✨ Robust Feature Set
+
+### 🗂️ Dashboard Organization
+* **Folders & Drag-and-Drop**: Keep your workspace tidy by creating custom folders. Drag your `.odeck` projects directly into them to organize by client, topic, or quarter.
+* **Tagging System**: Assign custom comma-separated tags to presentations to quickly filter and search through your deck library.
 
 ### 🛠️ The Interactive Builder
 * **WYSIWYG Inline Editing**: Every text element on the slide preview is `contenteditable`. 
@@ -64,7 +68,7 @@ OpenDeck is built with a modular "Vanilla+" approach—maximum performance with 
 ## 🔒 Data & Enterprise Security
 
 ### 100% Client-Side
-OpenDeck has **no backend database**. Your presentations are stored in `localStorage` under the key `openDeckDB_v2`.
+OpenDeck has **no backend database**. Your presentations are stored in `localStorage` under the key `openDeckDB_v2`, and your dashboard folders are saved under `openDeckFolders_v1`.
 * **Warning**: Clearing your browser cache will delete your local presentations.
 
 ### Strict Content Security Policy (CSP)

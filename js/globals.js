@@ -3,6 +3,8 @@
 // Using 'var' ensures these are attached to the global window object across all files
 // ==========================================
 var projects = [];
+var folders = [];
+var currentFolderId = null;
 var activeProjectId = null;
 var slides = [];
 var slideCounter = 0;

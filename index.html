@@ -347,6 +347,11 @@
                     <i class="fa-solid fa-gear"></i> Settings
                 </button>
                 <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <button onclick="createFolder()"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-yellow-500"></i> New Folder
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
                 <label for="importOdeck"
                     class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center gap-2 !mb-0 group relative">
                     <i class="fa-solid fa-file-import text-blue-400 group-hover:scale-110 transition"></i> Import .odeck
@@ -917,6 +922,35 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tagModal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-tags text-blue-500 mr-2"></i> Manage Tags
+                </h2>
+                <button onclick="hideModal('tagModal')" class="text-slate-500 hover:text-white transition"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label
+                        class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Comma-Separated
+                        Tags</label>
+                    <input type="text" id="tagInput" placeholder="e.g. Sales, Q3, Client Pitch"
+                        class="w-full bg-[#020617] border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition-colors">
+                </div>
+                <p class="text-xs text-slate-500">Tags allow you to quickly search and filter presentations on your
+                    dashboard.</p>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button onclick="hideModal('tagModal')"
+                    class="px-5 py-2.5 rounded-lg font-bold text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                <button onclick="saveTags()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transition">Save
+                    Tags</button>
             </div>
         </div>
     </div>

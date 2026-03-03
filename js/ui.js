@@ -13,34 +13,72 @@ function renderDashboard() {
     const search = document.getElementById('searchBar') ? document.getElementById('searchBar').value.toLowerCase() : '';
     const sort = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : 'newest';
 
-    document.getElementById('dashboardStats').innerText = `You have ${projects.length} saved presentations.`;
+    const statsEl = document.getElementById('dashboardStats');
     grid.innerHTML = '';
 
-    let filtered = projects.filter(p => p.name.toLowerCase().includes(search));
-    if (sort === 'newest') filtered.sort((a, b) => b.lastModified - a.lastModified);
-    if (sort === 'oldest') filtered.sort((a, b) => a.lastModified - b.lastModified);
-    if (sort === 'alpha') filtered.sort((a, b) => a.name.localeCompare(b.name));
+    // Handle Breadcrumbs
+    if (currentFolderId) {
+        const f = folders.find(x => x.id === currentFolderId);
+        statsEl.innerHTML = `<button onclick="returnToRoot()" ondragover="event.preventDefault(); this.classList.add('text-white')" ondragleave="this.classList.remove('text-white')" ondrop="dropProjectToRoot(event)" class="text-blue-400 hover:text-white transition py-2 px-3 -ml-3 rounded-lg hover:bg-slate-800 border border-transparent hover:border-slate-700"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Root</button> <span class="mx-2 text-slate-600">/</span> <i class="fa-solid fa-folder text-slate-400 mr-2"></i> ${escapeHtml(f ? f.name : 'Unknown')}`;
+    } else {
+        statsEl.innerText = `You have ${projects.length} saved presentations.`;
+    }
 
-    if (filtered.length === 0) {
-        grid.innerHTML = `
+    let filteredProjects = projects.filter(p => p.name.toLowerCase().includes(search) || (p.tags && p.tags.some(t => t.toLowerCase().includes(search))));
+
+    // Filter by folder if not searching globally
+    if (!search) {
+        filteredProjects = filteredProjects.filter(p => (p.folderId || null) === currentFolderId);
+    }
+
+    if (sort === 'newest') filteredProjects.sort((a, b) => b.lastModified - a.lastModified);
+    if (sort === 'oldest') filteredProjects.sort((a, b) => a.lastModified - b.lastModified);
+    if (sort === 'alpha') filteredProjects.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Render Folders (only at root level and if not searching)
+    if (!currentFolderId && !search) {
+        let filteredFolders = folders.slice();
+        if (sort === 'alpha') filteredFolders.sort((a, b) => a.name.localeCompare(b.name));
+        else filteredFolders.sort((a, b) => b.createdAt - a.createdAt);
+
+        filteredFolders.forEach(f => {
+            const fCount = projects.filter(p => p.folderId === f.id).length;
+            grid.innerHTML += `
+                <div class="project-card group bg-slate-800/40 hover:bg-slate-800 border-slate-700/50 hover:border-blue-500/50 transition-all flex flex-col justify-center items-center p-8 cursor-pointer h-[300px]" 
+                     onclick="openFolder('${f.id}')"
+                     ondragover="event.preventDefault(); this.classList.add('border-blue-500', 'bg-blue-900/20');"
+                     ondragleave="this.classList.remove('border-blue-500', 'bg-blue-900/20');"
+                     ondrop="dropProjectToFolder(event, '${f.id}')">
+                    <div class="absolute top-3 right-3 flex gap-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="deleteFolder('${f.id}', event)" class="bg-slate-900 hover:bg-red-600 text-white w-8 h-8 rounded-lg flex items-center justify-center transition shadow-lg border border-slate-700" title="Delete Folder"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>
+                    <i class="fa-solid fa-folder text-7xl mb-6 text-blue-500/80 drop-shadow-lg group-hover:scale-110 transition-transform"></i>
+                    <h3 class="text-xl font-bold text-white mb-2 truncate w-full text-center">${escapeHtml(f.name)}</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">${fCount} Items</p>
+                </div>
+            `;
+        });
+    }
+
+    if (filteredProjects.length === 0 && (!folders.length || currentFolderId || search)) {
+        grid.innerHTML += `
             <div class="col-span-full flex flex-col items-center justify-center py-24 text-slate-500 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed">
                 <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                    <i class="fa-solid fa-layer-group text-4xl text-slate-600"></i>
+                    <i class="fa-solid ${currentFolderId ? 'fa-folder-open' : 'fa-layer-group'} text-4xl text-slate-600"></i>
                 </div>
-                <h3 class="text-3xl font-extrabold text-white mb-3">Your workspace is empty</h3>
-                <p class="mb-8 text-slate-400 text-lg max-w-md text-center">Start your next great tech talk by creating a new presentation or importing an .odeck file.</p>
+                <h3 class="text-3xl font-extrabold text-white mb-3">${currentFolderId ? 'This folder is empty' : 'No presentations found'}</h3>
+                <p class="mb-8 text-slate-400 text-lg max-w-md text-center">Start your next great tech talk by creating a new presentation.</p>
                 <button onclick="createNewProject()" class="text-white px-8 py-4 rounded-xl font-bold shadow-[0_0_30px_rgba(59,130,246,0.4)] transition flex items-center gap-3 hover:scale-105 text-lg" style="background-color: var(--accent-color)">
-                    <i class="fa-solid fa-plus"></i> Create Your First Presentation
+                    <i class="fa-solid fa-plus"></i> Create Presentation
                 </button>
             </div>
         `;
-        return;
     }
 
-    filtered.forEach(p => {
+    filteredProjects.forEach(p => {
         const date = new Date(p.lastModified).toLocaleDateString() + ' ' + new Date(p.lastModified).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        // Safe access in case p.data is undefined
         const slideCount = (p.data && p.data.slides) ? p.data.slides.length : 0;
+        let tagsHtml = (p.tags || []).map(t => `<span class="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded-full mr-1 inline-block">${escapeHtml(t)}</span>`).join('');
 
         let previewHtml = '';
         if (p.data && p.data.slides && p.data.slides.length > 0) {
@@ -66,13 +104,14 @@ function renderDashboard() {
         }
 
         grid.innerHTML += `
-            <div class="project-card group">
+            <div class="project-card group h-[300px]" draggable="true" ondragstart="dragProject(event, '${p.id}')">
                 <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center z-30 transition-all duration-300">
                     <button onclick="openProject('${p.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold mb-3 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75"><i class="fa-solid fa-pen-to-square mr-2"></i> Open Editor</button>
                     <button onclick="presentDirectly('${p.id}')" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-150"><i class="fa-solid fa-play text-green-400 mr-2"></i> Present Now</button>
                 </div>
                 
                 <div class="absolute top-3 right-3 flex gap-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200">
+                    <button onclick="openTagModal('${p.id}', event)" class="bg-slate-800 hover:bg-blue-500 text-white w-9 h-9 rounded-lg flex items-center justify-center transition shadow-lg border border-slate-600" title="Tags"><i class="fa-solid fa-tags"></i></button>
                     <button onclick="exportOdeck('${p.id}', event)" class="bg-slate-800 hover:bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center transition shadow-lg border border-slate-600" title="Export Backup"><i class="fa-solid fa-download"></i></button>
                     <button onclick="duplicateProject('${p.id}', event)" class="bg-slate-800 hover:bg-slate-600 text-white w-9 h-9 rounded-lg flex items-center justify-center transition shadow-lg border border-slate-600" title="Duplicate"><i class="fa-regular fa-copy"></i></button>
                     <button onclick="deleteProject('${p.id}', event)" class="bg-slate-800 hover:bg-red-600 text-white w-9 h-9 rounded-lg flex items-center justify-center transition shadow-lg border border-slate-600" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -80,11 +119,12 @@ function renderDashboard() {
                 
                 ${previewHtml}
 
-                <div class="p-5 flex-grow bg-slate-900 border-t border-slate-800 z-10 pointer-events-none">
+                <div class="p-5 flex-grow bg-slate-900 border-t border-slate-800 z-10 pointer-events-none flex flex-col">
                     <h3 class="text-lg font-bold text-white mb-1 truncate">${escapeHtml(p.name)}</h3>
-                    <p class="text-[10px] text-slate-500 font-mono uppercase mb-4">Edited: ${date}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-400 bg-slate-800 px-3 py-1.5 rounded-md border border-slate-700">${slideCount} Slides</span>
+                    <p class="text-[10px] text-slate-500 font-mono uppercase mb-3">Edited: ${date}</p>
+                    <div class="flex-grow flex items-end justify-between w-full">
+                        <div class="flex-grow flex flex-wrap gap-1 mr-2 overflow-hidden h-5">${tagsHtml}</div>
+                        <span class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700 shrink-0">${slideCount} Slides</span>
                     </div>
                 </div>
             </div>
@@ -96,6 +136,8 @@ function createNewProject() {
     const id = 'proj_' + Math.random().toString(36).substr(2, 9);
     const newProj = {
         id: id, name: 'Untitled Presentation', lastModified: Date.now(),
+        folderId: currentFolderId, // Assigns to active folder
+        tags: [],
         data: {
             slideCounter: 1,
             globalSettings: { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD' },
@@ -103,7 +145,6 @@ function createNewProject() {
         }
     };
     projects.push(newProj);
-    // Crucial fix: do not save the empty global state to the new project! We just pushed it to array.
     saveProjects(false);
     openProject(id);
 }
@@ -484,6 +525,92 @@ function updateToggleVisuals(isAccepted) {
     }
 }
 
+// --- FOLDER & TAG MANAGEMENT ---
+function createFolder() {
+    const name = prompt("Enter new folder name:");
+    if (!name || name.trim() === '') return;
+    const id = 'folder_' + Date.now() + Math.floor(Math.random() * 1000);
+    folders.push({ id, name: name.trim(), createdAt: Date.now() });
+    saveProjects(false);
+    renderDashboard();
+}
+
+function openFolder(id) {
+    currentFolderId = id;
+    renderDashboard();
+}
+
+function returnToRoot() {
+    currentFolderId = null;
+    renderDashboard();
+}
+
+function deleteFolder(id, event) {
+    event.stopPropagation();
+    if (confirm("Delete this folder? Projects inside will not be deleted, they will simply be moved back to the main dashboard.")) {
+        folders = folders.filter(f => f.id !== id);
+        projects.forEach(p => { if (p.folderId === id) delete p.folderId; });
+        saveProjects(false);
+        renderDashboard();
+    }
+}
+
+function dragProject(event, projectId) {
+    event.dataTransfer.setData('text/plain', projectId);
+    event.dataTransfer.effectAllowed = 'move';
+}
+
+function dropProjectToFolder(event, folderId) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('border-blue-500', 'bg-blue-900/20');
+    const projectId = event.dataTransfer.getData('text/plain');
+    if (!projectId) return;
+
+    const p = projects.find(x => x.id === projectId);
+    if (p) {
+        p.folderId = folderId;
+        saveProjects(false);
+        renderDashboard();
+    }
+}
+
+function dropProjectToRoot(event) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('text-white');
+    const projectId = event.dataTransfer.getData('text/plain');
+    if (!projectId) return;
+
+    const p = projects.find(x => x.id === projectId);
+    if (p) {
+        delete p.folderId;
+        saveProjects(false);
+        renderDashboard();
+    }
+}
+
+let activeTagProjectId = null;
+function openTagModal(id, event) {
+    event.stopPropagation();
+    activeTagProjectId = id;
+    const p = projects.find(x => x.id === id);
+    if (!p) return;
+
+    document.getElementById('tagInput').value = (p.tags || []).join(', ');
+    showModal('tagModal');
+}
+
+function saveTags() {
+    if (!activeTagProjectId) return;
+    const p = projects.find(x => x.id === activeTagProjectId);
+    if (p) {
+        const raw = document.getElementById('tagInput').value;
+        p.tags = raw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        saveProjects(false);
+        renderDashboard();
+    }
+    hideModal('tagModal');
+}
+
 // Run the check immediately
 checkCookieConsent();
 
@@ -516,3 +643,12 @@ window.handleCookieConsent = handleCookieConsent;
 window.openCookieSettings = openCookieSettings;
 window.toggleCookieConsent = toggleCookieConsent;
 window.createDemoProject = createDemoProject;
+window.createFolder = createFolder;
+window.openFolder = openFolder;
+window.returnToRoot = returnToRoot;
+window.deleteFolder = deleteFolder;
+window.dragProject = dragProject;
+window.dropProjectToFolder = dropProjectToFolder;
+window.dropProjectToRoot = dropProjectToRoot;
+window.openTagModal = openTagModal;
+window.saveTags = saveTags;
