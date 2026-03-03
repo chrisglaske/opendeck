@@ -321,6 +321,98 @@ function openIconModal(callback) {
     });
     showModal('iconModal');
 }
+
+// --- COOKIE & PRIVACY LOGIC ---
+function checkCookieConsent() {
+    const consent = localStorage.getItem('openDeck_cookieConsent');
+
+    // Landing Page Footer Elements
+    const statusBtn = document.getElementById('cookieStatusBtn');
+    const separator = document.getElementById('cookieSeparator');
+    const statusText = document.getElementById('cookieStatusText');
+
+    // Dashboard Footer Elements
+    const statusBtnDash = document.getElementById('cookieStatusBtnDash');
+    const separatorDash = document.getElementById('cookieSeparatorDash');
+    const statusTextDash = document.getElementById('cookieStatusTextDash');
+
+    if (!consent) {
+        document.getElementById('cookieBanner').style.display = 'flex';
+        if (statusBtn) statusBtn.style.display = 'none';
+        if (separator) separator.style.display = 'none';
+        if (statusBtnDash) statusBtnDash.style.display = 'none';
+        if (separatorDash) separatorDash.style.display = 'none';
+    } else {
+        document.getElementById('cookieBanner').style.display = 'none';
+        if (statusBtn) statusBtn.style.display = 'inline';
+        if (separator) separator.style.display = 'inline';
+        if (statusBtnDash) statusBtnDash.style.display = 'inline';
+        if (separatorDash) separatorDash.style.display = 'inline';
+
+        const isAccepted = consent === 'accepted';
+        const textToDisplay = isAccepted ? 'Accepted' : 'Declined';
+        const classToApply = isAccepted ? 'text-green-400 font-bold' : 'text-red-400 font-bold';
+
+        if (statusText) {
+            statusText.innerText = textToDisplay;
+            statusText.className = classToApply;
+        }
+        if (statusTextDash) {
+            statusTextDash.innerText = textToDisplay;
+            statusTextDash.className = classToApply;
+        }
+    }
+}
+
+function handleCookieConsent(accepted) {
+    // Save their preference so it doesn't pop up again
+    localStorage.setItem('openDeck_cookieConsent', accepted ? 'accepted' : 'declined');
+
+    // Re-run the check to instantly update the footer UI and hide the banner
+    checkCookieConsent();
+}
+
+function openCookieSettings() {
+    const consent = localStorage.getItem('openDeck_cookieConsent');
+    const settingsText = document.getElementById('cookieSettingsText');
+    const toggle = document.getElementById('cookieToggle');
+
+    // Set the initial state of the modal based on their past choice
+    const isAccepted = consent === 'accepted';
+    toggle.checked = isAccepted;
+    updateToggleVisuals(isAccepted);
+
+    // Show the modal
+    showModal('cookieSettingsModal');
+}
+
+function toggleCookieConsent(isAccepted) {
+    // 1. Save the new choice and update the footer instantly
+    handleCookieConsent(isAccepted);
+
+    // 2. Update the visuals in the modal dynamically
+    updateToggleVisuals(isAccepted);
+}
+
+function updateToggleVisuals(isAccepted) {
+    const settingsText = document.getElementById('cookieSettingsText');
+    const track = document.getElementById('toggleTrack');
+    const knob = document.getElementById('toggleKnob');
+
+    if (isAccepted) {
+        settingsText.innerHTML = `You have chosen to <strong class="text-green-400">Accept</strong> analytics. You can toggle this to change your decision at any time.`;
+        track.classList.replace('bg-slate-700', 'bg-blue-600');
+        knob.style.transform = 'translateX(24px)'; // Slide knob to the right
+    } else {
+        settingsText.innerHTML = `You have chosen to <strong class="text-red-400">Decline</strong> analytics. You can toggle this to change your decision at any time.`;
+        track.classList.replace('bg-blue-600', 'bg-slate-700');
+        knob.style.transform = 'translateX(0px)'; // Slide knob to the left
+    }
+}
+
+// Run the check immediately
+checkCookieConsent();
+
 function closeIconModal() { hideModal('iconModal'); activeIconCallback = null; }
 
 // Explicitly expose to window
@@ -346,3 +438,6 @@ window.updateGlobalSetting = updateGlobalSetting;
 window.openIconModal = openIconModal;
 window.closeIconModal = closeIconModal;
 window.returnToLanding = returnToLanding;
+window.handleCookieConsent = handleCookieConsent;
+window.openCookieSettings = openCookieSettings;
+window.toggleCookieConsent = toggleCookieConsent;

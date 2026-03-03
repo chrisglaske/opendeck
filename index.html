@@ -8,11 +8,11 @@
 
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; 
         style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; 
         font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; 
         img-src 'self' data: blob: https://picsum.photos; 
-        connect-src 'self' https://picsum.photos https://cdn.jsdelivr.net;
+        connect-src 'self' https://picsum.photos https://cdn.jsdelivr.net https://cloudflareinsights.com;
     ">
 
     <link rel="stylesheet" href="tailwind-build.css?v=2.0">
@@ -272,6 +272,16 @@
                 <a href="https://github.com/chrisglaske/opendeck"
                     class="text-blue-400 hover:text-blue-300 hover:underline">View on
                     GitHub</a>
+                <span class="text-slate-700 mx-2">•</span>
+                <button onclick="openCookieSettings()"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">Privacy
+                    Policy</button>
+
+                <span id="cookieSeparator" class="text-slate-700 mx-2" style="display: none;">•</span>
+                <button id="cookieStatusBtn" onclick="openCookieSettings()" style="display: none;"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">
+                    Analytics: <span id="cookieStatusText"></span>
+                </button>
             </footer>
         </main>
     </div>
@@ -385,9 +395,22 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full pb-10"
                 id="projectGrid" style="display:none;"></div>
-            <footer class="mt-auto pt-10 pb-4 text-center text-sm text-slate-600 border-t border-slate-800/50">
+            <footer class="mt-auto pt-10 pb-6 w-full text-center text-slate-500 text-sm border-t border-slate-800/50">
                 OpenDeck - by Chris Glaske for the
                 open source community <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i>
+                <a href="https://github.com/chrisglaske/opendeck"
+                    class="text-blue-400 hover:text-blue-300 hover:underline">View on
+                    GitHub</a>
+                <span class="text-slate-700 mx-2">•</span>
+                <button onclick="openCookieSettings()"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">Privacy
+                    Policy</button>
+
+                <span id="cookieSeparatorDash" class="text-slate-700 mx-2" style="display: none;">•</span>
+                <button id="cookieStatusBtnDash" onclick="openCookieSettings()" style="display: none;"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">
+                    Analytics: <span id="cookieStatusTextDash"></span>
+                </button>
             </footer>
         </div>
     </div>
@@ -814,13 +837,98 @@
                             oninput="updateGlobalSetting('headerIcon', this.value)"
                             class="w-24 text-center bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors font-bold uppercase">
                     </div>
-                    <div class="mt-8 pt-6 border-t border-slate-800">
+                    <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
+                        <button onclick="hideModal('settingsModal'); setTimeout(() => openCookieSettings(), 300);"
+                            class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-shield-halved text-blue-400"></i> Privacy Policy & Analytics
+                        </button>
                         <button onclick="clearAllData()"
                             class="w-full bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
                             <i class="fa-solid fa-triangle-exclamation"></i> Wipe Browser Storage (Reset App)
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cookieBanner"
+        style="z-index: 6000; display: none; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;"
+        class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 md:p-6 shadow-2xl">
+        <div class="text-slate-400 text-sm leading-relaxed" style="flex: 1 1 300px;">
+            <strong>Your Privacy:</strong> OpenDeck uses your browser's Local Storage strictly to save your
+            presentations on your device. We also use privacy-first, cookie-less analytics to monitor site performance.
+            <button onclick="showModal('legalModal')" class="text-blue-400 hover:text-blue-300 underline ml-1">Read our
+                Privacy Policy</button>.
+        </div>
+        <div class="flex gap-3 shrink-0" style="flex: 0 0 auto;">
+            <button onclick="handleCookieConsent(false)"
+                class="px-5 py-2.5 rounded-lg font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Decline</button>
+            <button onclick="handleCookieConsent(true)"
+                class="px-5 py-2.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 transition shadow-lg">Got
+                it</button>
+        </div>
+    </div>
+
+    <div id="cookieSettingsModal" class="modal-overlay" style="z-index: 6000;">
+        <div class="modal-content" style="width: 650px; max-width: 90vw; padding: 2rem;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-shield-halved text-blue-400 mr-2"></i>
+                    Privacy Policy & Settings</h2>
+                <button onclick="hideModal('cookieSettingsModal')"
+                    class="text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="bg-slate-800/50 border border-slate-700 p-4 md:p-5 rounded-xl mb-6 shadow-inner">
+                <p id="cookieSettingsText" class="text-slate-300 text-sm leading-relaxed mb-5">
+                    Loading...
+                </p>
+
+                <div
+                    class="flex items-center justify-between bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-sm">
+                    <span class="text-white font-bold text-sm">Allow Cloudflare Analytics</span>
+
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="cookieToggle" class="sr-only"
+                            onchange="toggleCookieConsent(this.checked)">
+                        <div id="toggleTrack" class="w-12 h-6 bg-slate-700 rounded-full transition-colors duration-300">
+                        </div>
+                        <div id="toggleKnob"
+                            class="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform duration-300 transform shadow-md"
+                            style="transform: translateX(0px);"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div
+                class="overflow-y-auto text-slate-300 text-sm space-y-4 pr-2 custom-scrollbar max-h-48 mb-6 bg-slate-900/30 p-5 rounded-xl border border-slate-800/50">
+                <div>
+                    <h3 class="text-white font-bold mb-1 text-base">1. 100% Local Storage</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is a "Vanilla+" local-first application.
+                        Your presentations, slides, and settings are saved exclusively in your browser's LocalStorage.
+                        We do not transmit, save, or have access to your presentation data or any content you create.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-1 text-base">2. Analytics</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">We use Cloudflare Web Analytics to measure website
+                        traffic and performance. This is a privacy-first analytics service that does
+                        <strong>not</strong> use cookies or track individual users across the web.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-1 text-base">3. MIT License</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is open-source software provided under
+                        the MIT License. The software is provided "as is", without warranty of any kind, express or
+                        implied.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-slate-800">
+                <button onclick="hideModal('cookieSettingsModal')"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold transition shadow-lg">Done</button>
             </div>
         </div>
     </div>
