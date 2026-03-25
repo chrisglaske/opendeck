@@ -147,6 +147,13 @@ function showReleaseNotesOnce(version) {
     const tutorialModal = document.getElementById('tutorialModal');
     if (tutorialModal && tutorialModal.style.display === 'flex') return;
 
+    const tutorialOverlay = document.getElementById('tutOverlay');
+    if (tutorialOverlay && tutorialOverlay.style.display === 'block') return;
+    if (window.isTutorialMode) return;
+
+    const tutorialPromptModal = document.getElementById('tutorialPromptModal');
+    if (tutorialPromptModal && tutorialPromptModal.style.display === 'flex') return;
+
     localStorage.setItem(releaseKey, 'true');
     window.showModal('releaseNotesModal');
 }

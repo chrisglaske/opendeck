@@ -11,7 +11,33 @@ var tutData = [
 ];
 
 function checkTutorial() {
-    if (!localStorage.getItem('openDeckTutSeen')) startInteractiveTutorial();
+    if (localStorage.getItem('openDeckTutSeen')) return;
+
+    const hasBeenPrompted = localStorage.getItem('openDeckTutPrompted') === 'true';
+    if (hasBeenPrompted) {
+        localStorage.setItem('openDeckTutSeen', 'true');
+        return;
+    }
+
+    const openPrompt = () => {
+        if (typeof showModal === 'function') {
+            showModal('tutorialPromptModal');
+        }
+    };
+
+    setTimeout(openPrompt, 0);
+}
+
+function acceptTutorialPrompt() {
+    localStorage.setItem('openDeckTutPrompted', 'true');
+    if (typeof hideModal === 'function') hideModal('tutorialPromptModal');
+    startInteractiveTutorial();
+}
+
+function declineTutorialPrompt() {
+    localStorage.setItem('openDeckTutPrompted', 'true');
+    localStorage.setItem('openDeckTutSeen', 'true');
+    if (typeof hideModal === 'function') hideModal('tutorialPromptModal');
 }
 
 function startInteractiveTutorial() {
@@ -140,5 +166,7 @@ window.endTutorial = endTutorial;
 window.skipTutorial = skipTutorial;
 window.finishTutorialCreateNew = finishTutorialCreateNew;
 window.finishTutorialDashboard = finishTutorialDashboard;
+window.acceptTutorialPrompt = acceptTutorialPrompt;
+window.declineTutorialPrompt = declineTutorialPrompt;
 window.showTutStep = showTutStep;
 window.positionTooltip = positionTooltip;
