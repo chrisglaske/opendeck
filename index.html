@@ -33,8 +33,8 @@
         integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS/libs/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&family=Space+Grotesk:wght@400;700&display=swap"
@@ -68,6 +68,27 @@
     <div class="tut-overlay" id="tutOverlay"></div>
     <div class="tut-tooltip" id="tutTooltip"></div>
 
+    <div id="viewportGuard" class="viewport-guard" style="display: none;">
+        <div class="viewport-guard__panel">
+            <div class="viewport-guard__icon"><i class="fa-solid fa-desktop"></i></div>
+            <h2>Desktop Required</h2>
+            <p>OpenDeck currently needs a larger desktop or laptop screen for the editor and live preview.</p>
+            <p class="viewport-guard__meta" id="viewportGuardMeta"></p>
+            <p class="viewport-guard__required" id="viewportGuardRequired"></p>
+            <div class="viewport-guard__actions">
+                <button onclick="if(window.returnToLanding) window.returnToLanding()" class="viewport-guard__btn viewport-guard__btn--landing">
+                    Back to Landing
+                </button>
+                <button onclick="if(window.updateViewportGuard) window.updateViewportGuard()" class="viewport-guard__btn viewport-guard__btn--primary">
+                    I resized my screen
+                </button>
+                <a href="https://github.com/chrisglaske/opendeck" target="_blank" class="viewport-guard__btn viewport-guard__btn--secondary">
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div id="landingView"
         class="fixed inset-0 z-[5000] flex flex-col overflow-y-auto overflow-x-hidden bg-[#020617] text-white scroll-smooth selection:bg-blue-500/30">
         <div
@@ -80,7 +101,7 @@
             class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none z-0">
         </div>
 
-        <nav class="flex items-center justify-between p-6 max-w-7xl mx-auto w-full relative z-10 shrink-0">
+        <nav id="landingNav" class="flex items-center justify-between p-6 max-w-7xl mx-auto w-full relative z-10 shrink-0">
             <div class="flex items-center gap-3 group cursor-pointer">
                 <div
                     class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-10 h-10 flex items-center justify-center font-bold text-white text-lg shadow-[0_0_15px_rgba(59,130,246,0.5)] group-hover:scale-105 transition-transform duration-300">
@@ -113,7 +134,7 @@
                 Privacy-First & Open Source
             </div>
 
-            <h1 class="text-5xl md:text-[6rem] font-black tracking-tighter mb-6 leading-[1.05] max-w-4xl">
+            <h1 id="landingHeadline" class="text-5xl md:text-[6rem] font-black tracking-tighter mb-6 leading-[1.05] max-w-4xl">
                 <span
                     class="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">Presentations,</span><br>
                 <span
@@ -136,7 +157,45 @@
                 </a>
             </div>
 
-            <div
+            <div id="landingMobilePanel" class="hidden w-full max-w-xl mb-10 text-left bg-slate-900/75 border border-slate-700 rounded-2xl p-5 shadow-2xl">
+                <div class="text-[11px] font-bold uppercase tracking-[0.15em] text-blue-300 mb-2">Mobile Preview</div>
+                <h3 class="text-2xl font-extrabold text-white mb-2">Continue on Desktop</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">The full editor experience needs a larger screen, but you can still explore OpenDeck and access the project from your computer.</p>
+                <div class="mobile-preview-grid mb-4">
+                    <div class="mobile-preview-card">
+                        <div class="mobile-preview-card__head">Slide Studio</div>
+                        <div class="mobile-preview-card__title">Glass Hero Template</div>
+                        <div class="mobile-preview-card__line"></div>
+                        <div class="mobile-preview-card__line mobile-preview-card__line--short"></div>
+                    </div>
+                    <div class="mobile-preview-card">
+                        <div class="mobile-preview-card__head">Presentation Settings</div>
+                        <div class="mobile-preview-pills">
+                            <span>Theme</span>
+                            <span>Font</span>
+                            <span>Nav</span>
+                        </div>
+                    </div>
+                    <div class="mobile-preview-card mobile-preview-card--wide">
+                        <div class="mobile-preview-card__head">Export Options</div>
+                        <div class="mobile-preview-pills">
+                            <span>PDF Soon</span>
+                            <span>HTML</span>
+                            <span>.odeck</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="startAppFromLanding()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rocket"></i> Try Opening Studio
+                    </button>
+                    <a href="https://github.com/chrisglaske/opendeck" target="_blank" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-2.5 rounded-lg transition flex items-center justify-center gap-2 no-underline">
+                        <i class="fa-brands fa-github"></i> Read Documentation
+                    </a>
+                </div>
+            </div>
+
+            <div id="landingInteractiveMockup"
                 class="relative w-full max-w-6xl mx-auto mb-24 group animate-float flex flex-col md:flex-row gap-6 items-stretch">
                 <div id="mockupGlow"
                     class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-[2rem] group-hover:bg-blue-600/20 transition-all duration-700 pointer-events-none">
@@ -246,7 +305,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl text-left shrink-0">
+            <div id="landingFeatureGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl text-left shrink-0">
                 <div
                     class="group bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-md hover:bg-slate-800 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-2 shadow-2xl">
                     <div
@@ -278,19 +337,19 @@
                         dual-window presenter screen with notes and a live timer.</p>
                 </div>
             </div>
-            <footer class="mt-24 pt-8 border-t border-slate-800/50 w-full text-center text-slate-500 text-sm">
+            <footer id="landingFooter" class="mt-24 pt-8 border-t border-slate-800/50 w-full text-center text-slate-500 text-sm">
                 OpenDeck - by Chris Glaske for the
                 open source community <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i>
                 <a href="https://github.com/chrisglaske/opendeck"
                     class="text-blue-400 hover:text-blue-300 hover:underline">View on
                     GitHub</a>
                 <span class="text-slate-700 mx-2">•</span>
-                <button onclick="openCookieSettings()"
+                <button onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();"
                     class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">Privacy
                     Policy</button>
 
                 <span id="cookieSeparator" class="text-slate-700 mx-2" style="display: none;">•</span>
-                <button id="cookieStatusBtn" onclick="openCookieSettings()" style="display: none;"
+                <button id="cookieStatusBtn" onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();" style="display: none;"
                     class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">
                     Analytics: <span id="cookieStatusText"></span>
                 </button>
@@ -344,7 +403,7 @@
                 <button onclick="openSettingsModal()"
                     class="text-slate-400 hover:text-white px-3 py-2 rounded-lg transition font-bold text-sm flex items-center gap-2 border border-transparent hover:border-slate-700 hover:bg-slate-800"
                     title="Global Settings">
-                    <i class="fa-solid fa-gear"></i> Settings
+                    <i class="fa-solid fa-gear"></i> Global Settings
                 </button>
                 <div class="h-6 w-px bg-slate-700 mx-1"></div>
                 <button onclick="createFolder()"
@@ -358,6 +417,7 @@
                 </label>
                 <input type="file" id="importOdeck" accept=".odeck,.json" class="hidden"
                     onchange="importProject(event)">
+                <span class="hidden xl:inline text-[11px] text-slate-500">Export .odeck from the editor header or deck card menu.</span>
                 <button id="btnNewPresentation" onclick="createNewProject()"
                     class="text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(59,130,246,0.4)] transition flex items-center gap-2 hover:scale-105"
                     style="background-color: var(--accent-color)">
@@ -419,12 +479,12 @@
                     class="text-blue-400 hover:text-blue-300 hover:underline">View on
                     GitHub</a>
                 <span class="text-slate-700 mx-2">•</span>
-                <button onclick="openCookieSettings()"
+                <button onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();"
                     class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">Privacy
                     Policy</button>
 
                 <span id="cookieSeparatorDash" class="text-slate-700 mx-2" style="display: none;">•</span>
-                <button id="cookieStatusBtnDash" onclick="openCookieSettings()" style="display: none;"
+                <button id="cookieStatusBtnDash" onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();" style="display: none;"
                     class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">
                     Analytics: <span id="cookieStatusTextDash"></span>
                 </button>
@@ -454,20 +514,20 @@
                     <i class="fa-solid fa-gear text-lg"></i>
                 </button>
                 <div class="h-6 w-px bg-slate-700 mx-1"></div>
-                <button onclick="exportToPDF()"
-                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
-                    title="Print to PDF">
-                    <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
-                </button>
-                <button onclick="exportToPPTX()"
-                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
-                    title="Export for Google Slides">
-                    <i class="fa-solid fa-file-powerpoint text-orange-500"></i> PPTX
+                <button id="exportPdfBtn" disabled
+                    class="bg-slate-900 border border-slate-700 text-slate-500 px-3 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-2 cursor-not-allowed opacity-70"
+                    title="PDF export is a future feature">
+                    <i class="fa-solid fa-file-arrow-down text-slate-600"></i> PDF (Future Feature)
                 </button>
                 <button onclick="exportPresentation()"
                     class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
-                    title="Export Standalone HTML">
-                    <i class="fa-solid fa-code text-blue-400"></i> HTML
+                    title="Download Standalone HTML">
+                    <i class="fa-solid fa-code text-blue-400"></i> Download HTML
+                </button>
+                <button onclick="exportOdeck(activeProjectId)"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
+                    title="Export .odeck Backup">
+                    <i class="fa-solid fa-file-export text-emerald-400"></i> Export .odeck
                 </button>
                 <button onclick="presentInBrowser()"
                     class="text-white px-5 py-2 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)] transition flex items-center gap-2 hover:scale-105 ml-2"
@@ -496,12 +556,45 @@
             <div class="preview-pane" id="previewArea">
                 <div class="preview-wrapper" id="livePreview"></div>
             </div>
-            <div class="sidebar-right bg-slate-900" id="tutInspector">
-                <div class="p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
-                    <h2 class="text-xs font-bold text-slate-200 uppercase tracking-widest"><i
-                            class="fa-solid fa-sliders mr-2 text-slate-400"></i> Properties</h2>
+            <div class="sidebar-right bg-slate-900 inspector-pane" id="tutInspector">
+                <div class="p-4 border-b border-slate-800 shrink-0 inspector-pane__header">
+                    <div>
+                        <div class="text-[0.65rem] font-bold text-slate-500 uppercase tracking-[0.24em] mb-1">Slide Studio</div>
+                        <h2 class="text-sm font-extrabold text-slate-100 tracking-wide flex items-center"><i
+                                class="fa-solid fa-sliders mr-2 text-slate-400"></i> Properties</h2>
+                    </div>
+                    <div class="text-[11px] text-slate-500 font-semibold uppercase tracking-[0.18em]">v2.1.1</div>
                 </div>
-                <div class="p-4 flex-grow overflow-y-auto" id="editorForm"></div>
+                <div class="p-4 flex-grow overflow-y-auto inspector-pane__body" id="editorForm"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="releaseNotesModal">
+        <div class="modal-content" style="width: 640px; max-width: 92vw;">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-extrabold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-sparkles text-blue-400"></i>
+                    What's New · v2.1.1
+                </h2>
+                <button onclick="hideModal('releaseNotesModal')" class="text-slate-400 hover:text-white text-2xl transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-4 text-slate-300 text-sm leading-relaxed">
+                <p class="text-slate-400">Quick updates shipped for stability and launch polish:</p>
+                <ul class="space-y-2 list-disc pl-5">
+                    <li>Presentation branding is now clearly separated from Global Settings.</li>
+                    <li>Privacy Policy modal behavior was fixed across footer and settings flows.</li>
+                    <li>Deck font now applies to slides only while the app UI stays consistent.</li>
+                    <li>Inspector and settings labels were polished for clearer navigation.</li>
+                </ul>
+                <div class="pt-4 border-t border-slate-800 flex justify-end gap-3">
+                    <button onclick="hideModal('releaseNotesModal')"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold transition shadow-lg">
+                        Start Building
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -569,21 +662,21 @@
             </div>
 
             <div id="tabContent_tech" class="grid grid-cols-3 gap-6">
-                <div class="template-card" onclick="addSlide('intro')">
+                <div class="template-card" onclick="addSlide('glass_intro')">
                     <div
-                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 relative overflow-hidden shadow-inner">
-                        <div class="absolute inset-0 opacity-20"
-                            style="background: radial-gradient(circle at 50% 50%, var(--accent-color) 0%, transparent 70%);">
-                        </div>
-                        <div
-                            class="w-8 h-8 rounded-full border border-slate-500 flex items-center justify-center mb-2 z-10">
-                            <i class="fa-solid fa-desktop text-[10px] text-slate-300"></i>
-                        </div>
+                        class="w-full h-24 bg-slate-950 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="absolute -top-3 -left-4 w-14 h-14 rounded-full blur-2xl bg-blue-500/30"></div>
+                        <div class="absolute -bottom-4 -right-2 w-14 h-14 rounded-full blur-2xl bg-orange-500/20"></div>
+                        <div class="w-8 h-8 rounded-2xl border border-white/10 bg-white/5 mb-2 z-10"></div>
                         <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
-                        <div class="h-1.5 w-1/2 bg-slate-500 rounded z-10"></div>
+                        <div class="flex gap-1 z-10 mt-1">
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-white mb-1">Title / Hero</h3>
-                    <p class="text-xs text-slate-400">Large centered text, perfect for opening introductions.</p>
+                    <h3 class="font-bold text-white mb-1">Glass Hero</h3>
+                    <p class="text-xs text-slate-400">Cinematic intro with glass card treatment and supporting badges.</p>
                 </div>
                 <div class="template-card" onclick="addSlide('split')">
                     <div
@@ -696,21 +789,21 @@
                     <h3 class="font-bold text-white mb-1">Big Focus / CTA</h3>
                     <p class="text-xs text-slate-400">Giant icon and massive text to draw attention to a link.</p>
                 </div>
-                <div class="template-card" onclick="addSlide('glass_intro')">
+                <div class="template-card" onclick="addSlide('intro')">
                     <div
-                        class="w-full h-24 bg-slate-950 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
-                        <div class="absolute -top-3 -left-4 w-14 h-14 rounded-full blur-2xl bg-blue-500/30"></div>
-                        <div class="absolute -bottom-4 -right-2 w-14 h-14 rounded-full blur-2xl bg-orange-500/20"></div>
-                        <div class="w-8 h-8 rounded-2xl border border-white/10 bg-white/5 mb-2 z-10"></div>
-                        <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
-                        <div class="flex gap-1 z-10 mt-1">
-                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
-                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
-                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 opacity-20"
+                            style="background: radial-gradient(circle at 50% 50%, var(--accent-color) 0%, transparent 70%);">
                         </div>
+                        <div
+                            class="w-8 h-8 rounded-full border border-slate-500 flex items-center justify-center mb-2 z-10">
+                            <i class="fa-solid fa-desktop text-[10px] text-slate-300"></i>
+                        </div>
+                        <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
+                        <div class="h-1.5 w-1/2 bg-slate-500 rounded z-10"></div>
                     </div>
-                    <h3 class="font-bold text-white mb-1">Glass Hero</h3>
-                    <p class="text-xs text-slate-400">Cinematic intro with glass card treatment and supporting badges.</p>
+                    <h3 class="font-bold text-white mb-1">Title / Hero</h3>
+                    <p class="text-xs text-slate-400">Large centered text, perfect for opening introductions.</p>
                 </div>
                 <div class="template-card" onclick="addSlide('comparison')">
                     <div
@@ -961,57 +1054,18 @@
                 <div
                     class="bg-slate-900 px-6 py-5 border-b border-slate-800 flex justify-between items-center shrink-0">
                     <h2 class="text-lg font-extrabold text-white flex items-center"><i
-                            class="fa-solid fa-gear text-blue-500 mr-3"></i> Global Settings</h2>
+                            class="fa-solid fa-globe text-blue-500 mr-3"></i> Global Settings</h2>
                     <button onclick="closeSettingsModal()" class="text-slate-500 hover:text-white transition"><i
                             class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 <div class="p-6 space-y-6 text-left overflow-y-auto custom-scrollbar">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Brand Theme
-                            Color</label>
-                        <div class="flex items-center gap-4">
-                            <input type="color" id="globalTheme" onchange="updateGlobalSetting('theme', this.value)"
-                                class="w-12 h-10 rounded-lg cursor-pointer bg-slate-900 border border-slate-700 p-0 shrink-0">
-                            <span class="text-xs text-slate-500">Used for accents, buttons, and graphics.</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Global Font
-                            Family</label>
-                        <select id="globalFont" onchange="updateGlobalSetting('font', this.value)"
-                            class="w-full bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors font-bold cursor-pointer">
-                        </select>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Top Navigation
-                            Header Text</label>
-                        <input type="text" id="globalHeaderText" oninput="updateGlobalSetting('headerText', this.value)"
-                            class="w-full bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors">
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Top Navigation
-                            Icon Text (1-2 chars)</label>
-                        <input type="text" id="globalHeaderIcon" maxlength="2"
-                            oninput="updateGlobalSetting('headerIcon', this.value)"
-                            class="w-24 text-center bg-[#020617] border border-slate-700 text-white text-sm rounded-lg px-3 py-2.5 outline-none focus:border-blue-500 transition-colors font-bold uppercase">
-                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed"><strong>Note:</strong> Per-presentation branding (color, font, nav text, watermark) is now configured in the <strong>Presentation Settings</strong> panel on the right. These global settings are for universal app features.</p>
 
                     <div class="flex flex-col gap-3 border-t border-slate-800/80 pt-6 mt-2">
                         <label
                             class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest text-blue-400"><i
-                                class="fa-solid fa-wand-magic-sparkles mr-1"></i> Pro Features</label>
+                                class="fa-solid fa-wand-magic-sparkles mr-1"></i> Custom Fonts</label>
 
-                        <div class="flex flex-col gap-2 mt-1">
-                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Company
-                                Logo / Watermark</label>
-                            <div class="flex items-center gap-4">
-                                <input type="file" accept="image/*" onchange="handleLogoUpload(event)"
-                                    class="text-xs text-slate-400 file:bg-slate-800 file:border-0 file:text-white file:px-3 file:py-1.5 file:rounded file:cursor-pointer file:hover:bg-slate-700 w-48 shrink-0">
-                                <div id="logoPreview" class="flex items-center"></div>
-                            </div>
-                            <p class="text-[10px] text-slate-500">Appears in the bottom right corner of every slide
-                                automatically.</p>
-                        </div>
                         <div class="flex flex-col gap-2 mt-3">
                             <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Add Custom
                                 Google Font</label>
@@ -1033,7 +1087,7 @@
                         </div>
 
                         <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
-                            <button onclick="hideModal('settingsModal'); setTimeout(() => openCookieSettings(), 300);"
+                            <button onclick="hideModal('settingsModal'); openCookieSettings();"
                                 class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
                                 <i class="fa-solid fa-shield-halved text-blue-400"></i> Privacy Policy & Analytics
                             </button>
@@ -1046,6 +1100,8 @@
                 </div>
             </div>
         </div>
+
+    </div>
 
         <div class="modal-overlay" id="tagModal">
             <div class="modal-content" style="width: 500px;">
@@ -1097,8 +1153,8 @@
             </div>
         </div>
 
-        <div id="cookieSettingsModal" class="modal-overlay" style="z-index: 6000;">
-            <div class="modal-content" style="width: 650px; max-width: 90vw; padding: 2rem;">
+        <div id="cookieSettingsModal" class="modal-overlay" style="z-index: 6000; display: none;" onclick="if(event.target === this) hideModal('cookieSettingsModal');">
+            <div class="modal-content" style="width: 650px; max-width: 90vw; padding: 2rem;" onclick="event.stopPropagation();">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-white"><i
                             class="fa-solid fa-shield-halved text-blue-400 mr-2"></i>

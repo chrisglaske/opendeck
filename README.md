@@ -2,7 +2,7 @@
 
 **OpenDeck** is a high-performance, privacy-centric presentation builder designed for the modern web. It enables users to create beautiful, branded tech talks and corporate decks with zero backend dependencies, zero tracking, and 100% data ownership.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Version](https://img.shields.io/badge/Version-1.0-green)
 ![Privacy](https://img.shields.io/badge/Privacy-100%25_Local-blueviolet)
 [![Wiki](https://img.shields.io/badge/Documentation-Wiki-orange.svg)](https://github.com/chrisglaske/opendeck/wiki)
@@ -38,9 +38,7 @@ OpenDeck features three distinct "Design Tracks" to suit any audience:
 * **Creative Pitch**: High-impact visuals featuring Cinematic Backgrounds, Metric Counters, and Project Timelines.
 
 ### 📤 Multi-Engine Export
-* **PowerPoint (PPTX)**: Generates high-fidelity `.pptx` files compatible with Google Slides and Microsoft PowerPoint. 
-* **Speaker Notes**: Notes added in the inspector are automatically embedded into the exported PPTX file.
-* **High-Res PDF**: Uses optimized print CSS to generate perfect 16:9 PDF documents.
+* **High-Res PDF**: Planned future feature.
 * **Standalone HTML**: Export your entire deck as a single, interactive HTML file that runs anywhere without dependencies.
 
 ---
@@ -60,7 +58,7 @@ OpenDeck is built with a modular "Vanilla+" approach—maximum performance with 
         ├── storage.js      # LocalStorage & persistence logic
         ├── editor.js       # Slide rendering & mutation
         ├── ui.js           # Dashboard & modal management
-        ├── export.js       # PPTX, PDF, and HTML generators
+        ├── export.js       # PDF, HTML, and presenter-view generators
         └── tutorial.js     # Interactive onboarding data
 
 ---
@@ -98,9 +96,9 @@ You do not need an extensive node setup; just run the standalone CLI command fro
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
 
-> "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED...".
+This is a strong copyleft license: modifications and network-deployed versions must remain open under the same license terms.
 
 ---
 

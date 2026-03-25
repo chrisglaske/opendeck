@@ -1,102 +1,241 @@
 // ==========================================
-// 8. EXPORT ENGINES (HTML, PDF, PPTX) & PRESENTER VIEW
+// 8. EXPORT ENGINES (HTML, PDF) & PRESENTER VIEW
 // ==========================================
 
-function exportToPDF() {
-    const fullHTML = getCompiledHTML(true);
-    const blob = new Blob([fullHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, '_blank');
-    win.onload = function () { setTimeout(() => { win.print(); }, 800); };
+function setPdfExportState(isBusy, message = 'Download PDF') {
+    const button = document.getElementById('exportPdfBtn');
+    if (!button) return;
+    button.classList.toggle('od-button-busy', isBusy);
+    button.innerHTML = isBusy
+        ? `<i class="fa-solid fa-spinner text-red-400"></i> ${message}`
+        : `<i class="fa-solid fa-file-arrow-down text-red-400"></i> Download PDF`;
 }
 
-async function exportToPPTX() {
-    saveProjects();
-    let pres = new PptxGenJS();
-    pres.layout = 'LAYOUT_16x9';
+function buildPdfSlideNode(slide) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `preview-wrapper ${slide.bgOverride || 'bg-default'}`;
+    wrapper.style.position = 'relative';
+    wrapper.style.left = '0';
+    wrapper.style.top = '0';
+    wrapper.style.transform = 'none';
+    wrapper.style.margin = '0';
+    wrapper.style.boxShadow = 'none';
 
-    let masterObjects = [
-        { rect: { x: 0.5, y: 0.3, w: 0.3, h: 0.3, fill: { color: globalSettings.theme.replace('#', '') } } },
-        { text: { text: globalSettings.headerIcon, options: { x: 0.5, y: 0.3, w: 0.3, h: 0.3, align: "center", valign: "middle", color: "FFFFFF", bold: true, fontSize: 14 } } },
-        { text: { text: globalSettings.headerText, options: { x: 0.9, y: 0.3, w: 5, h: 0.3, color: "94A3B8", bold: true, fontSize: 12 } } },
-        { line: { x: 0.5, y: 5.3, w: 9, h: 0, line: { color: "1E293B", width: 1 } } }
-    ];
+    let html = generateSlideHTML(slide, true);
+    html = html.replace(/contenteditable="true"/g, '').replace(/onblur="[^"]*"/g, '');
+    wrapper.innerHTML = `<div class="theme-slide">${html}</div>`;
+    return wrapper;
+}
 
-    if (globalSettings.companyLogo) {
-        masterObjects.push({ image: { data: globalSettings.companyLogo, x: 8.5, y: 4.8, w: 1.0, h: 0.5, sizing: { type: 'contain' } } });
+function hexToRgba(hex, alpha = 1) {
+    if (!hex || typeof hex !== 'string') return `rgba(59,130,246,${alpha})`;
+    const cleaned = hex.replace('#', '').trim();
+    const normalized = cleaned.length === 3
+        ? cleaned.split('').map(ch => ch + ch).join('')
+        : cleaned;
+
+    if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return `rgba(59,130,246,${alpha})`;
+
+    const red = parseInt(normalized.slice(0, 2), 16);
+    const green = parseInt(normalized.slice(2, 4), 16);
+    const blue = parseInt(normalized.slice(4, 6), 16);
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+function sanitizePdfNodeStyles(node) {
+    const accent = globalSettings?.theme || '#3B82F6';
+    const accentSoft = hexToRgba(accent, 0.12);
+    const accentBorder = hexToRgba(accent, 0.35);
+
+    node.querySelectorAll('[style]').forEach((element) => {
+        const styleAttr = element.getAttribute('style');
+        if (!styleAttr || !styleAttr.includes('color-mix(')) return;
+
+        const sanitized = styleAttr.replace(/color-mix\([^)]*\)/gi, (match) => {
+            if (match.includes('10%') || match.includes('15%') || match.includes('20%')) return accentSoft;
+            return accentBorder;
+        });
+
+        element.setAttribute('style', sanitized);
+    });
+
+    node.querySelectorAll('.theme-card').forEach((element) => {
+        element.style.borderColor = accentBorder;
+    });
+}
+
+async function waitForPdfSlideReady(node) {
+    if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (e) { }
     }
 
-    pres.defineSlideMaster({
-        title: "MASTER_SLIDE",
-        background: { color: "0F172A" },
-        objects: masterObjects
-    });
+    const images = Array.from(node.querySelectorAll('img'));
+    await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+        });
+    }));
 
-    let accentHex = globalSettings.theme.replace('#', '');
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
 
-    slides.forEach(s => {
-        let slide = pres.addSlide({ masterName: "MASTER_SLIDE" });
-        if (s.notes) slide.addNotes(s.notes);
+async function exportToPDF() {
+    const stripEditableAttrs = (html) =>
+        html
+            .replace(/contenteditable="true"/g, '')
+            .replace(/onblur="[^"]*"/g, '');
 
-        if (s.bgOverride === 'bg-pitchblack') slide.background = { color: "000000" };
-        if (s.bgOverride === 'bg-deepblue') slide.background = { color: "020617" };
-        if (s.bgOverride === 'bg-aurora') slide.background = { color: "050816" };
-        if (s.bgOverride === 'bg-sunset') slide.background = { color: "1F0C15" };
-        if (s.bgOverride === 'bg-purewhite') slide.background = { color: "FFFFFF" };
+    const buildPrintableSlidesMarkup = () => {
+        const measurementHost = document.createElement('div');
+        measurementHost.style.position = 'fixed';
+        measurementHost.style.left = '-20000px';
+        measurementHost.style.top = '0';
+        measurementHost.style.width = '1400px';
+        measurementHost.style.padding = '24px';
+        measurementHost.style.background = '#020617';
+        measurementHost.style.zIndex = '-1';
+        document.body.appendChild(measurementHost);
 
-        if (s.type === 'intro') {
-            slide.addShape(pres.ShapeType.roundRect, { x: 0.5, y: 0.8, w: 9, h: 4.2, fill: { color: "111827" }, line: { color: "1E293B", width: 1 } });
-            slide.addText(s.title || '', { x: 1, y: 1.8, w: 8, h: 1, color: "FFFFFF", fontSize: 48, align: 'center', bold: true });
-            slide.addText(s.subtitle || '', { x: 1, y: 2.8, w: 8, h: 0.8, color: "94A3B8", fontSize: 20, align: 'center' });
-        }
-        else if (s.type === 'split') {
-            slide.addShape(pres.ShapeType.roundRect, { x: 0.5, y: 0.8, w: 9, h: 4.2, fill: { color: "111827" }, line: { color: "1E293B", width: 1 } });
-            slide.addShape(pres.ShapeType.rect, { x: 0.5, y: 0.8, w: 0.1, h: 4.2, fill: { color: accentHex } });
-            slide.addText(s.title || '', { x: 0.8, y: 1.0, w: 8, h: 0.6, color: "FFFFFF", fontSize: 32, bold: true });
-            slide.addText(s.subtitle || '', { x: 0.8, y: 1.8, w: 4.2, h: 1.2, color: "94A3B8", fontSize: 16 });
-            let bullets = (s.bullets || []).map(b => ({ text: b, options: { bullet: { color: accentHex } } }));
-            if (bullets.length > 0) slide.addText(bullets, { x: 0.8, y: 3, w: 4.2, h: 1.5, color: "FFFFFF", fontSize: 16 });
-            if (s.image) { slide.addImage({ data: s.image, x: 5.2, y: 1.2, w: 4, h: 3.4, sizing: { type: 'contain' } }); }
-        }
-        else if (s.type === 'grid') {
-            slide.addShape(pres.ShapeType.roundRect, { x: 0.5, y: 0.8, w: 9, h: 4.2, fill: { color: "111827" }, line: { color: "1E293B", width: 1 } });
-            slide.addText(s.title || '', { x: 0.8, y: 1.0, w: 8, h: 0.6, color: "FFFFFF", fontSize: 32, bold: true });
-            let startX = 0.8;
-            let width = (8.4 / (s.cards ? s.cards.length : 1)) - 0.2;
-            (s.cards || []).forEach((c, i) => {
-                let x = startX + (i * (width + 0.2));
-                slide.addShape(pres.ShapeType.roundRect, { x: x, y: 2.4, w: width, h: 2.2, fill: { color: "1E293B" } });
-                slide.addText(c.title || '', { x: x, y: 3.6, w: width, h: 0.4, color: "FFFFFF", fontSize: 16, align: 'center', bold: true });
+        const sections = [];
+        slides.forEach((slide, index) => {
+            const section = document.createElement('section');
+            section.className = `pdf-slide ${slide.bgOverride || 'bg-default'}`;
+            section.id = `pdf-slide-${index}`;
+            section.innerHTML = `<div class="theme-slide">${stripEditableAttrs(generateSlideHTML(slide, true))}</div>`;
+            measurementHost.appendChild(section);
+
+            if (typeof window.fitSlideContent === 'function') {
+                try { window.fitSlideContent(section); } catch (e) { }
+            }
+
+            sections.push(section.outerHTML);
+        });
+
+        document.body.removeChild(measurementHost);
+        return sections.join('\n');
+    };
+
+    const createPrintFrameDocument = (slidesMarkup) => {
+        const frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.position = 'fixed';
+        frame.style.right = '0';
+        frame.style.bottom = '0';
+        frame.style.width = '1px';
+        frame.style.height = '1px';
+        frame.style.opacity = '0';
+        frame.style.pointerEvents = 'none';
+        frame.style.border = '0';
+        document.body.appendChild(frame);
+
+        const frameDoc = frame.contentDocument;
+        frameDoc.open();
+        frameDoc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>OpenDeck PDF</title></head><body></body></html>`);
+        frameDoc.close();
+
+        document.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => {
+            frameDoc.head.appendChild(node.cloneNode(true));
+        });
+
+        const printStyle = frameDoc.createElement('style');
+        printStyle.textContent = `
+            html, body { margin: 0; padding: 0; background: #000; }
+            body { overflow: visible !important; }
+            .pdf-slide {
+                width: 16in;
+                height: 9in;
+                margin: 0;
+                padding: 0;
+                page-break-after: always;
+                break-after: page;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .pdf-slide:last-child { page-break-after: auto; break-after: auto; }
+            .pdf-slide .theme-slide {
+                width: 16in;
+                height: 9in;
+                padding: 4rem;
+                box-sizing: border-box;
+            }
+            @page { size: 16in 9in; margin: 0; }
+            @media print {
+                html, body { width: 16in; margin: 0 !important; padding: 0 !important; }
+            }
+        `;
+        frameDoc.head.appendChild(printStyle);
+
+        frameDoc.body.innerHTML = slidesMarkup;
+        return frame;
+    };
+
+    const waitForFrameReady = async (frame) => {
+        const frameDoc = frame.contentDocument;
+
+        const links = Array.from(frameDoc.querySelectorAll('link[rel="stylesheet"]'));
+        await Promise.all(links.map((link) => {
+            const sheet = link.sheet;
+            if (sheet) return Promise.resolve();
+            return new Promise((resolve) => {
+                link.addEventListener('load', resolve, { once: true });
+                link.addEventListener('error', resolve, { once: true });
+                setTimeout(resolve, 3000);
             });
-        }
-        else if (s.type === 'list') {
-            slide.addShape(pres.ShapeType.roundRect, { x: 0.5, y: 0.8, w: 9, h: 4.2, fill: { color: "111827" }, line: { color: "1E293B", width: 1 } });
-            slide.addShape(pres.ShapeType.rect, { x: 0.5, y: 0.8, w: 0.1, h: 4.2, fill: { color: accentHex } });
-            slide.addText(s.title || '', { x: 0.8, y: 1.0, w: 8, h: 0.6, color: "FFFFFF", fontSize: 32, bold: true });
-            let startY = 2.8;
-            (s.items || []).forEach((item, i) => {
-                let hexColor = (item.color || accentHex).replace('#', '');
-                slide.addShape(pres.ShapeType.roundRect, { x: 0.8, y: startY + (i * 0.7), w: 4.2, h: 0.6, fill: { color: "1E293B" } });
-                slide.addText(item.label || '', { x: 0.9, y: startY + (i * 0.7), w: 2.5, h: 0.6, color: "FFFFFF", fontSize: 14 });
-                slide.addText(item.value || '', { x: 3.4, y: startY + (i * 0.7), w: 1.4, h: 0.6, color: hexColor, fontSize: 14, align: 'right', bold: true });
-            });
-        }
-        else if (s.type === 'pitch_hero') {
-            if (s.image) slide.addImage({ data: s.image, x: 0, y: 0, w: 10, h: 5.625, sizing: { type: 'cover' } });
-            slide.addText(s.title || '', { x: 0.5, y: 2, w: 9, h: 1.5, color: "FFFFFF", fontSize: 60, align: 'center', bold: true });
-        }
-        else {
-            let textColor = s.bgOverride === 'bg-purewhite' ? "0F172A" : "FFFFFF";
-            let bodyColor = s.bgOverride === 'bg-purewhite' ? "475569" : "94A3B8";
-            slide.addShape(pres.ShapeType.roundRect, { x: 0.6, y: 0.9, w: 8.8, h: 3.9, fill: { color: s.bgOverride === 'bg-purewhite' ? "F8FAFC" : "111827", transparency: s.bgOverride === 'bg-purewhite' ? 0 : 10 }, line: { color: accentHex, transparency: 75, width: 1 } });
-            slide.addText(s.title || '', { x: 1.0, y: 1.5, w: 8.0, h: 1.0, color: textColor, fontSize: 30, bold: true });
-            slide.addText(s.subtitle || s.kicker || '', { x: 1.0, y: 2.45, w: 8.0, h: 1.25, color: bodyColor, fontSize: 18 });
-        }
-    });
+        }));
 
-    const p = projects.find(x => x.id === activeProjectId);
-    const name = p ? p.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'presentation';
-    pres.writeFile({ fileName: name + ".pptx" });
+        if (frameDoc.fonts && frameDoc.fonts.ready) {
+            try { await frameDoc.fonts.ready; } catch (e) { }
+        }
+
+        const images = Array.from(frameDoc.images || []);
+        await Promise.all(images.map((image) => {
+            if (image.complete) return Promise.resolve();
+            return new Promise((resolve) => {
+                image.addEventListener('load', resolve, { once: true });
+                image.addEventListener('error', resolve, { once: true });
+            });
+        }));
+
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await new Promise(resolve => setTimeout(resolve, 250));
+    };
+
+    let printFrame = null;
+    try {
+        setPdfExportState(true, 'Preparing PDF');
+        saveProjects();
+
+        const slidesMarkup = buildPrintableSlidesMarkup();
+        printFrame = createPrintFrameDocument(slidesMarkup);
+        await waitForFrameReady(printFrame);
+
+        const frameWindow = printFrame.contentWindow;
+        try { frameWindow.focus(); } catch (e) { }
+        frameWindow.print();
+
+        const cleanup = () => {
+            if (printFrame && printFrame.parentNode) {
+                printFrame.parentNode.removeChild(printFrame);
+            }
+            printFrame = null;
+            setPdfExportState(false);
+        };
+
+        frameWindow.addEventListener('afterprint', cleanup, { once: true });
+        setTimeout(cleanup, 12000);
+    } catch (error) {
+        console.error('PDF export failed:', error);
+        if (printFrame && printFrame.parentNode) {
+            printFrame.parentNode.removeChild(printFrame);
+        }
+        setPdfExportState(false);
+        alert('PDF export failed. Please try again.');
+    }
 }
 
 function getCompiledHTML(isPDF = false) {
@@ -149,6 +288,7 @@ function getCompiledHTML(isPDF = false) {
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root { --bg-dark: #000000; --accent-color: ${globalSettings.theme}; --global-font: ${globalSettings.font}; }
+* { box-sizing: border-box; }
 body { font-family: var(--global-font); background-color: var(--bg-dark); color: white; overflow: hidden; margin: 0; }
 
 .top-nav { position: fixed; top: 0; left: 0; right: 0; height: 4rem; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 20%, transparent); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; z-index: 1000; }
@@ -159,6 +299,7 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 
 .slide-container { display: flex; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); height: 100vh; width: ${totalSlides}00vw; }
 .slide { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem; position: relative; }
+.theme-slide { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem; position: relative; font-family: var(--global-font); }
 
 .bg-default { background: radial-gradient(circle at 50% 50%, #111827 0%, #000000 100%); }
 .bg-deepblue { background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%); }
@@ -172,9 +313,48 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .bg-purewhite .theme-card { background: rgba(255, 255, 255, 0.95); border-color: rgba(0,0,0,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
 .accent-text { color: var(--accent-color); }
 
-.od-shell { width: 100%; max-width: 1200px; position: relative; overflow: hidden; padding: 3.5rem; border-radius: 1.75rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(9,12,20,0.68); backdrop-filter: blur(24px); box-shadow: 0 30px 70px -30px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.06); }
+.od-deck-shell { width: 100%; max-width: 1200px; position: relative; overflow: visible; padding: 3.25rem; border-radius: 1.75rem; background: rgba(8, 12, 21, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 80px -34px rgba(0, 0, 0, 1), inset 0 1px 0 rgba(255, 255, 255, 0.05); backdrop-filter: blur(22px); }
+.bg-purewhite .od-deck-shell { background: rgba(255, 255, 255, 0.95); border-color: rgba(15, 23, 42, 0.12); box-shadow: 0 30px 80px -34px rgba(15, 23, 42, 0.18); }
+.od-deck-shell::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 42%, rgba(255, 255, 255, 0.02)); pointer-events: none; }
+.od-title-mark { width: 5rem; height: 0.35rem; border-radius: 999px; margin-bottom: 1.4rem; background: var(--accent-color); box-shadow: 0 0 20px -4px var(--accent-color); }
+.od-lead { font-size: 1.32rem; line-height: 1.7; color: #94a3b8; }
+.bg-purewhite .od-lead { color: #475569; }
+.od-panel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; width: 100%; }
+.od-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1.4rem; width: 100%; }
+.od-card-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.od-card { position: relative; padding: 1.5rem; border-radius: 1.3rem; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); overflow: hidden; }
+.bg-purewhite .od-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
+.od-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; border-top-left-radius: inherit; border-top-right-radius: inherit; background: var(--card-accent, var(--accent-color)); }
+.od-card__icon { width: 3.4rem; height: 3.4rem; border-radius: 1rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); margin-bottom: 1rem; }
+.od-checklist-shell { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 1.5rem; align-items: stretch; }
+.od-check-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem; border-radius: 1rem; background: rgba(15, 23, 42, 0.62); border: 1px solid rgba(255, 255, 255, 0.08); }
+.bg-purewhite .od-check-row { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
+.od-code-shell { width: 100%; border-radius: 1.25rem; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); background: #09101d; box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.95); }
+.od-code-shell__head { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1rem; background: #050b16; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.od-metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 1.25rem; width: 100%; }
+.od-metric-card { padding: 1.7rem 1rem; border-radius: 1.4rem; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); }
+.bg-purewhite .od-metric-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
+.od-profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1.5rem; width: 100%; }
+.od-profile-card { position: relative; padding: 1.6rem; border-radius: 1.4rem; text-align: center; background: radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 34%), rgba(15, 23, 42, 0.58); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+.bg-purewhite .od-profile-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
+.od-profile-avatar-wrap { position: relative; margin-bottom: 1.5rem; }
+.od-profile-avatar-wrap::before { content: ''; position: absolute; inset: 14% 12%; border-radius: 999px; background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%); filter: blur(14px); pointer-events: none; }
+.od-profile-avatar { position: relative; width: 10rem; height: 10rem; border-radius: 999px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 4px solid var(--accent-color); background: linear-gradient(180deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.92) 100%); box-shadow: 0 18px 42px -24px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.04); object-fit: cover; }
+.od-profile-avatar--image { background: #0f172a; }
+.od-profile-accent { width: 3.4rem; height: 0.24rem; border-radius: 999px; margin: 1rem auto 0; background: linear-gradient(90deg, transparent 0%, var(--accent-color) 20%, var(--accent-color) 80%, transparent 100%); opacity: 0.9; }
+.od-pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1.2rem; width: 100%; align-items: stretch; }
+.od-pricing-card { padding: 1.8rem; border-radius: 1.5rem; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); text-align: center; }
+.od-pricing-card--featured { transform: translateY(-10px); border-width: 2px; box-shadow: 0 24px 60px -26px rgba(0, 0, 0, 0.9); }
+.bg-purewhite .od-pricing-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
+.od-timeline-track { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 1rem; width: 100%; padding-top: 1rem; }
+.od-timeline-track::before { content: ''; position: absolute; top: 1.8rem; left: 8%; right: 8%; height: 2px; background: rgba(148, 163, 184, 0.24); }
+.od-timeline-item { position: relative; text-align: center; padding: 0 0.8rem; }
+.od-hero-cover { position: absolute; inset: 0; overflow: hidden; }
+.od-hero-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2, 6, 23, 0.18) 0%, rgba(2, 6, 23, 0.82) 100%); }
+
+.od-shell { width: 100%; max-width: 1200px; position: relative; overflow: visible; padding: 3.5rem; border-radius: 1.75rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(9,12,20,0.68); backdrop-filter: blur(24px); box-shadow: 0 30px 70px -30px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.06); }
 .bg-purewhite .od-shell { background: rgba(255,255,255,0.94); border-color: rgba(15,23,42,0.12); box-shadow: 0 30px 70px -30px rgba(15,23,42,0.18); }
-.od-shell::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 45%, rgba(255,255,255,0.03)); pointer-events: none; }
+.od-shell::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 45%, rgba(255,255,255,0.03)); pointer-events: none; }
 .od-kicker { display: inline-flex; align-items: center; gap: 0.6rem; align-self: flex-start; padding: 0.45rem 0.95rem; border-radius: 999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #cbd5e1; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.08); }
 .bg-purewhite .od-kicker { background: rgba(241,245,249,0.9); color: #475569; border-color: rgba(15,23,42,0.1); }
 .od-orb { position: absolute; border-radius: 999px; filter: blur(90px); opacity: 0.9; pointer-events: none; }
@@ -199,12 +379,38 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .od-window__dot { width: 0.72rem; height: 0.72rem; border-radius: 999px; }
 .od-window__body { flex: 1; padding: 1.4rem; overflow: auto; }
 .od-window__body pre { margin: 0; }
-.od-roadmap-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; margin-top: 2rem; }
+.od-roadmap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1.25rem; margin-top: 2rem; }
 .od-roadmap-card { position: relative; padding: 1.6rem; border-radius: 1.4rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(15,23,42,0.58); overflow: hidden; min-height: 16rem; }
 .bg-purewhite .od-roadmap-card { background: rgba(248,250,252,0.96); border-color: rgba(15,23,42,0.1); }
 .od-roadmap-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--phase-color, var(--accent-color)); }
 .od-status-pill { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.7rem; border-radius: 999px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .bg-purewhite .od-status-pill { background: rgba(241,245,249,0.94); border-color: rgba(15,23,42,0.1); }
+
+.od-shell-density-compact, .od-shell-density-tight, .od-shell-density-ultra { justify-content: flex-start !important; }
+.od-shell-density-compact { padding-top: 2.25rem; padding-bottom: 2.25rem; }
+.od-shell-density-tight { padding-top: 1.9rem; padding-bottom: 1.9rem; }
+.od-shell-density-ultra { padding-top: 1.45rem; padding-bottom: 1.45rem; }
+.od-shell-density-compact .od-title-mark, .od-shell-density-tight .od-title-mark, .od-shell-density-ultra .od-title-mark { margin-bottom: 0.9rem; }
+.od-shell-density-compact > h1, .od-shell-density-compact > h2, .od-shell-density-tight > h1, .od-shell-density-tight > h2, .od-shell-density-ultra > h1, .od-shell-density-ultra > h2 { margin-bottom: 0.45rem !important; }
+.od-shell-density-compact > p, .od-shell-density-tight > p, .od-shell-density-ultra > p { margin-bottom: 1rem !important; }
+
+.od-profile-grid.od-density-compact, .od-metric-grid.od-density-compact, .od-pricing-grid.od-density-compact, .od-roadmap-grid.od-density-compact, .od-timeline-track.od-density-compact { gap: 0.9rem; }
+.od-profile-grid.od-density-tight, .od-metric-grid.od-density-tight, .od-pricing-grid.od-density-tight, .od-roadmap-grid.od-density-tight, .od-timeline-track.od-density-tight { gap: 0.7rem; }
+.od-profile-grid.od-density-ultra, .od-metric-grid.od-density-ultra, .od-pricing-grid.od-density-ultra, .od-roadmap-grid.od-density-ultra, .od-timeline-track.od-density-ultra { gap: 0.55rem; }
+
+.od-profile-grid.od-density-compact .od-profile-card { padding: 1.2rem; }
+.od-profile-grid.od-density-tight .od-profile-card { padding: 0.95rem; }
+.od-profile-grid.od-density-ultra .od-profile-card { padding: 0.75rem; }
+.od-profile-grid.od-density-compact .od-profile-avatar { width: 8.2rem; height: 8.2rem; }
+.od-profile-grid.od-density-tight .od-profile-avatar { width: 6.8rem; height: 6.8rem; }
+.od-profile-grid.od-density-ultra .od-profile-avatar { width: 5.6rem; height: 5.6rem; }
+.od-profile-grid.od-density-tight h4, .od-profile-grid.od-density-ultra h4 { font-size: 1.5rem !important; }
+.od-profile-grid.od-density-tight p, .od-profile-grid.od-density-ultra p { letter-spacing: 0.2em !important; }
+
+.od-metric-grid.od-density-compact .od-metric-card, .od-pricing-grid.od-density-compact .od-pricing-card, .od-roadmap-grid.od-density-compact .od-roadmap-card { padding: 1.2rem; }
+.od-metric-grid.od-density-tight .od-metric-card, .od-pricing-grid.od-density-tight .od-pricing-card, .od-roadmap-grid.od-density-tight .od-roadmap-card { padding: 1rem; }
+.od-metric-grid.od-density-ultra .od-metric-card, .od-pricing-grid.od-density-ultra .od-pricing-card, .od-roadmap-grid.od-density-ultra .od-roadmap-card { padding: 0.85rem; }
+.od-pricing-grid.od-density-tight .od-pricing-card--featured, .od-pricing-grid.od-density-ultra .od-pricing-card--featured { transform: translateY(0); }
 
 .nav-btn { position: fixed; bottom: 2rem; background: rgba(30, 30, 30, 0.8); border: 1px solid color-mix(in srgb, var(--accent-color) 30%, transparent); color: white; width: 3.5rem; height: 3.5rem; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 100; transition: all 0.2s; }
 .nav-btn:hover { background: var(--accent-color); color: white; transform: scale(1.1); }
@@ -224,8 +430,11 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 @keyframes revealRight { from { opacity: 0; transform: translateX(48px); } to { opacity: 1; transform: translateX(0); } }
 
 @media (max-width: 1024px) {
-    .od-compare-grid, .od-showcase-grid, .od-roadmap-grid { grid-template-columns: 1fr; }
+    .od-compare-grid, .od-showcase-grid, .od-roadmap-grid, .od-panel-grid, .od-card-grid, .od-metric-grid, .od-profile-grid, .od-pricing-grid, .od-timeline-track, .od-checklist-shell { grid-template-columns: 1fr; }
+    .od-timeline-track::before { display: none; }
 }
+
+.slide-autofit { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; transform-origin: center center; }
 
 /* AMAZING PRO PRESENTER VIEW UI */
 #presenterView { display: none; background: #020617; color: white; height: 100vh; padding: 2rem; box-sizing: border-box; overflow: hidden; flex-direction: column; font-family: var(--global-font); }
@@ -255,6 +464,9 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 
 .timer-wrap { display: flex; flex-direction: column; align-items: flex-end; }
 .timer-label { font-size: 0.65rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.1em; font-weight: 700; margin-bottom: -0.5rem; z-index: 10; }
+.timer-controls { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.9rem; }
+.timer-btn { border: 1px solid rgba(59,130,246,0.35); background: rgba(15,23,42,0.86); color: #e2e8f0; padding: 0.5rem 0.9rem; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.2s; }
+.timer-btn:hover { border-color: var(--accent-color); color: white; }
 
 ${pdfPrintStyles}
 </style>
@@ -306,6 +518,9 @@ ${pdfPrintStyles}
         <div class="timer-wrap">
             <span class="timer-label">Elapsed Time</span>
             <div id="timerDisplay" class="p-time" style="color: var(--accent-color);">00:00:00</div>
+            <div class="timer-controls">
+                <button id="timerToggleBtn" class="timer-btn" onclick="toggleTimer()"><i class="fa-solid fa-pause"></i> Pause</button>
+            </div>
         </div>
     </div>
     <div class="p-body">
@@ -351,6 +566,7 @@ const syncChannel = new BroadcastChannel(syncKey);
 
 // Presenter View Check 
 const isPresenter = window.location.hash === '#presenter' || window.isPresenterOverride;
+const isPdfPrintMode = window.location.hash === '#pdfprint';
 
 if (isPresenter) {
     document.getElementById('standardView').style.display = 'none';
@@ -364,15 +580,127 @@ if (isPresenter) {
         dot.className = \`dot \${i === 0 ? 'active' : ''}\`;
         dotsContainer.appendChild(dot);
     }
+    requestAnimationFrame(() => applyAutoFitToDeck());
 }
 
-// Fire the update explicitly on load so the Speaker view isn't blank
-window.addEventListener('DOMContentLoaded', () => {
-    if (isPresenter) {
-        updateSlide(true);
-        setTimeout(scalePresenterPreviews, 100);
+// Fit overflowing slide content down to always fill (not overflow) the canvas
+function fitSlideContent(root) {
+    if (!root) return;
+    const target = root.querySelector('[data-slide-autofit]');
+    if (!target) return;
+
+    const measureAutoFitBounds = (node) => {
+        const baseRect = node.getBoundingClientRect();
+        let minLeft = baseRect.left;
+        let minTop = baseRect.top;
+        let maxRight = baseRect.right;
+        let maxBottom = baseRect.bottom;
+
+        node.querySelectorAll('*').forEach((child) => {
+            const style = window.getComputedStyle(child);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.position === 'fixed') return;
+
+            const rect = child.getBoundingClientRect();
+            if (!rect.width && !rect.height) return;
+
+            const marginTop = parseFloat(style.marginTop) || 0;
+            const marginRight = parseFloat(style.marginRight) || 0;
+            const marginBottom = parseFloat(style.marginBottom) || 0;
+            const marginLeft = parseFloat(style.marginLeft) || 0;
+
+            minLeft = Math.min(minLeft, rect.left - marginLeft);
+            minTop = Math.min(minTop, rect.top - marginTop);
+            maxRight = Math.max(maxRight, rect.right + marginRight);
+            maxBottom = Math.max(maxBottom, rect.bottom + marginBottom);
+        });
+
+        return {
+            width: Math.max(1, maxRight - minLeft),
+            height: Math.max(1, maxBottom - minTop)
+        };
+    };
+
+    target.style.transform = 'none';
+    const parentW = root.clientWidth  || 1200;
+    const navOffset = !isPresenter ? (document.getElementById('topNav')?.offsetHeight || 0) : 0;
+    const parentH = Math.max(1, (root.clientHeight || 800) - navOffset);
+    const { width: contentW, height: contentH } = measureAutoFitBounds(target);
+    const scale = Math.min(1, parentW / contentW, parentH / contentH);
+    if (scale < 1) target.style.transform = \`scale(\${scale.toFixed(4)})\`;
+}
+
+function applyAutoFitToDeck() {
+    document.querySelectorAll('#container .slide').forEach((slide) => fitSlideContent(slide));
+}
+
+// Initialize the presenter view once the DOM is ready
+function initializePresenterView() {
+    if (!isPresenter) return;
+    updateSlide(true);
+    requestAnimationFrame(() => {
+        scalePresenterPreviews();
+        document.querySelectorAll('.p-scale-wrapper').forEach(fitSlideContent);
+        setTimeout(() => { updateSlide(true); }, 180);
+    });
+}
+
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initializePresenterView, { once: true });
+} else {
+    // DOM is already ready (blob injection path)
+    setTimeout(initializePresenterView, 0);
+}
+
+if (!isPresenter) {
+    window.addEventListener('load', applyAutoFitToDeck, { once: true });
+}
+
+async function initializePdfPrintMode() {
+    if (!isPdfPrintMode || isPresenter) return;
+
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (e) { }
     }
-});
+
+    const expectedSlides = numSlides;
+    const start = Date.now();
+    while (Date.now() - start < 12000) {
+        const count = document.querySelectorAll('.slide').length;
+        if (count >= expectedSlides) break;
+        await wait(120);
+    }
+
+    const images = Array.from(document.images || []);
+    await Promise.all(images.map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+        });
+    }));
+
+    applyAutoFitToDeck();
+    await wait(320);
+
+    try { window.focus(); } catch (e) {}
+    try { window.print(); } catch (e) {}
+
+    window.addEventListener('afterprint', () => {
+        setTimeout(() => {
+            try { window.close(); } catch (e) {}
+        }, 180);
+    }, { once: true });
+}
+
+if (isPdfPrintMode && !isPresenter) {
+    if (document.readyState === 'complete') {
+        initializePdfPrintMode();
+    } else {
+        window.addEventListener('load', () => initializePdfPrintMode(), { once: true });
+    }
+}
 
 function updateSlide(skipSync = false) {
     if (!isPresenter) {
@@ -381,6 +709,7 @@ function updateSlide(skipSync = false) {
         if(currentSection) {
             const card = currentSection.querySelector('.theme-card, .absolute.inset-0.z-0');
             if(card) { card.style.animation = 'none'; card.offsetHeight; card.style.animation = null; }
+            fitSlideContent(currentSection);
         }
         const dots = document.querySelectorAll('.dot');
         dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentSlide));
@@ -397,16 +726,19 @@ function updateSlide(skipSync = false) {
         const sourceNext = currentSlide < numSlides - 1 ? document.getElementById('slide-' + (currentSlide + 1)) : null;
 
         currBox.innerHTML = ''; nextBox.innerHTML = '';
-        if (sourceCurrent) { 
-            let clone = sourceCurrent.cloneNode(true); 
-            // We lock the cloned theme-slide to fill the fixed 1200x800 wrapper exactly as it looks in the builder
-            clone.className = 'theme-slide ' + sourceCurrent.className.split(' ').find(c => c.startsWith('bg-')); 
-            currBox.appendChild(clone); 
+        if (sourceCurrent) {
+            const clone = document.createElement('div');
+            clone.className = 'theme-slide ' + (sourceCurrent.className.split(' ').find(c => c.startsWith('bg-')) || 'bg-default');
+            clone.innerHTML = sourceCurrent.innerHTML;
+            currBox.appendChild(clone);
+            requestAnimationFrame(() => fitSlideContent(clone));
         }
-        if (sourceNext) { 
-            let clone = sourceNext.cloneNode(true); 
-            clone.className = 'theme-slide ' + sourceNext.className.split(' ').find(c => c.startsWith('bg-')); 
-            nextBox.appendChild(clone); 
+        if (sourceNext) {
+            const clone = document.createElement('div');
+            clone.className = 'theme-slide ' + (sourceNext.className.split(' ').find(c => c.startsWith('bg-')) || 'bg-default');
+            clone.innerHTML = sourceNext.innerHTML;
+            nextBox.appendChild(clone);
+            requestAnimationFrame(() => fitSlideContent(clone));
         }
         scalePresenterPreviews();
     }
@@ -424,7 +756,6 @@ function scalePresenterPreviews() {
     const nextWrap = document.getElementById('p-next-wrapper');
     const nextBox = document.getElementById('p-next-container');
     
-    // Calculate the perfect uniform scale factor based on the 1200x800 raw aspect ratio
     if (currWrap && currBox) {
         const scale = Math.min(currWrap.clientWidth / 1200, currWrap.clientHeight / 800) * 0.95;
         currBox.style.transform = \`scale(\${scale})\`;
@@ -442,19 +773,30 @@ function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } 
 function openSpeakerView() {
     document.getElementById('helpModal').style.display='none';
     
-    // Prevent multiple window openings!
     if (presenterWindow && !presenterWindow.closed) {
         presenterWindow.focus();
         return;
     }
-    
-    // Bulletproof Blob fallback: Copy the DOM and forcefully inject the override script!
+
     if (window.location.protocol === 'blob:') {
-        presenterWindow = window.open('', 'SpeakerView', 'width=1200,height=800');
-        presenterWindow.document.write('<!DOCTYPE html><html><head><script>window.isPresenterOverride=true;<\\/script>' + document.head.innerHTML + '</head><body class="exporting">' + document.body.innerHTML + '</body></html>');
+        // Blob URL path: inject override flag directly into a fresh document copy
+        presenterWindow = window.open('about:blank', 'SpeakerView', 'width=1280,height=860');
+        if (!presenterWindow) return;
+        const html = '<!DOCTYPE html><html><head><script>window.isPresenterOverride=true;<\\/script>' + document.head.innerHTML + '<\\/head><body class="exporting">' + document.body.innerHTML + '<\\/body><\\/html>';
+        presenterWindow.document.open();
+        presenterWindow.document.write(html);
         presenterWindow.document.close();
+        // Give the new window time to parse/execute, then force an update
+        const trySync = () => {
+            try { syncChannel.postMessage(currentSlide.toString()); } catch(e) {}
+        };
+        setTimeout(trySync, 400);
+        setTimeout(trySync, 900);
+        setTimeout(trySync, 1600);
     } else {
-        presenterWindow = window.open(window.location.href.split('#')[0] + '#presenter', 'SpeakerView', 'width=1200,height=800');
+        presenterWindow = window.open(window.location.href.split('#')[0] + '#presenter', 'SpeakerView', 'width=1280,height=860');
+        setTimeout(() => syncChannel.postMessage(currentSlide.toString()), 250);
+        setTimeout(() => syncChannel.postMessage(currentSlide.toString()), 800);
     }
 }
 
@@ -473,17 +815,65 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 's' || e.key === 'S') openSpeakerView();
 });
 
-let startTime, timerInterval;
+window.addEventListener('resize', () => {
+    if (isPresenter) {
+        scalePresenterPreviews();
+        document.querySelectorAll('.p-scale-wrapper').forEach(fitSlideContent);
+        return;
+    }
+    applyAutoFitToDeck();
+});
+
+let startTime, timerInterval, elapsedMs = 0, timerRunning = false;
 function startTimer() {
-    startTime = Date.now();
-    timerInterval = setInterval(() => {
-        const diff = Date.now() - startTime;
+    if (timerInterval) clearInterval(timerInterval);
+    startTime = Date.now() - elapsedMs;
+    timerRunning = true;
+    updateTimerButton();
+    const paintTimer = () => {
+        if (!timerRunning) return;
+        elapsedMs = Date.now() - startTime;
+        const diff = elapsedMs;
         const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
         const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
         const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
         const display = document.getElementById('timerDisplay');
-        if(display) display.innerText = h + ':' + m + ':' + s; // Pure JS fixes escaping logic bugs!
-    }, 1000);
+        if(display) display.innerText = h + ':' + m + ':' + s;
+    };
+    paintTimer();
+    timerInterval = setInterval(paintTimer, 1000);
+}
+
+function updateTimerButton() {
+    const button = document.getElementById('timerToggleBtn');
+    if (!button) return;
+    button.innerHTML = timerRunning
+        ? '<i class="fa-solid fa-pause"></i> Pause'
+        : '<i class="fa-solid fa-play"></i> Resume';
+}
+
+function toggleTimer() {
+    if (timerRunning) {
+        elapsedMs = Date.now() - startTime;
+        timerRunning = false;
+        clearInterval(timerInterval);
+        updateTimerButton();
+    } else {
+        startTime = Date.now() - elapsedMs;
+        timerRunning = true;
+        updateTimerButton();
+        const paintTimer = () => {
+            if (!timerRunning) return;
+            elapsedMs = Date.now() - startTime;
+            const diff = elapsedMs;
+            const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+            const display = document.getElementById('timerDisplay');
+            if(display) display.innerText = h + ':' + m + ':' + s;
+        };
+        timerInterval = setInterval(paintTimer, 1000);
+    }
 }
 <\/script>
 </body>
@@ -494,6 +884,7 @@ function presentInBrowser() {
     const fullHTML = getCompiledHTML(false);
     const blob = new Blob([fullHTML], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
+    // Open the main view; the S key / Speaker View button inside will then open #presenter
     window.open(url, '_blank');
 }
 
@@ -514,7 +905,6 @@ function exportPresentation() {
 
 // Explicitly expose to window
 window.exportToPDF = exportToPDF;
-window.exportToPPTX = exportToPPTX;
 window.getCompiledHTML = getCompiledHTML;
 window.presentInBrowser = presentInBrowser;
 window.exportPresentation = exportPresentation;

@@ -28,10 +28,56 @@ function escapeHtml(unsafe) {
     return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
+function updateViewportGuard() {
+    const guard = document.getElementById('viewportGuard');
+    if (!guard) return;
+
+    const minWidth = 980;
+    const minHeight = 620;
+
+    const landingView = document.getElementById('landingView');
+    const landingVisible = landingView && getComputedStyle(landingView).display !== 'none';
+    if (landingVisible) {
+        guard.style.display = 'none';
+        return;
+    }
+
+    const mobileUA = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|Silk/i.test(navigator.userAgent || '');
+    const touchDevice = navigator.maxTouchPoints > 0;
+    const smallViewport = window.innerWidth < minWidth || window.innerHeight < minHeight;
+    const mobileSizedTouch = touchDevice && window.innerWidth < 1180;
+    const shouldBlock = mobileUA || smallViewport || mobileSizedTouch;
+
+    guard.style.display = shouldBlock ? 'flex' : 'none';
+
+    const meta = document.getElementById('viewportGuardMeta');
+    if (meta) {
+        meta.textContent = `Current viewport: ${window.innerWidth} × ${window.innerHeight}`;
+    }
+
+    const required = document.getElementById('viewportGuardRequired');
+    if (required) {
+        const widthDeficit = Math.max(0, minWidth - window.innerWidth);
+        const heightDeficit = Math.max(0, minHeight - window.innerHeight);
+        const deficits = [];
+
+        if (widthDeficit > 0) deficits.push(`width +${widthDeficit}px`);
+        if (heightDeficit > 0) deficits.push(`height +${heightDeficit}px`);
+
+        if (deficits.length) {
+            required.textContent = `Required viewport: ${minWidth} × ${minHeight} (missing ${deficits.join(', ')})`;
+        } else {
+            required.textContent = `Required viewport: ${minWidth} × ${minHeight} or larger`;
+        }
+    }
+}
+
 // BOOTSTRAP WITH STATE PERSISTENCE
 window.onload = () => {
     // If this is the exported Speaker View, DO NOT boot the main app UI!
     if (window.location.hash === '#presenter' || window.isPresenterOverride) return;
+
+    updateViewportGuard();
 
     // Load DB silently to check for projects
     if (window.loadProjects) loadProjects();
@@ -85,8 +131,30 @@ function bootAppToDashboard() {
 
         if (window.renderDashboard) renderDashboard();
         if (window.checkTutorial) checkTutorial();
+        if (window.showReleaseNotesOnce) {
+            setTimeout(() => { window.showReleaseNotesOnce('2.1.1'); }, 180);
+        }
     }, 1000);
+}
+
+function showReleaseNotesOnce(version) {
+    const releaseKey = `openDeckReleaseSeen_${version}`;
+    if (localStorage.getItem(releaseKey)) return;
+
+    const modal = document.getElementById('releaseNotesModal');
+    if (!modal || typeof window.showModal !== 'function') return;
+
+    const tutorialModal = document.getElementById('tutorialModal');
+    if (tutorialModal && tutorialModal.style.display === 'flex') return;
+
+    localStorage.setItem(releaseKey, 'true');
+    window.showModal('releaseNotesModal');
 }
 // Explicitly expose to window
 window.escapeHtml = escapeHtml;
 window.bootAppToDashboard = bootAppToDashboard;
+window.showReleaseNotesOnce = showReleaseNotesOnce;
+window.updateViewportGuard = updateViewportGuard;
+
+window.addEventListener('resize', updateViewportGuard);
+window.addEventListener('orientationchange', updateViewportGuard);
