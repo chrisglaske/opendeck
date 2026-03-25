@@ -5,6 +5,7 @@
 function startAppFromLanding() {
     localStorage.setItem('openDeckAppState', 'dashboard');
     document.getElementById('landingView').style.display = 'none';
+    if (window.updateViewportGuard) window.updateViewportGuard();
     bootAppToDashboard();
 }
 
@@ -223,7 +224,7 @@ function createDemoProject() {
                 {
                     id: 'slide_demo_3', type: 'split', navName: 'Features',
                     title: 'Developer-Ready Workflows', subtitle: 'Finally, an editor that respects your time and data.',
-                    bullets: ['No mandatory accounts or subscriptions', 'Version-control friendly backups (.odeck)', 'Click anywhere to edit instantly', 'Export to standalone HTML or PPTX'],
+                    bullets: ['No mandatory accounts or subscriptions', 'Version-control friendly backups (.odeck)', 'Click anywhere to edit instantly', 'Download PDF or standalone HTML exports'],
                     boxTitle: '100% Secure',
                     boxText: "Your presentations never leave your browser's Local Storage.",
                     boxIcon: 'fa-shield-halved',
@@ -333,6 +334,7 @@ function returnToLanding() {
     document.getElementById('builderView').style.display = 'none';
     document.getElementById('dashboardView').style.display = 'none';
     document.getElementById('landingView').style.display = 'flex';
+    if (window.updateViewportGuard) window.updateViewportGuard();
 }
 
 function updateProjectTitle(val) {
@@ -455,39 +457,6 @@ const defaultFonts = [
 ];
 
 function openSettingsModal() {
-    document.getElementById('globalTheme').value = globalSettings.theme || '#3B82F6';
-    document.getElementById('globalHeaderText').value = globalSettings.headerText || 'OpenDeck';
-    document.getElementById('globalHeaderIcon').value = globalSettings.headerIcon || 'OD';
-
-    const fontSelect = document.getElementById('globalFont');
-    fontSelect.innerHTML = '';
-
-    // Populate Default Fonts
-    defaultFonts.forEach(f => {
-        fontSelect.innerHTML += `<option value="${f.value}">${f.name}</option>`;
-    });
-
-    // Populate Saved Custom Fonts
-    if (globalSettings.savedFonts && globalSettings.savedFonts.length > 0) {
-        const group = document.createElement('optgroup');
-        group.label = "Your Custom Fonts";
-        globalSettings.savedFonts.forEach(f => {
-            group.innerHTML += `<option value="${f.family}">${f.name}</option>`;
-        });
-        fontSelect.appendChild(group);
-    }
-
-    fontSelect.value = globalSettings.font || "'Inter', sans-serif";
-
-    const logoPreview = document.getElementById('logoPreview');
-    if (logoPreview) {
-        if (globalSettings.companyLogo) {
-            logoPreview.innerHTML = `<img src="${globalSettings.companyLogo}" class="h-10 object-contain ml-3 border border-slate-700 rounded bg-white p-1"><button onclick="removeCompanyLogo()" class="text-xs text-red-400 hover:text-red-300 ml-3 transition font-bold">Remove</button>`;
-        } else {
-            logoPreview.innerHTML = `<span class="text-xs text-slate-600 ml-3 italic">No logo uploaded</span>`;
-        }
-    }
-
     showModal('settingsModal');
 }
 
@@ -538,6 +507,7 @@ function updateGlobalSetting(key, value) {
     globalSettings[key] = value;
     applyGlobalSettings();
     if (key === 'companyLogo' && window.renderPreview) renderPreview();
+    if (window.renderEditor) renderEditor();
     saveProjects();
 }
 
