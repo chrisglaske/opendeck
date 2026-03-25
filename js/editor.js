@@ -142,6 +142,7 @@ function renderEditor() {
                             <option value="fade-in" ${slide.transition === 'fade-in' ? 'selected' : ''}>Fade In</option>
                             <option value="slide-up" ${slide.transition === 'slide-up' ? 'selected' : ''}>Slide Up</option>
                             <option value="zoom-in" ${slide.transition === 'zoom-in' ? 'selected' : ''}>Zoom In</option>
+                            <option value="reveal-right" ${slide.transition === 'reveal-right' ? 'selected' : ''}>Reveal Right</option>
                         </select>
                     </div>
                     <div class="flex flex-col gap-2 w-1/2">
@@ -150,6 +151,8 @@ function renderEditor() {
                             <option value="bg-default" ${slide.bgOverride === 'bg-default' ? 'selected' : ''}>Dark Radial</option>
                             <option value="bg-deepblue" ${slide.bgOverride === 'bg-deepblue' ? 'selected' : ''}>Deep Blue</option>
                             <option value="bg-midnight" ${slide.bgOverride === 'bg-midnight' ? 'selected' : ''}>Midnight</option>
+                            <option value="bg-aurora" ${slide.bgOverride === 'bg-aurora' ? 'selected' : ''}>Aurora Glass</option>
+                            <option value="bg-sunset" ${slide.bgOverride === 'bg-sunset' ? 'selected' : ''}>Sunset Glow</option>
                             <option value="bg-pitchblack" ${slide.bgOverride === 'bg-pitchblack' ? 'selected' : ''}>Solid Black</option>
                             <option value="bg-purewhite" ${slide.bgOverride === 'bg-purewhite' ? 'selected' : ''}>Pure White</option>
                         </select>
@@ -275,6 +278,100 @@ function renderEditor() {
                      <div class="flex justify-between items-center mb-2 mt-4 border-t border-slate-800 pt-4"><label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Or Upload Image</label><button class="text-[9px] bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-2 py-0.5 rounded transition" onclick="injectRandomImage('image')">Random</button></div>
                      <input type="file" class="w-full text-xs text-slate-400 file:bg-slate-800 file:border-0 file:text-white file:px-3 file:py-1.5 file:rounded file:cursor-pointer file:hover:bg-slate-700" accept="image/*" onchange="handleImageUpload(event, 'image')">`;
         }
+        html += closeBlock;
+    }
+    else if (slide.type === 'glass_intro') {
+        html += openBlock('Hero Identity', 'fa-wand-magic-sparkles');
+        html += generateProIconInput('Main Icon', slide.icon, "updateSlide('icon', this.value)");
+        html += closeBlock;
+
+        html += openBlock('Support Badges', 'fa-tags');
+        (slide.badges || []).forEach((badge, i) => {
+            html += `<div class="bg-[#0b1121] border border-slate-700/50 rounded-lg p-3 mb-3 relative group transition hover:border-slate-500">
+                        <div class="absolute -top-2 -right-2 bg-slate-800 hover:bg-red-500 text-slate-400 hover:text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] cursor-pointer opacity-0 group-hover:opacity-100 transition-all shadow-md border border-slate-600" onclick="removeArrayItem('badges', ${i})"><i class="fa-solid fa-trash"></i></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Badge Color</label>
+                            <input type="color" class="w-8 h-6 bg-transparent rounded cursor-pointer border-0 p-0" value="${badge.color || '#3B82F6'}" onchange="updateArrayItem('badges', ${i}, 'color', this.value)">
+                        </div>
+                        ${generateProIconInput('Badge Icon', badge.icon, `updateArrayItem('badges', ${i}, 'icon', this.value)`)}
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors shadow-sm" onclick="addArrayItem('badges', {text:'New Badge', icon:'fa-star', color:'#3B82F6'})"><i class="fa-solid fa-plus mr-2"></i>Add Badge</button>`;
+        html += closeBlock;
+    }
+    else if (slide.type === 'comparison') {
+        html += openBlock('Left Panel', 'fa-arrow-left');
+        html += generateProIconInput('Left Icon', slide.leftIcon, "updateSlide('leftIcon', this.value)");
+        (slide.leftPoints || []).forEach((point, i) => {
+            html += `<div class="flex justify-between items-center bg-[#0b1121] border border-slate-700/50 rounded-lg p-2 mb-2">
+                        <span class="text-xs font-bold text-slate-500 px-2">${i + 1}</span>
+                        <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('leftPoints', ${i})"><i class="fa-solid fa-trash"></i></button>
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('leftPoints', 'New point')"><i class="fa-solid fa-plus mr-2"></i>Add Left Point</button>`;
+        html += closeBlock;
+
+        html += openBlock('Right Panel', 'fa-arrow-right');
+        html += generateProIconInput('Right Icon', slide.rightIcon, "updateSlide('rightIcon', this.value)");
+        (slide.rightPoints || []).forEach((point, i) => {
+            html += `<div class="flex justify-between items-center bg-[#0b1121] border border-slate-700/50 rounded-lg p-2 mb-2">
+                        <span class="text-xs font-bold text-slate-500 px-2">${i + 1}</span>
+                        <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('rightPoints', ${i})"><i class="fa-solid fa-trash"></i></button>
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('rightPoints', 'New point')"><i class="fa-solid fa-plus mr-2"></i>Add Right Point</button>`;
+        html += closeBlock;
+    }
+    else if (slide.type === 'showcase_window') {
+        html += openBlock('Narrative Bullets', 'fa-list');
+        (slide.bullets || []).forEach((bullet, i) => {
+            html += `<div class="flex justify-between items-center bg-[#0b1121] border border-slate-700/50 rounded-lg p-2 mb-2">
+                        <span class="text-xs font-bold text-slate-500 px-2">${i + 1}</span>
+                        <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('bullets', ${i})"><i class="fa-solid fa-trash"></i></button>
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('bullets', 'New supporting point')"><i class="fa-solid fa-plus mr-2"></i>Add Bullet</button>`;
+        html += closeBlock;
+
+        html += openBlock('Window Styling', 'fa-window-maximize');
+        html += `<div class="flex flex-col gap-2 mb-4">
+                    <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Code Color Theme</label>
+                    <select class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-2 text-xs text-white outline-none cursor-pointer" onchange="updateSlide('codeColor', this.value)">
+                        <option value="text-green-400" ${slide.codeColor === 'text-green-400' ? 'selected' : ''}>Hacker Green</option>
+                        <option value="text-blue-400" ${slide.codeColor === 'text-blue-400' ? 'selected' : ''}>Ocean Blue</option>
+                        <option value="text-pink-400" ${slide.codeColor === 'text-pink-400' ? 'selected' : ''}>Synthwave Pink</option>
+                        <option value="text-yellow-400" ${slide.codeColor === 'text-yellow-400' ? 'selected' : ''}>Warning Yellow</option>
+                        <option value="text-white" ${slide.codeColor === 'text-white' ? 'selected' : ''}>Plain White</option>
+                    </select>
+                 </div>`;
+        html += closeBlock;
+    }
+    else if (slide.type === 'roadmap_cards') {
+        html += openBlock('Roadmap Stages', 'fa-timeline');
+        (slide.phases || []).forEach((phase, i) => {
+            html += `<div class="bg-[#0b1121] border border-slate-700/50 rounded-lg p-3 mb-3 relative group transition hover:border-slate-500">
+                        <div class="absolute -top-2 -right-2 bg-slate-800 hover:bg-red-500 text-slate-400 hover:text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] cursor-pointer opacity-0 group-hover:opacity-100 transition-all border border-slate-600 shadow-md" onclick="removeArrayItem('phases', ${i})"><i class="fa-solid fa-trash"></i></div>
+                        <div class="flex gap-3 mb-3 mt-2">
+                            <div class="flex-grow flex flex-col gap-1.5">
+                                <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Stage Title</label>
+                                <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(phase.title)}" oninput="updateArrayItem('phases', ${i}, 'title', this.value)">
+                            </div>
+                            <div class="flex flex-col gap-1.5 w-16">
+                                <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Color</label>
+                                <input type="color" class="w-full h-8 bg-transparent rounded cursor-pointer border-0 p-0" value="${phase.color || '#3B82F6'}" onchange="updateArrayItem('phases', ${i}, 'color', this.value)">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5 mb-3">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Status</label>
+                            <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-1.5 text-xs text-white outline-none" value="${escapeHtml(phase.status)}" oninput="updateArrayItem('phases', ${i}, 'status', this.value)">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Description</label>
+                            <textarea class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-md px-3 py-2 text-xs text-white outline-none resize-y min-h-[80px]" oninput="updateArrayItem('phases', ${i}, 'text', this.value)">${escapeHtml(phase.text)}</textarea>
+                        </div>
+                     </div>`;
+        });
+        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors" onclick="addArrayItem('phases', {title:'New Stage', text:'Describe this stage.', status:'Planned', color:'#3B82F6'})"><i class="fa-solid fa-plus mr-2"></i>Add Stage</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'pitch_stats') {
@@ -477,6 +574,10 @@ function addSlide(type) {
     if (type === 'list') { newSlide.subtitle = 'List out requirements, status flags, or compliance steps.'; newSlide.items = [{ label: 'Define project scope', value: 'DONE', icon: 'fa-check-circle', color: '#10B981' }]; }
     if (type === 'code') { newSlide.subtitle = 'Explain what this code block or configuration does.'; newSlide.codeHeader = 'setup.sh'; newSlide.codeContent = '#!/bin/bash\necho "Start typing your code here"'; newSlide.codeColor = 'text-green-400'; }
     if (type === 'cta') { newSlide.subtitle = 'Tell the audience what action they should take next.'; newSlide.icon = 'fa-rocket'; newSlide.link = 'go.company.com/action'; }
+    if (type === 'glass_intro') { newSlide.kicker = 'Presentation System'; newSlide.subtitle = 'Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.'; newSlide.icon = 'fa-wand-magic-sparkles'; newSlide.badges = [{ text: 'Auditable', icon: 'fa-shield-halved', color: '#10B981' }, { text: 'Modular', icon: 'fa-layer-group', color: '#3B82F6' }, { text: 'Presentation-Ready', icon: 'fa-rocket', color: '#F97316' }]; newSlide.bgOverride = 'bg-aurora'; }
+    if (type === 'comparison') { newSlide.kicker = 'Decision Frame'; newSlide.subtitle = 'Use this layout for before-and-after thinking, tradeoffs, or competing approaches.'; newSlide.leftTitle = 'Current Workflow'; newSlide.leftText = 'Explain the friction, risk, or manual overhead on this side.'; newSlide.leftIcon = 'fa-triangle-exclamation'; newSlide.leftPoints = ['Fragmented steps across tools', 'Low visibility during review', 'Difficult to keep presentation quality consistent']; newSlide.rightTitle = 'OpenDeck Workflow'; newSlide.rightText = 'Describe the cleaner, more scalable path on this side.'; newSlide.rightIcon = 'fa-rocket'; newSlide.rightPoints = ['Reusable templates for common stories', 'Inline editing keeps iteration fast', 'Higher polish without extra design work']; newSlide.bgOverride = 'bg-aurora'; }
+    if (type === 'showcase_window') { newSlide.kicker = 'Showcase'; newSlide.subtitle = 'Combine narrative context with a polished macOS-style window for code, repo structure, or walkthrough content.'; newSlide.bullets = ['Introduce the scenario with one framing sentence', 'Use the window to display structure, config, or terminal output', 'Pair the visual with clear takeaways on the left']; newSlide.windowTitle = 'slides/launch-plan.yaml'; newSlide.codeHeader = 'Presentation Frame'; newSlide.codeContent = 'name: keynote_launch\nstyle: aurora_glass\nmode: live_preview\npolish:\n  - cinematic_intro\n  - comparison_panels\n  - roadmap_cards'; newSlide.codeColor = 'text-blue-400'; newSlide.bgOverride = 'bg-deepblue'; }
+    if (type === 'roadmap_cards') { newSlide.kicker = 'Roadmap'; newSlide.subtitle = 'Map the rollout in stages with clear ownership and visual status markers.'; newSlide.phases = [{ title: 'Foundation', text: 'Expand the template library with stronger narrative-building blocks.', status: 'Current', color: '#3B82F6' }, { title: 'Polish', text: 'Refine motion, backgrounds, and visual systems across exported decks.', status: 'Next', color: '#8B5CF6' }, { title: 'Advanced', text: 'Introduce more presentational controls for high-stakes talks and demos.', status: 'Later', color: '#F97316' }]; newSlide.bgOverride = 'bg-sunset'; }
 
     // Enhanced Empty States & NEW TEMPLATES
     if (type === 'corp_title') { newSlide.subtitle = 'Department or presentation context'; newSlide.author = 'Presenter Name'; newSlide.bgOverride = 'bg-purewhite'; }
@@ -636,6 +737,112 @@ function generateSlideHTML(slide, isExport = false) {
                 ${createEditableTag('h2', 'text-6xl font-extrabold mb-6 tracking-tighter w-full', slide.title, 'title')}
                 ${createEditableTag('p', 'text-2xl text-slate-400 mb-10 max-w-3xl mx-auto font-light w-full block', slide.subtitle, 'subtitle')}
                 ${slide.link ? `<div class="inline-block bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-xl hover:scale-105 transition"><i class="fa-solid fa-link accent-text mr-3 pointer-events-none"></i>${createEditableTag('span', 'text-2xl font-mono text-white font-bold', slide.link, 'link')}</div>` : ''}
+            </div>
+        `;
+    }
+    else if (slide.type === 'glass_intro') {
+        let badgesHtml = (slide.badges || []).map((badge, i) => `
+            <div class="od-badge">
+                <i class="fa-solid ${escapeHtml(badge.icon)}" style="color: ${badge.color || 'var(--accent-color)'}"></i>
+                ${createEditableTag('span', 'text-sm font-semibold', badge.text, 'text', 'badges', i)}
+            </div>
+        `).join('');
+
+        html = `
+            <div class="od-orb od-orb--blue"></div>
+            <div class="od-orb od-orb--orange"></div>
+            <div class="od-shell text-center ${animClass}">
+                ${createEditableTag('div', 'od-kicker mx-auto mb-8', slide.kicker || 'Presentation System', 'kicker')}
+                <div class="mb-8 inline-flex items-center justify-center w-24 h-24 rounded-[1.75rem] border border-white/10 bg-white/5 shadow-[0_0_35px_-12px_var(--accent-color)]">
+                    <i class="fa-solid ${escapeHtml(slide.icon)} text-4xl accent-text drop-shadow-[0_0_18px_var(--accent-color)]"></i>
+                </div>
+                ${createEditableTag('h1', 'text-7xl font-black tracking-[-0.06em] mb-5 leading-[0.95] w-full text-white', slide.title, 'title')}
+                ${createEditableTag('p', 'text-2xl text-slate-300 font-light leading-relaxed max-w-4xl mx-auto block', slide.subtitle, 'subtitle')}
+                <div class="od-badge-row justify-center">${badgesHtml}</div>
+            </div>
+        `;
+    }
+    else if (slide.type === 'comparison') {
+        let leftPoints = (slide.leftPoints || []).map((point, i) => `
+            <li class="od-point-item"><i class="fa-solid fa-angle-right mt-1 accent-text"></i>${createEditablePrimitive('span', 'block flex-grow', point, 'leftPoints', i)}</li>
+        `).join('');
+        let rightPoints = (slide.rightPoints || []).map((point, i) => `
+            <li class="od-point-item"><i class="fa-solid fa-angle-right mt-1 accent-text"></i>${createEditablePrimitive('span', 'block flex-grow', point, 'rightPoints', i)}</li>
+        `).join('');
+
+        html = `
+            <div class="od-shell ${animClass}">
+                ${createEditableTag('div', 'od-kicker mb-6', slide.kicker || 'Decision Frame', 'kicker')}
+                ${createEditableTag('h2', 'text-5xl font-extrabold tracking-tight text-white w-full', slide.title, 'title')}
+                ${createEditableTag('p', 'text-xl text-slate-400 mt-4 max-w-4xl leading-relaxed block', slide.subtitle, 'subtitle')}
+                <div class="od-compare-grid">
+                    <div class="od-compare-panel">
+                        <div class="od-compare-icon"><i class="fa-solid ${escapeHtml(slide.leftIcon)} text-2xl text-red-400"></i></div>
+                        ${createEditableTag('h3', 'text-2xl font-bold text-white w-full', slide.leftTitle, 'leftTitle')}
+                        ${createEditableTag('p', 'text-slate-400 mt-3 leading-relaxed block', slide.leftText, 'leftText')}
+                        <ul class="od-point-list">${leftPoints}</ul>
+                    </div>
+                    <div class="od-compare-panel">
+                        <div class="od-compare-icon"><i class="fa-solid ${escapeHtml(slide.rightIcon)} text-2xl text-emerald-400"></i></div>
+                        ${createEditableTag('h3', 'text-2xl font-bold text-white w-full', slide.rightTitle, 'rightTitle')}
+                        ${createEditableTag('p', 'text-slate-400 mt-3 leading-relaxed block', slide.rightText, 'rightText')}
+                        <ul class="od-point-list">${rightPoints}</ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    else if (slide.type === 'showcase_window') {
+        let bulletsHtml = (slide.bullets || []).map((bullet, i) => `
+            <li class="od-point-item"><div class="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0" style="background:${i === 0 ? 'var(--accent-color)' : '#64748b'}"></div>${createEditablePrimitive('span', 'block flex-grow', bullet, 'bullets', i)}</li>
+        `).join('');
+        let codeColor = slide.codeColor || 'text-blue-400';
+
+        html = `
+            <div class="od-shell ${animClass}">
+                <div class="od-showcase-grid">
+                    <div class="flex flex-col justify-center">
+                        ${createEditableTag('div', 'od-kicker mb-6', slide.kicker || 'Showcase', 'kicker')}
+                        ${createEditableTag('h2', 'text-5xl font-extrabold tracking-tight text-white leading-tight w-full', slide.title, 'title')}
+                        ${createEditableTag('p', 'text-xl text-slate-400 mt-5 leading-relaxed block', slide.subtitle, 'subtitle')}
+                        <ul class="od-point-list mt-8">${bulletsHtml}</ul>
+                    </div>
+                    <div class="od-window">
+                        <div class="od-window__header">
+                            <div class="od-window__dots">
+                                <div class="od-window__dot" style="background:#ff5f56"></div>
+                                <div class="od-window__dot" style="background:#ffbd2e"></div>
+                                <div class="od-window__dot" style="background:#27c93f"></div>
+                            </div>
+                            ${createEditableTag('span', 'text-xs text-slate-400 font-mono tracking-[0.18em] uppercase block', slide.windowTitle || 'slides/launch-plan.yaml', 'windowTitle')}
+                        </div>
+                        <div class="od-window__body">
+                            ${createEditableTag('div', 'text-[0.7rem] font-bold uppercase tracking-[0.18em] text-slate-500 mb-4 block', slide.codeHeader || 'Presentation Frame', 'codeHeader')}
+                            ${createEditableTag('pre', `font-mono text-sm ${codeColor} leading-7 whitespace-pre-wrap w-full block`, slide.codeContent, 'codeContent')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    else if (slide.type === 'roadmap_cards') {
+        let phasesHtml = (slide.phases || []).map((phase, i) => `
+            <div class="od-roadmap-card" style="--phase-color:${phase.color || 'var(--accent-color)'}">
+                <div class="od-status-pill" style="color:${phase.color || 'var(--accent-color)'}; width:max-content;">
+                    <i class="fa-solid fa-circle text-[0.45rem]"></i>
+                    ${createEditableTag('span', 'text-[0.68rem] font-extrabold', phase.status, 'status', 'phases', i)}
+                </div>
+                ${createEditableTag('h3', 'text-3xl font-black tracking-tight text-white mt-6 block w-full', phase.title, 'title', 'phases', i)}
+                ${createEditableTag('p', 'text-slate-400 mt-4 leading-relaxed block w-full', phase.text, 'text', 'phases', i)}
+            </div>
+        `).join('');
+
+        html = `
+            <div class="od-shell ${animClass}">
+                ${createEditableTag('div', 'od-kicker mb-6', slide.kicker || 'Roadmap', 'kicker')}
+                ${createEditableTag('h2', 'text-5xl font-extrabold tracking-tight text-white w-full', slide.title, 'title')}
+                ${createEditableTag('p', 'text-xl text-slate-400 mt-4 max-w-4xl leading-relaxed block', slide.subtitle, 'subtitle')}
+                <div class="od-roadmap-grid">${phasesHtml}</div>
             </div>
         `;
     }

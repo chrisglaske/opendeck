@@ -696,6 +696,67 @@
                     <h3 class="font-bold text-white mb-1">Big Focus / CTA</h3>
                     <p class="text-xs text-slate-400">Giant icon and massive text to draw attention to a link.</p>
                 </div>
+                <div class="template-card" onclick="addSlide('glass_intro')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="absolute -top-3 -left-4 w-14 h-14 rounded-full blur-2xl bg-blue-500/30"></div>
+                        <div class="absolute -bottom-4 -right-2 w-14 h-14 rounded-full blur-2xl bg-orange-500/20"></div>
+                        <div class="w-8 h-8 rounded-2xl border border-white/10 bg-white/5 mb-2 z-10"></div>
+                        <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
+                        <div class="flex gap-1 z-10 mt-1">
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Glass Hero</h3>
+                    <p class="text-xs text-slate-400">Cinematic intro with glass card treatment and supporting badges.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('comparison')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 grid grid-cols-2 gap-2 border border-slate-700 p-2 shadow-inner">
+                        <div class="rounded-lg border border-red-500/20 bg-slate-900/80 p-2">
+                            <div class="w-5 h-5 rounded-lg bg-red-500/20 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-5/6 bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg border border-emerald-500/20 bg-slate-900/80 p-2">
+                            <div class="w-5 h-5 rounded-lg bg-emerald-500/20 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-5/6 bg-slate-600 rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Comparison Panels</h3>
+                    <p class="text-xs text-slate-400">Frame old vs new, option A vs B, or risks vs gains.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('showcase_window')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 grid grid-cols-[0.9fr_1.1fr] gap-2 border border-slate-700 p-2 shadow-inner">
+                        <div class="flex flex-col justify-center">
+                            <div class="h-2 w-3/4 bg-white rounded mb-2"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-5/6 bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-2/3 bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg border border-slate-700 overflow-hidden bg-slate-900">
+                            <div class="h-3 bg-slate-800 flex items-center px-1 gap-1">
+                                <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="p-1.5 space-y-1.5">
+                                <div class="h-1 w-1/2 bg-slate-600 rounded"></div>
+                                <div class="h-1 w-5/6 bg-blue-400 rounded"></div>
+                                <div class="h-1 w-4/6 bg-blue-400 rounded"></div>
+                                <div class="h-1 w-3/6 bg-blue-400 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Showcase Window</h3>
+                    <p class="text-xs text-slate-400">Narrative copy paired with a polished macOS-style code window.</p>
+                </div>
             </div>
 
             <div id="tabContent_corp" class="grid grid-cols-3 gap-6 hidden">
@@ -851,6 +912,31 @@
                     </div>
                     <h3 class="font-bold text-white mb-1">Pricing Tiers</h3>
                     <p class="text-xs text-slate-400">Three columns with a highlighted center plan.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('roadmap_cards')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 grid grid-cols-3 gap-2 border border-slate-700 p-2 shadow-inner">
+                        <div class="rounded-lg bg-slate-900/80 border border-slate-700 relative p-2">
+                            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-blue-500"></div>
+                            <div class="h-2 w-1/2 bg-slate-500 rounded mt-2 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg bg-slate-900/80 border border-slate-700 relative p-2">
+                            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-purple-500"></div>
+                            <div class="h-2 w-1/2 bg-slate-500 rounded mt-2 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg bg-slate-900/80 border border-slate-700 relative p-2">
+                            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-orange-500"></div>
+                            <div class="h-2 w-1/2 bg-slate-500 rounded mt-2 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Roadmap Cards</h3>
+                    <p class="text-xs text-slate-400">Three polished stages for rollout, strategy, or product evolution.</p>
                 </div>
             </div>
         </div>

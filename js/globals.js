@@ -18,7 +18,8 @@ var iconLibrary = [
     'fa-check', 'fa-xmark', 'fa-circle-exclamation', 'fa-circle-question', 'fa-circle-info', 'fa-triangle-exclamation', 'fa-bell',
     'fa-file-zipper', 'fa-file-code', 'fa-download', 'fa-upload', 'fa-terminal', 'fa-code', 'fa-code-pull-request', 'fa-bug',
     'fa-history', 'fa-clock', 'fa-calendar', 'fa-users', 'fa-user', 'fa-hand-holding-hand', 'fa-lightbulb', 'fa-star', 'fa-heart',
-    'fa-apple', 'fa-windows', 'fa-linux', 'fa-github', 'fa-slack', 'fa-image', 'fa-list-check', 'fa-link', 'fa-quote-left', 'fa-bullseye', 'fa-timeline'
+    'fa-apple', 'fa-windows', 'fa-linux', 'fa-github', 'fa-slack', 'fa-image', 'fa-list-check', 'fa-link', 'fa-quote-left', 'fa-bullseye', 'fa-timeline',
+    'fa-wand-magic-sparkles', 'fa-chart-simple', 'fa-folder-tree', 'fa-window-maximize', 'fa-layer-group'
 ];
 
 // Universal text escaper attached immediately so the UI loop NEVER throws an undefined error
