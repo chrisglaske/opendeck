@@ -130,6 +130,9 @@ function bootAppToDashboard() {
         }
 
         if (window.renderDashboard) renderDashboard();
+        if (window.consumeLegacyMigrationNotice) {
+            setTimeout(() => window.consumeLegacyMigrationNotice(), 220);
+        }
         if (window.checkTutorial) checkTutorial();
         if (window.showReleaseNotesOnce) {
             setTimeout(() => { window.showReleaseNotesOnce('2.1.1'); }, 180);

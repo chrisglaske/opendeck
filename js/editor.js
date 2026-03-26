@@ -1107,6 +1107,11 @@ function generateSlideHTML(slide, isExport = false) {
     }
     else if (slide.type === 'pitch_stats') {
         const statsDensity = getDensityClasses((slide.stats || []).length);
+        const statCount = (slide.stats || []).length;
+        let metricLayoutClass = '';
+        if (statCount === 1) metricLayoutClass = 'od-metric-grid--single';
+        else if (statCount === 2) metricLayoutClass = 'od-metric-grid--two';
+        else if (statCount === 3) metricLayoutClass = 'od-metric-grid--three';
         let statsHtml = (slide.stats || []).map((stat, i) => `
             <div class="od-metric-card">
                 <h3 class="text-7xl font-black mb-2 drop-shadow-lg w-full text-center outline-none" contenteditable="true" onblur="handleInlineEdit(event, 'value', 'stats', ${i})" style="color: ${stat.color || 'var(--accent-color)'}">${escapeHtml(stat.value)}</h3>
@@ -1119,7 +1124,7 @@ function generateSlideHTML(slide, isExport = false) {
                 <div class="od-title-mark mx-auto"></div>
                 ${createEditableTag('h2', 'text-5xl font-extrabold mb-4 w-full text-center text-white tracking-tight', slide.title, 'title')}
                 ${createEditableTag('p', 'od-lead mb-14 w-full text-center block', slide.subtitle, 'subtitle')}
-                <div class="od-metric-grid ${statsDensity.grid}">${statsHtml}</div>
+                <div class="od-metric-grid ${metricLayoutClass} ${statsDensity.grid}">${statsHtml}</div>
             </div>
         `;
     }
@@ -1266,7 +1271,7 @@ function generateSlideHTML(slide, isExport = false) {
     }
 
     // Wrap in slide-autofit so the content always fits the 1200×800 canvas
-    return `<div class="slide-autofit relative" data-slide-autofit><div class="relative z-10">${html}</div>${watermark}</div>`;
+    return `<div class="slide-autofit relative" data-slide-autofit><div class="relative z-10 w-full h-full flex flex-col items-center justify-center">${html}</div>${watermark}</div>`;
 }
 
 function renderPreview() {

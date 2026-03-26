@@ -299,7 +299,7 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 
 .slide-container { display: flex; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); height: 100vh; width: ${totalSlides}00vw; }
 .slide { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem; position: relative; }
-.theme-slide { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem; position: relative; font-family: var(--global-font); }
+.theme-slide { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem; position: relative; font-family: var(--global-font); overflow: hidden; }
 
 .bg-default { background: radial-gradient(circle at 50% 50%, #111827 0%, #000000 100%); }
 .bg-deepblue { background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%); }
@@ -332,9 +332,12 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .od-code-shell { width: 100%; border-radius: 1.25rem; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); background: #09101d; box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.95); }
 .od-code-shell__head { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1rem; background: #050b16; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 .od-metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 1.25rem; width: 100%; }
+.od-metric-grid--single { grid-template-columns: minmax(0, 1fr); max-width: 440px; margin: 0 auto; }
+.od-metric-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.od-metric-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .od-metric-card { padding: 1.7rem 1rem; border-radius: 1.4rem; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); }
 .bg-purewhite .od-metric-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
-.od-profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1.5rem; width: 100%; }
+.od-profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 1.5rem; width: 100%; }
 .od-profile-card { position: relative; padding: 1.6rem; border-radius: 1.4rem; text-align: center; background: radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 34%), rgba(15, 23, 42, 0.58); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
 .bg-purewhite .od-profile-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
 .od-profile-avatar-wrap { position: relative; margin-bottom: 1.5rem; }
@@ -385,6 +388,12 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .od-roadmap-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--phase-color, var(--accent-color)); }
 .od-status-pill { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.7rem; border-radius: 999px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .bg-purewhite .od-status-pill { background: rgba(241,245,249,0.94); border-color: rgba(15,23,42,0.1); }
+.bg-purewhite .theme-card { background: rgba(255, 255, 255, 0.95); border-color: rgba(0, 0, 0, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
+.bg-purewhite .text-white { color: #000000 !important; }
+.bg-purewhite .text-slate-400 { color: #475569 !important; }
+.bg-purewhite .text-slate-300 { color: #334155 !important; }
+.bg-purewhite .bg-slate-900 { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; }
+.bg-purewhite .bg-slate-800 { background-color: #f8fafc !important; border-color: #e2e8f0 !important; }
 
 .od-shell-density-compact, .od-shell-density-tight, .od-shell-density-ultra { justify-content: flex-start !important; }
 .od-shell-density-compact { padding-top: 2.25rem; padding-bottom: 2.25rem; }
