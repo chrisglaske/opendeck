@@ -1020,6 +1020,20 @@ input[type="color"].prop-color::-webkit-color-swatch {
     width: 100%;
 }
 
+.od-metric-grid--single {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.od-metric-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.od-metric-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .od-metric-card {
     padding: 1.7rem 1rem;
     border-radius: 1.4rem;

@@ -313,6 +313,9 @@ function openProject(id) {
     document.getElementById('builderView').style.display = 'flex';
 
     if (window.renderApp) renderApp();
+    if (window.consumeLegacyMigrationNotice) {
+        setTimeout(() => window.consumeLegacyMigrationNotice(), 120);
+    }
 }
 
 function presentDirectly(id) {
