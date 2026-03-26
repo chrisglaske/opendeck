@@ -187,7 +187,23 @@ function createNewProject() {
         data: {
             slideCounter: 1,
             globalSettings: { theme: '#3B82F6', font: "'Inter', sans-serif", headerText: 'OpenDeck', headerIcon: 'OD', customFontUrl: '', customFontFamily: '', companyLogo: '' },
-            slides: [{ id: 'slide_' + Date.now() + Math.floor(Math.random() * 1000), type: 'intro', navName: 'Welcome', title: 'New Presentation', subtitle: 'A catchy subtitle', icon: 'fa-desktop', tags: [], notes: '' }]
+            slides: [{
+                id: 'slide_' + Date.now() + Math.floor(Math.random() * 1000),
+                type: 'glass_intro',
+                navName: 'Glass Hero',
+                title: 'New Presentation',
+                kicker: 'Presentation System',
+                subtitle: 'Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.',
+                icon: 'fa-wand-magic-sparkles',
+                badges: [
+                    { text: 'Auditable', icon: 'fa-shield-halved', color: '#10B981' },
+                    { text: 'Modular', icon: 'fa-layer-group', color: '#3B82F6' },
+                    { text: 'Presentation-Ready', icon: 'fa-rocket', color: '#F97316' }
+                ],
+                transition: 'fade-in',
+                bgOverride: 'bg-aurora',
+                notes: ''
+            }]
         }
     };
     projects.push(newProj);
@@ -206,9 +222,15 @@ function createDemoProject() {
             globalSettings: { theme: '#8B5CF6', font: "'Space Grotesk', sans-serif", headerText: 'OpenDeck Studio', headerIcon: 'OD' },
             slides: [
                 {
-                    id: 'slide_demo_1', type: 'pitch_hero', navName: 'Welcome',
-                    title: 'Unleash Your Ideas 🚀', subtitle: 'The zero-config, privacy-first presentation studio.',
-                    transition: 'fade-in', bgOverride: 'bg-midnight',
+                    id: 'slide_demo_1', type: 'glass_intro', navName: 'Welcome',
+                    title: 'Unleash Your Ideas 🚀', kicker: 'Presentation System', subtitle: 'The zero-config, privacy-first presentation studio.',
+                    icon: 'fa-wand-magic-sparkles',
+                    badges: [
+                        { text: 'Private', icon: 'fa-shield-halved', color: '#10B981' },
+                        { text: 'No Build Step', icon: 'fa-layer-group', color: '#3B82F6' },
+                        { text: 'Presentation-Ready', icon: 'fa-rocket', color: '#F97316' }
+                    ],
+                    transition: 'fade-in', bgOverride: 'bg-aurora',
                     notes: 'Welcome to OpenDeck! This speaker view is completely local and synced in real-time.'
                 },
                 {
@@ -506,8 +528,7 @@ function closeSettingsModal() { hideModal('settingsModal'); }
 function updateGlobalSetting(key, value) {
     globalSettings[key] = value;
     applyGlobalSettings();
-    if (key === 'companyLogo' && window.renderPreview) renderPreview();
-    if (window.renderEditor) renderEditor();
+    if (window.renderPreview) renderPreview();
     saveProjects();
 }
 

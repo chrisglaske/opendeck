@@ -1261,12 +1261,12 @@ function generateSlideHTML(slide, isExport = false) {
 
     // --- NEW: Persistent Company Logo Watermark ---
     let watermark = '';
-    if (globalSettings.companyLogo) {
-        watermark = `<img src="${globalSettings.companyLogo}" class="absolute bottom-10 right-12 max-h-12 max-w-[200px] object-contain z-[100] opacity-80 pointer-events-none drop-shadow-lg">`;
+    if (isExport && globalSettings.companyLogo) {
+        watermark = `<img src="${globalSettings.companyLogo}" class="absolute bottom-8 right-10 max-h-10 max-w-[170px] object-contain z-0 opacity-25 pointer-events-none drop-shadow-lg select-none" aria-hidden="true">`;
     }
 
     // Wrap in slide-autofit so the content always fits the 1200×800 canvas
-    return `<div class="slide-autofit" data-slide-autofit>${html}${watermark}</div>`;
+    return `<div class="slide-autofit relative" data-slide-autofit><div class="relative z-10">${html}</div>${watermark}</div>`;
 }
 
 function renderPreview() {
