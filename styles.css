@@ -493,6 +493,7 @@ textarea.prop-input {
 }
 
 input[type="color"].prop-color {
+     appearance: none;
     -webkit-appearance: none;
     border: none;
     width: 2rem;

@@ -249,6 +249,16 @@ function getCompiledHTML(isPDF = false) {
     }).join('\n\n        ');
 
     let totalSlides = slides.length;
+    let slidePayload = JSON.stringify(slides.map((slide) => {
+        let html = generateSlideHTML(slide, true);
+        html = html.replace(/contenteditable="true"/g, '').replace(/onblur="[^"]*"/g, '');
+        return {
+            name: slide.navName || 'Untitled',
+            notes: slide.notes || '',
+            bgClass: slide.bgOverride || 'bg-default',
+            html
+        };
+    })).replace(/<\/script/gi, '<\\/script');
     let notesData = JSON.stringify(slides.map(s => ({ notes: s.notes || '', name: s.navName || 'Untitled' })));
     let uniqueSyncKey = 'openDeckSync_' + Date.now();
 
@@ -565,15 +575,18 @@ const container = document.getElementById('container');
 const dotsContainer = document.getElementById('indicator');
 const navItems = document.querySelectorAll('.nav-item');
 const numSlides = ${totalSlides};
+const slidePayload = ${slidePayload};
 const notesData = ${notesData};
 const syncKey = '${uniqueSyncKey}';
 let currentSlide = 0;
 let presenterWindow = null;
+const instanceId = Math.random().toString(36).slice(2);
+let timerState = { elapsedMs: 0, running: false, updatedAt: Date.now() };
+let hasTimerState = false;
+let timerInterval = null;
 
-// Use BroadcastChannel! This completely bypasses localStorage blob restrictions!
 const syncChannel = new BroadcastChannel(syncKey);
 
-// Presenter View Check 
 const isPresenter = window.location.hash === '#presenter' || window.isPresenterOverride;
 const isPdfPrintMode = window.location.hash === '#pdfprint';
 
@@ -581,9 +594,15 @@ if (isPresenter) {
     document.getElementById('standardView').style.display = 'none';
     document.getElementById('presenterView').style.display = 'flex';
     document.title = "Speaker View - " + document.title;
-    startTimer();
+    timerState = { elapsedMs: 0, running: true, updatedAt: Date.now() };
+    hasTimerState = true;
+    ensureTimerTicker();
     window.addEventListener('resize', scalePresenterPreviews);
 } else {
+    if (document.body) {
+        document.body.setAttribute('tabindex', '-1');
+        try { document.body.focus(); } catch (e) { }
+    }
     for (let i = 0; i < numSlides; i++) {
         const dot = document.createElement('div');
         dot.className = \`dot \${i === 0 ? 'active' : ''}\`;
@@ -642,6 +661,89 @@ function applyAutoFitToDeck() {
     document.querySelectorAll('#container .slide').forEach((slide) => fitSlideContent(slide));
 }
 
+function clampSlideIndex(index) {
+    return Math.min(Math.max(index, 0), Math.max(0, numSlides - 1));
+}
+
+function normalizeTimerState(nextState) {
+    if (!nextState) return null;
+    return {
+        elapsedMs: Math.max(0, Number(nextState.elapsedMs) || 0),
+        running: Boolean(nextState.running),
+        updatedAt: Number(nextState.updatedAt) || Date.now()
+    };
+}
+
+function getEffectiveElapsedMs() {
+    if (!timerState.running) return timerState.elapsedMs;
+    return timerState.elapsedMs + Math.max(0, Date.now() - timerState.updatedAt);
+}
+
+function updateTimerDisplay() {
+    const display = document.getElementById('timerDisplay');
+    if (!display) return;
+    const diff = getEffectiveElapsedMs();
+    const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+    const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+    const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+    display.innerText = h + ':' + m + ':' + s;
+}
+
+function updateTimerButton() {
+    const button = document.getElementById('timerToggleBtn');
+    if (!button) return;
+    button.innerHTML = timerState.running
+        ? '<i class="fa-solid fa-pause"></i> Pause'
+        : '<i class="fa-solid fa-play"></i> Resume';
+}
+
+function ensureTimerTicker() {
+    if (timerInterval) clearInterval(timerInterval);
+    updateTimerDisplay();
+    updateTimerButton();
+    if (!isPresenter) return;
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+}
+
+function buildSyncState() {
+    return {
+        currentSlide,
+        timerState: hasTimerState ? timerState : null
+    };
+}
+
+function postSyncMessage(type, payload = {}) {
+    syncChannel.postMessage({ type, payload, sourceId: instanceId });
+}
+
+function syncPresentationState() {
+    postSyncMessage('STATE', buildSyncState());
+}
+
+function applyIncomingState(nextState) {
+    if (!nextState) return;
+    currentSlide = clampSlideIndex(nextState.currentSlide ?? currentSlide);
+
+    const remoteTimerState = normalizeTimerState(nextState.timerState);
+    if (remoteTimerState) {
+        timerState = remoteTimerState;
+        hasTimerState = true;
+        ensureTimerTicker();
+    }
+
+    updateSlide(true);
+}
+
+function createPresenterPreview(index) {
+    const slide = slidePayload[index];
+    if (!slide) return null;
+
+    const preview = document.createElement('div');
+    preview.className = 'theme-slide ' + slide.bgClass;
+    preview.innerHTML = slide.html;
+    return preview;
+}
+
 // Initialize the presenter view once the DOM is ready
 function initializePresenterView() {
     if (!isPresenter) return;
@@ -651,6 +753,7 @@ function initializePresenterView() {
         document.querySelectorAll('.p-scale-wrapper').forEach(fitSlideContent);
         setTimeout(() => { updateSlide(true); }, 180);
     });
+    postSyncMessage('READY');
 }
 
 if (document.readyState === 'loading') {
@@ -731,30 +834,26 @@ function updateSlide(skipSync = false) {
         
         const currBox = document.getElementById('p-current-container');
         const nextBox = document.getElementById('p-next-container');
-        const sourceCurrent = document.getElementById('slide-' + currentSlide);
-        const sourceNext = currentSlide < numSlides - 1 ? document.getElementById('slide-' + (currentSlide + 1)) : null;
 
         currBox.innerHTML = ''; nextBox.innerHTML = '';
-        if (sourceCurrent) {
-            const clone = document.createElement('div');
-            clone.className = 'theme-slide ' + (sourceCurrent.className.split(' ').find(c => c.startsWith('bg-')) || 'bg-default');
-            clone.innerHTML = sourceCurrent.innerHTML;
-            currBox.appendChild(clone);
-            requestAnimationFrame(() => fitSlideContent(clone));
+        const currentPreview = createPresenterPreview(currentSlide);
+        const nextPreview = currentSlide < numSlides - 1 ? createPresenterPreview(currentSlide + 1) : null;
+
+        if (currentPreview) {
+            currBox.appendChild(currentPreview);
+            requestAnimationFrame(() => fitSlideContent(currentPreview));
         }
-        if (sourceNext) {
-            const clone = document.createElement('div');
-            clone.className = 'theme-slide ' + (sourceNext.className.split(' ').find(c => c.startsWith('bg-')) || 'bg-default');
-            clone.innerHTML = sourceNext.innerHTML;
-            nextBox.appendChild(clone);
-            requestAnimationFrame(() => fitSlideContent(clone));
+        if (nextPreview) {
+            nextBox.appendChild(nextPreview);
+            requestAnimationFrame(() => fitSlideContent(nextPreview));
         }
         scalePresenterPreviews();
+        updateTimerDisplay();
+        updateTimerButton();
     }
 
-    // Ping the robust BroadcastChannel to update the other window!
     if (!skipSync) {
-        syncChannel.postMessage(currentSlide.toString());
+        syncPresentationState();
     }
 }
 
@@ -780,49 +879,75 @@ function nextSlide() { if (currentSlide < numSlides - 1) { currentSlide++; updat
 function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
 
 function openSpeakerView() {
-    document.getElementById('helpModal').style.display='none';
+    const helpModal = document.getElementById('helpModal');
+    if (helpModal) helpModal.style.display = 'none';
     
     if (presenterWindow && !presenterWindow.closed) {
         presenterWindow.focus();
         return;
     }
 
-    if (window.location.protocol === 'blob:') {
-        // Blob URL path: inject override flag directly into a fresh document copy
-        presenterWindow = window.open('about:blank', 'SpeakerView', 'width=1280,height=860');
-        if (!presenterWindow) return;
-        const html = '<!DOCTYPE html><html><head><script>window.isPresenterOverride=true;<\\/script>' + document.head.innerHTML + '<\\/head><body class="exporting">' + document.body.innerHTML + '<\\/body><\\/html>';
-        presenterWindow.document.open();
-        presenterWindow.document.write(html);
-        presenterWindow.document.close();
-        // Give the new window time to parse/execute, then force an update
-        const trySync = () => {
-            try { syncChannel.postMessage(currentSlide.toString()); } catch(e) {}
-        };
-        setTimeout(trySync, 400);
-        setTimeout(trySync, 900);
-        setTimeout(trySync, 1600);
-    } else {
-        presenterWindow = window.open(window.location.href.split('#')[0] + '#presenter', 'SpeakerView', 'width=1280,height=860');
-        setTimeout(() => syncChannel.postMessage(currentSlide.toString()), 250);
-        setTimeout(() => syncChannel.postMessage(currentSlide.toString()), 800);
+    const popup = window.open('', 'SpeakerView', 'width=1280,height=860');
+    if (!popup) {
+        window.location.hash = 'presenter';
+        window.location.reload();
+        return;
     }
+
+    presenterWindow = popup;
+
+    if (window.location.protocol === 'blob:') {
+        const documentMarkup = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+        const presenterBlob = new Blob([documentMarkup], { type: 'text/html' });
+        const presenterUrl = URL.createObjectURL(presenterBlob) + '#presenter';
+        presenterWindow.location.replace(presenterUrl);
+        return;
+    }
+
+    presenterWindow.location.replace(window.location.href.split('#')[0] + '#presenter');
 }
 
-// Receive messages from the other window instantly via BroadcastChannel!
 syncChannel.onmessage = (event) => {
-    let newSlide = parseInt(event.data, 10);
-    if(!isNaN(newSlide) && newSlide !== currentSlide) { 
-        currentSlide = newSlide; 
-        updateSlide(true); // true prevents an infinite loop bounce back!
+    const message = event.data || {};
+    if (message.sourceId === instanceId) return;
+
+    if (message.type === 'READY') {
+        postSyncMessage('STATE', buildSyncState());
+        return;
+    }
+
+    if (message.type === 'STATE') {
+        applyIncomingState(message.payload);
     }
 };
 
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
-    if (e.key === 'ArrowLeft') prevSlide();
-    if (e.key === 's' || e.key === 'S') openSpeakerView();
-});
+function handleDeckKeydown(e) {
+    const key = (e.key || '').toLowerCase();
+    const isModified = e.metaKey || e.ctrlKey || e.altKey;
+
+    if (!isModified && (key === 'arrowright' || e.key === ' ')) {
+        e.preventDefault();
+        nextSlide();
+        return;
+    }
+
+    if (!isModified && key === 'arrowleft') {
+        e.preventDefault();
+        prevSlide();
+        return;
+    }
+
+    const isSpeakerShortcut = !isModified && (key === 's' || e.key === 'S' || e.code === 'KeyS' || e.keyCode === 83);
+    if (isSpeakerShortcut) {
+        e.preventDefault();
+        e.stopPropagation();
+        openSpeakerView();
+    }
+}
+
+document.addEventListener('keydown', handleDeckKeydown, true);
+window.addEventListener('keydown', handleDeckKeydown);
+window.onkeydown = handleDeckKeydown;
 
 window.addEventListener('resize', () => {
     if (isPresenter) {
@@ -833,56 +958,23 @@ window.addEventListener('resize', () => {
     applyAutoFitToDeck();
 });
 
-let startTime, timerInterval, elapsedMs = 0, timerRunning = false;
-function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    startTime = Date.now() - elapsedMs;
-    timerRunning = true;
-    updateTimerButton();
-    const paintTimer = () => {
-        if (!timerRunning) return;
-        elapsedMs = Date.now() - startTime;
-        const diff = elapsedMs;
-        const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-        const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-        const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-        const display = document.getElementById('timerDisplay');
-        if(display) display.innerText = h + ':' + m + ':' + s;
-    };
-    paintTimer();
-    timerInterval = setInterval(paintTimer, 1000);
-}
-
-function updateTimerButton() {
-    const button = document.getElementById('timerToggleBtn');
-    if (!button) return;
-    button.innerHTML = timerRunning
-        ? '<i class="fa-solid fa-pause"></i> Pause'
-        : '<i class="fa-solid fa-play"></i> Resume';
-}
-
 function toggleTimer() {
-    if (timerRunning) {
-        elapsedMs = Date.now() - startTime;
-        timerRunning = false;
-        clearInterval(timerInterval);
-        updateTimerButton();
-    } else {
-        startTime = Date.now() - elapsedMs;
-        timerRunning = true;
-        updateTimerButton();
-        const paintTimer = () => {
-            if (!timerRunning) return;
-            elapsedMs = Date.now() - startTime;
-            const diff = elapsedMs;
-            const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-            const display = document.getElementById('timerDisplay');
-            if(display) display.innerText = h + ':' + m + ':' + s;
+    if (timerState.running) {
+        timerState = {
+            elapsedMs: getEffectiveElapsedMs(),
+            running: false,
+            updatedAt: Date.now()
         };
-        timerInterval = setInterval(paintTimer, 1000);
+    } else {
+        timerState = {
+            elapsedMs: getEffectiveElapsedMs(),
+            running: true,
+            updatedAt: Date.now()
+        };
     }
+    hasTimerState = true;
+    ensureTimerTicker();
+    syncPresentationState();
 }
 <\/script>
 </body>
