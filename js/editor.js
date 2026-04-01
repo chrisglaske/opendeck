@@ -1001,9 +1001,10 @@ function generateSlideHTML(slide, isExport = false) {
         `;
     }
     else if (slide.type === 'grid') {
-        let colsClass = slide.cards && slide.cards.length === 4 ? 'grid-cols-2' : 'grid-cols-3';
+        const isQuadGrid = slide.cards && slide.cards.length === 4;
+        let colsClass = isQuadGrid ? 'grid-cols-2 od-grid-quad' : 'grid-cols-3';
         let cardsHtml = (slide.cards || []).map((c, i) => `
-            <div class="od-card text-center w-full" style="--card-accent:${c.color || 'var(--accent-color)'}">
+            <div class="od-card text-center w-full ${isQuadGrid ? 'od-card--compact' : ''}" style="--card-accent:${c.color || 'var(--accent-color)'}">
                 ${c.image ? `<img src="${c.image}" class="h-16 w-16 mx-auto object-cover rounded-2xl mb-6">` : `<div class="od-card__icon mx-auto"><i class="fa-solid ${escapeHtml(c.icon)} text-2xl" style="color: ${c.color || 'var(--accent-color)'}"></i></div>`}
                 ${createEditableTag('h4', 'text-xl font-bold text-white mb-3 w-full block', c.title, 'title', 'cards', i)}
                 ${createEditableTag('p', 'text-sm text-slate-400 leading-relaxed w-full block', c.text, 'text', 'cards', i)}
@@ -1012,9 +1013,9 @@ function generateSlideHTML(slide, isExport = false) {
         html = `
             <div class="od-deck-shell ${animClass}">
                 <div class="od-title-mark mx-auto"></div>
-                ${createEditableTag('h2', 'text-5xl font-extrabold mb-4 w-full text-center text-white tracking-tight', slide.title, 'title')}
-                ${createEditableTag('p', 'od-lead mb-10 w-full text-center block', slide.subtitle, 'subtitle')}
-                <div class="grid ${colsClass} gap-8 w-full">${cardsHtml}</div>
+                ${createEditableTag('h2', `${isQuadGrid ? 'text-4xl mb-3' : 'text-5xl mb-4'} font-extrabold w-full text-center text-white tracking-tight`, slide.title, 'title')}
+                ${createEditableTag('p', `od-lead ${isQuadGrid ? 'mb-6' : 'mb-10'} w-full text-center block`, slide.subtitle, 'subtitle')}
+                <div class="grid ${colsClass} ${isQuadGrid ? 'gap-5' : 'gap-8'} w-full">${cardsHtml}</div>
             </div>
         `;
     }

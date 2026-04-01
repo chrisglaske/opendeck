@@ -336,6 +336,11 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .bg-purewhite .od-card { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
 .od-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; border-top-left-radius: inherit; border-top-right-radius: inherit; background: var(--card-accent, var(--accent-color)); }
 .od-card__icon { width: 3.4rem; height: 3.4rem; border-radius: 1rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); margin-bottom: 1rem; }
+.od-grid-quad { align-items: stretch; }
+.od-card--compact { padding: 1.05rem; }
+.od-card--compact .od-card__icon { width: 2.8rem; height: 2.8rem; margin-bottom: 0.6rem; }
+.od-card--compact h4 { margin-bottom: 0.45rem !important; font-size: 1.02rem !important; line-height: 1.25 !important; }
+.od-card--compact p { font-size: 0.82rem !important; line-height: 1.45 !important; }
 .od-checklist-shell { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 1.5rem; align-items: stretch; }
 .od-check-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem; border-radius: 1rem; background: rgba(15, 23, 42, 0.62); border: 1px solid rgba(255, 255, 255, 0.08); }
 .bg-purewhite .od-check-row { background: rgba(248, 250, 252, 0.96); border-color: rgba(15, 23, 42, 0.1); }
@@ -791,6 +796,7 @@ function fitSlideContent(root) {
     };
 
     target.style.transform = 'none';
+    target.style.transformOrigin = 'center center';
     const parentW = root.clientWidth  || 1200;
     const navOffset = !isPresenter ? (document.getElementById('topNav')?.offsetHeight || 0) : 0;
     const parentH = Math.max(1, (root.clientHeight || 800) - navOffset);

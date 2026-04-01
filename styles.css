@@ -975,6 +975,31 @@ input[type="color"].prop-color::-webkit-color-swatch {
     margin-bottom: 1rem;
 }
 
+.od-grid-quad {
+    align-items: stretch;
+}
+
+.od-card--compact {
+    padding: 1.05rem;
+}
+
+.od-card--compact .od-card__icon {
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.6rem;
+}
+
+.od-card--compact h4 {
+    margin-bottom: 0.45rem !important;
+    font-size: 1.02rem !important;
+    line-height: 1.25 !important;
+}
+
+.od-card--compact p {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+}
+
 .od-checklist-shell {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
