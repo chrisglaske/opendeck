@@ -135,7 +135,7 @@ function bootAppToDashboard() {
         }
         if (window.checkTutorial) checkTutorial();
         if (window.showReleaseNotesOnce) {
-            setTimeout(() => { window.showReleaseNotesOnce('2.1.1'); }, 180);
+            setTimeout(() => { window.showReleaseNotesOnce('2.1.3'); }, 180);
         }
     }, 1000);
 }

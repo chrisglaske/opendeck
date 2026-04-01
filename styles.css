@@ -484,6 +484,7 @@ select option {
 
 .prop-input:focus {
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 
@@ -493,6 +494,7 @@ textarea.prop-input {
 }
 
 input[type="color"].prop-color {
+     appearance: none;
     -webkit-appearance: none;
     border: none;
     width: 2rem;
@@ -862,6 +864,7 @@ input[type="color"].prop-color::-webkit-color-swatch {
 .theme-card {
     background: rgba(20, 20, 20, 0.85);
     backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.15);
     border: 1px solid color-mix(in srgb, var(--accent-color) 15%, transparent);
     border-radius: 1.5rem;
     padding: 4rem;
@@ -970,6 +973,31 @@ input[type="color"].prop-color::-webkit-color-swatch {
     justify-content: center;
     background: rgba(255, 255, 255, 0.05);
     margin-bottom: 1rem;
+}
+
+.od-grid-quad {
+    align-items: stretch;
+}
+
+.od-card--compact {
+    padding: 1.05rem;
+}
+
+.od-card--compact .od-card__icon {
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.6rem;
+}
+
+.od-card--compact h4 {
+    margin-bottom: 0.45rem !important;
+    font-size: 1.02rem !important;
+    line-height: 1.25 !important;
+}
+
+.od-card--compact p {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
 }
 
 .od-checklist-shell {
