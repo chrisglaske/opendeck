@@ -484,6 +484,7 @@ select option {
 
 .prop-input:focus {
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 
@@ -863,6 +864,7 @@ input[type="color"].prop-color::-webkit-color-swatch {
 .theme-card {
     background: rgba(20, 20, 20, 0.85);
     backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.15);
     border: 1px solid color-mix(in srgb, var(--accent-color) 15%, transparent);
     border-radius: 1.5rem;
     padding: 4rem;

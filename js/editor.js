@@ -34,9 +34,11 @@ function resizePreview() {
     const pane = document.getElementById('previewArea');
     const wrapper = document.getElementById('livePreview');
     if (!pane || !wrapper) return;
-    const scaleX = (pane.clientWidth - 80) / 1200;
-    const scaleY = (pane.clientHeight - 120) / 800;
-    const scale = Math.min(scaleX, scaleY, 1);
+    const availableWidth = Math.max(240, pane.clientWidth - 80);
+    const availableHeight = Math.max(180, pane.clientHeight - 120);
+    const scaleX = availableWidth / 1200;
+    const scaleY = availableHeight / 800;
+    const scale = Math.max(0.2, Math.min(scaleX, scaleY, 1));
     wrapper.style.transform = `scale(${scale})`;
     requestAnimationFrame(() => fitSlideContent(wrapper.querySelector('.theme-slide')));
 }
@@ -165,15 +167,19 @@ function handleImageUpload(event, key, arrayName = null, index = null) {
 // Helper for sleek icon inputs in properties panel
 function generateProIconInput(label, value, onUpdateStr) {
     const randId = Math.random().toString(36).substr(2, 5);
+    const inputId = `iconInput_${randId}`;
     window[`iconCb_${randId}`] = function (icon) {
-        const func = new Function('icon', `${onUpdateStr.replace('this.value', 'icon')}; renderApp();`);
-        func(icon);
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        input.value = icon;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        renderApp();
     };
     return `
         <div class="flex flex-col gap-1.5 mb-3">
             <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">${label}</label>
             <div class="flex gap-2 w-full">
-                <input type="text" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono transition-colors shadow-inner" value="${escapeHtml(value)}" oninput="${onUpdateStr}">
+                <input type="text" id="${inputId}" class="w-full bg-[#020617] border border-slate-700 focus:border-blue-500 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono transition-colors shadow-inner" value="${escapeHtml(value)}" oninput="${onUpdateStr}">
                 <button class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2.5 rounded-xl border border-slate-700 transition-colors shadow-inner" onclick="openIconModal(window.iconCb_${randId})"><i class="fa-solid fa-icons"></i></button>
             </div>
         </div>
