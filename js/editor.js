@@ -346,6 +346,8 @@ function renderEditor() {
     ` + closeBlock;
 
     if (slide.type === 'intro') {
+        const tagsLimit = getArrayLimit(slide, 'tags');
+        const reachedTagsLimit = tagsLimit && (slide.tags || []).length >= tagsLimit.limit;
         html += openBlock('Hero Assets', 'fa-image');
         html += generateProIconInput('Main Icon', slide.icon, "updateSlide('icon', this.value)");
         html += closeBlock;
@@ -361,10 +363,15 @@ function renderEditor() {
                         ${generateProIconInput('Icon', tag.icon, `updateArrayItem('tags', ${i}, 'icon', this.value)`)}
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors shadow-sm" onclick="addArrayItem('tags', {text:'New Tag', icon:'fa-star', color:'#3B82F6'})"><i class="fa-solid fa-plus mr-2"></i>Add Tag</button>`;
+        if (reachedTagsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Title Hero supports up to ${tagsLimit.limit} ${tagsLimit.label} per slide to guarantee fit on all screens. Create another ${tagsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors ${reachedTagsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayItem('tags', {text:'New Tag', icon:'fa-star', color:'#3B82F6'})" ${reachedTagsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Tag</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'split') {
+        const splitBulletsLimit = getArrayLimit(slide, 'bullets');
+        const reachedSplitBulletsLimit = splitBulletsLimit && (slide.bullets || []).length >= splitBulletsLimit.limit;
         html += openBlock('Right Visual', 'fa-image');
         if (slide.image) {
             html += `<img src="${slide.image}" class="w-full h-24 object-cover rounded-lg border border-slate-700 mb-3 shadow-inner">
@@ -384,10 +391,15 @@ function renderEditor() {
                         <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('bullets', ${i})"><i class="fa-solid fa-trash"></i></button>
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('bullets', 'New key point')"><i class="fa-solid fa-plus mr-2"></i>Add Bullet</button>`;
+        if (reachedSplitBulletsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Side-by-Side supports up to ${splitBulletsLimit.limit} ${splitBulletsLimit.label} per slide to guarantee fit on all screens. Create another ${splitBulletsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors mt-2 ${reachedSplitBulletsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayPrimitive('bullets', 'New key point')" ${reachedSplitBulletsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Bullet</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'grid') {
+        const cardsLimit = getArrayLimit(slide, 'cards');
+        const reachedCardsLimit = cardsLimit && (slide.cards || []).length >= cardsLimit.limit;
         html += openBlock('Feature Cards', 'fa-border-all');
         (slide.cards || []).forEach((card, i) => {
             html += `<div class="bg-[#0b1121] border border-slate-700/50 rounded-lg p-3 mb-3 relative group transition hover:border-slate-500">
@@ -410,10 +422,15 @@ function renderEditor() {
             }
             html += `</div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors" onclick="addArrayItem('cards', {title:'New Feature', text:'Description', icon:'fa-star', color:'#3B82F6'})"><i class="fa-solid fa-plus mr-2"></i>Add Card</button>`;
+        if (reachedCardsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Feature Grid supports up to ${cardsLimit.limit} ${cardsLimit.label} per slide to guarantee fit on all screens. Create another ${cardsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors ${reachedCardsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayItem('cards', {title:'New Feature', text:'Description', icon:'fa-star', color:'#3B82F6'})" ${reachedCardsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Card</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'list') {
+        const itemsLimit = getArrayLimit(slide, 'items');
+        const reachedItemsLimit = itemsLimit && (slide.items || []).length >= itemsLimit.limit;
         html += openBlock('Status Rows', 'fa-list-check');
         (slide.items || []).forEach((item, i) => {
             html += `<div class="bg-[#0b1121] border border-slate-700/50 rounded-lg p-3 mb-3 relative group transition hover:border-slate-500">
@@ -431,7 +448,10 @@ function renderEditor() {
                         ${generateProIconInput('Row Icon', item.icon, `updateArrayItem('items', ${i}, 'icon', this.value)`)}
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors" onclick="addArrayItem('items', {label:'New Item', value:'WAITING', icon:'fa-circle-dot', color:'#F59E0B'})"><i class="fa-solid fa-plus mr-2"></i>Add Row</button>`;
+        if (reachedItemsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Checklist supports up to ${itemsLimit.limit} ${itemsLimit.label} per slide to guarantee fit on all screens. Create another ${itemsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors ${reachedItemsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayItem('items', {label:'New Item', value:'WAITING', icon:'fa-circle-dot', color:'#F59E0B'})" ${reachedItemsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Row</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'code') {
@@ -461,6 +481,8 @@ function renderEditor() {
         html += closeBlock;
     }
     else if (slide.type === 'glass_intro') {
+        const badgesLimit = getArrayLimit(slide, 'badges');
+        const reachedBadgesLimit = badgesLimit && (slide.badges || []).length >= badgesLimit.limit;
         html += openBlock('Hero Identity', 'fa-wand-magic-sparkles');
         html += generateProIconInput('Main Icon', slide.icon, "updateSlide('icon', this.value)");
         html += closeBlock;
@@ -476,10 +498,17 @@ function renderEditor() {
                         ${generateProIconInput('Badge Icon', badge.icon, `updateArrayItem('badges', ${i}, 'icon', this.value)`)}
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors shadow-sm" onclick="addArrayItem('badges', {text:'New Badge', icon:'fa-star', color:'#3B82F6'})"><i class="fa-solid fa-plus mr-2"></i>Add Badge</button>`;
+        if (reachedBadgesLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Glass Hero supports up to ${badgesLimit.limit} ${badgesLimit.label} per slide to guarantee fit on all screens. Create another ${badgesLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors shadow-sm ${reachedBadgesLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayItem('badges', {text:'New Badge', icon:'fa-star', color:'#3B82F6'})" ${reachedBadgesLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Badge</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'comparison') {
+        const leftPointsLimit = getArrayLimit(slide, 'leftPoints');
+        const reachedLeftPointsLimit = leftPointsLimit && (slide.leftPoints || []).length >= leftPointsLimit.limit;
+        const rightPointsLimit = getArrayLimit(slide, 'rightPoints');
+        const reachedRightPointsLimit = rightPointsLimit && (slide.rightPoints || []).length >= rightPointsLimit.limit;
         html += openBlock('Left Panel', 'fa-arrow-left');
         html += generateProIconInput('Left Icon', slide.leftIcon, "updateSlide('leftIcon', this.value)");
         (slide.leftPoints || []).forEach((point, i) => {
@@ -488,7 +517,10 @@ function renderEditor() {
                         <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('leftPoints', ${i})"><i class="fa-solid fa-trash"></i></button>
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('leftPoints', 'New point')"><i class="fa-solid fa-plus mr-2"></i>Add Left Point</button>`;
+        if (reachedLeftPointsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Comparison Panels supports up to ${leftPointsLimit.limit} ${leftPointsLimit.label} per slide to guarantee fit on all screens. Create another ${leftPointsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors mt-2 ${reachedLeftPointsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayPrimitive('leftPoints', 'New point')" ${reachedLeftPointsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Left Point</button>`;
         html += closeBlock;
 
         html += openBlock('Right Panel', 'fa-arrow-right');
@@ -499,10 +531,15 @@ function renderEditor() {
                         <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('rightPoints', ${i})"><i class="fa-solid fa-trash"></i></button>
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('rightPoints', 'New point')"><i class="fa-solid fa-plus mr-2"></i>Add Right Point</button>`;
+        if (reachedRightPointsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Comparison Panels supports up to ${rightPointsLimit.limit} ${rightPointsLimit.label} per slide to guarantee fit on all screens. Create another ${rightPointsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors mt-2 ${reachedRightPointsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayPrimitive('rightPoints', 'New point')" ${reachedRightPointsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Right Point</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'showcase_window') {
+        const showcaseBulletsLimit = getArrayLimit(slide, 'bullets');
+        const reachedShowcaseBulletsLimit = showcaseBulletsLimit && (slide.bullets || []).length >= showcaseBulletsLimit.limit;
         html += openBlock('Narrative Bullets', 'fa-list');
         (slide.bullets || []).forEach((bullet, i) => {
             html += `<div class="flex justify-between items-center bg-[#0b1121] border border-slate-700/50 rounded-lg p-2 mb-2">
@@ -510,7 +547,10 @@ function renderEditor() {
                         <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('bullets', ${i})"><i class="fa-solid fa-trash"></i></button>
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('bullets', 'New supporting point')"><i class="fa-solid fa-plus mr-2"></i>Add Bullet</button>`;
+        if (reachedShowcaseBulletsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Showcase Window supports up to ${showcaseBulletsLimit.limit} ${showcaseBulletsLimit.label} per slide to guarantee fit on all screens. Create another ${showcaseBulletsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors mt-2 ${reachedShowcaseBulletsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayPrimitive('bullets', 'New supporting point')" ${reachedShowcaseBulletsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Bullet</button>`;
         html += closeBlock;
 
         html += openBlock('Window Styling', 'fa-window-maximize');
@@ -618,6 +658,8 @@ function renderEditor() {
         html += closeBlock;
     }
     else if (slide.type === 'corp_image_text') {
+        const editorialBulletsLimit = getArrayLimit(slide, 'bullets');
+        const reachedEditorialBulletsLimit = editorialBulletsLimit && (slide.bullets || []).length >= editorialBulletsLimit.limit;
         html += openBlock('Left Visual', 'fa-image');
         if (slide.image) {
             html += `<img src="${slide.image}" class="w-full h-24 object-cover rounded-lg border border-slate-700 mb-3 shadow-inner">
@@ -635,7 +677,10 @@ function renderEditor() {
                         <button class="text-slate-500 hover:text-red-400 px-2 transition-colors" onclick="removeArrayPrimitive('bullets', ${i})"><i class="fa-solid fa-trash"></i></button>
                      </div>`;
         });
-        html += `<button class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors mt-2" onclick="addArrayPrimitive('bullets', 'New editorial point')"><i class="fa-solid fa-plus mr-2"></i>Add Point</button>`;
+        if (reachedEditorialBulletsLimit) {
+            html += `<div class="mb-3 rounded-lg border border-amber-700/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">Magazine Layout supports up to ${editorialBulletsLimit.limit} ${editorialBulletsLimit.label} per slide to guarantee fit on all screens. Create another ${editorialBulletsLimit.slideName} slide for additional content.</div>`;
+        }
+        html += `<button class="w-full border text-xs font-bold py-2.5 rounded-lg transition-colors mt-2 ${reachedEditorialBulletsLimit ? 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'}" onclick="addArrayPrimitive('bullets', 'New editorial point')" ${reachedEditorialBulletsLimit ? 'disabled' : ''}><i class="fa-solid fa-plus mr-2"></i>Add Point</button>`;
         html += closeBlock;
     }
     else if (slide.type === 'pitch_hero') {
@@ -763,11 +808,22 @@ function createEditablePrimitive(tagName, classNames, content, arrayName, index)
 
 // --- DATA MUTATORS ---
 const ARRAY_LIMITS = {
+    intro: { tags: { limit: 4, label: 'tags', slideName: 'Title Hero' } },
+    split: { bullets: { limit: 4, label: 'bullets', slideName: 'Side-by-Side' } },
+    grid: { cards: { limit: 4, label: 'cards', slideName: 'Feature Grid' } },
+    list: { items: { limit: 5, label: 'rows', slideName: 'Checklist' } },
+    glass_intro: { badges: { limit: 4, label: 'badges', slideName: 'Glass Hero' } },
+    comparison: {
+        leftPoints: { limit: 4, label: 'left points', slideName: 'Comparison Panels' },
+        rightPoints: { limit: 4, label: 'right points', slideName: 'Comparison Panels' }
+    },
+    showcase_window: { bullets: { limit: 4, label: 'bullets', slideName: 'Showcase Window' } },
+    corp_image_text: { bullets: { limit: 4, label: 'bullets', slideName: 'Magazine Layout' } },
     corp_team: { team: { limit: 4, label: 'team members', slideName: 'Team Layout' } },
-    pitch_stats: { stats: { limit: 6, label: 'metrics', slideName: 'Metrics' } },
-    pitch_timeline: { timeline: { limit: 6, label: 'milestones', slideName: 'Timeline' } },
+    pitch_stats: { stats: { limit: 4, label: 'metrics', slideName: 'Metrics' } },
+    pitch_timeline: { timeline: { limit: 4, label: 'milestones', slideName: 'Timeline' } },
     pitch_pricing: { tiers: { limit: 4, label: 'tiers', slideName: 'Pricing' } },
-    roadmap_cards: { phases: { limit: 6, label: 'stages', slideName: 'Roadmap Cards' } }
+    roadmap_cards: { phases: { limit: 4, label: 'stages', slideName: 'Roadmap Cards' } }
 };
 
 function getArrayLimit(slide, arrayName) {
@@ -780,11 +836,12 @@ function getSlideCapacityHint(slide) {
     const limits = ARRAY_LIMITS[slide.type];
     if (!limits) return '';
 
-    const [arrayName, config] = Object.entries(limits)[0] || [];
-    if (!arrayName || !config) return '';
+    const parts = Object.entries(limits).map(([arrayName, config]) => {
+        const currentCount = Array.isArray(slide[arrayName]) ? slide[arrayName].length : 0;
+        return `${currentCount}/${config.limit} ${config.label}`;
+    });
 
-    const currentCount = Array.isArray(slide[arrayName]) ? slide[arrayName].length : 0;
-    return `Capacity: ${currentCount}/${config.limit} ${config.label}`;
+    return parts.length ? `Capacity: ${parts.join(' • ')}` : '';
 }
 
 function updateSlide(key, value) { const slide = slides.find(s => s.id === currentSlideId); if (slide) { slide[key] = value; renderSlideList(); renderPreview(); saveProjects(); } }
@@ -806,7 +863,22 @@ function addArrayItem(arrayName, defaultObj) {
     renderPreview();
     saveProjects();
 }
-function addArrayPrimitive(arrayName, defaultStr) { const slide = slides.find(s => s.id === currentSlideId); if (slide) { if (!slide[arrayName]) slide[arrayName] = []; slide[arrayName].push(defaultStr); renderEditor(); renderPreview(); saveProjects(); } }
+function addArrayPrimitive(arrayName, defaultStr) {
+    const slide = slides.find(s => s.id === currentSlideId);
+    if (!slide) return;
+    if (!slide[arrayName]) slide[arrayName] = [];
+
+    const limitConfig = getArrayLimit(slide, arrayName);
+    if (limitConfig && slide[arrayName].length >= limitConfig.limit) {
+        alert(`This slide supports up to ${limitConfig.limit} ${limitConfig.label}. Add another ${limitConfig.slideName} slide for additional content.`);
+        return;
+    }
+
+    slide[arrayName].push(defaultStr);
+    renderEditor();
+    renderPreview();
+    saveProjects();
+}
 function removeArrayItem(arrayName, index) { const slide = slides.find(s => s.id === currentSlideId); if (slide && slide[arrayName]) { slide[arrayName].splice(index, 1); renderEditor(); renderPreview(); saveProjects(); } }
 function removeArrayPrimitive(arrayName, index) { removeArrayItem(arrayName, index); }
 function removeImage(key, arrayName = null, index = null) {
