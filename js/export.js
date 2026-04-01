@@ -456,22 +456,45 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .slide-autofit { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; transform-origin: center center; }
 
 /* AMAZING PRO PRESENTER VIEW UI */
-#presenterView { display: none; background: #020617; color: white; height: 100vh; padding: 2rem; box-sizing: border-box; overflow: hidden; flex-direction: column; font-family: var(--global-font); }
-.p-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+#presenterView { display: none; background: #020617; color: white; height: 100vh; box-sizing: border-box; overflow: hidden; font-family: var(--global-font); position: relative; }
+#presenterStage { position: absolute; inset: 0 auto auto 0; width: 1440px; height: 860px; padding: 1rem; box-sizing: border-box; display: flex; flex-direction: column; gap: 0.65rem; transform-origin: top left; }
+.p-header { display: grid; grid-template-columns: minmax(230px, 0.85fr) minmax(0, 1.4fr) minmax(320px, 0.9fr); align-items: start; gap: 0.8rem; flex-shrink: 0; }
 .p-title-area h2 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.025em; display: flex; align-items: center; gap: 0.75rem; }
 .p-badge { background: var(--accent-color); color: white; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
 .p-time { font-family: 'Space Mono', monospace; font-size: 3rem; font-weight: 700; color: white; text-shadow: 0 0 20px rgba(255,255,255,0.2); tabular-nums: true; letter-spacing: -0.05em; }
 
-.p-body { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; flex-grow: 1; height: calc(100vh - 120px); }
+.p-top-jump { min-height: 0; }
+.p-top-jump .p-box-header { padding: 0.55rem 0.9rem; }
+.p-jump-list { padding: 0.55rem 0.55rem 0.65rem; overflow-x: auto; overflow-y: hidden; display: flex; gap: 0.45rem; }
+.p-jump-list { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent-color) 55%, #334155) rgba(15, 23, 42, 0.8); }
+.p-jump-list::-webkit-scrollbar { height: 9px; }
+.p-jump-list::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.72); border-radius: 999px; }
+.p-jump-list::-webkit-scrollbar-thumb { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-color) 65%, #1e293b), #475569); border-radius: 999px; border: 1px solid rgba(15,23,42,0.85); }
+.p-jump-list::-webkit-scrollbar-thumb:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-color) 82%, #1e293b), #64748b); }
+.p-jump-item { width: 180px; min-width: 180px; text-align: left; display: grid; grid-template-columns: 1.7rem minmax(0, 1fr); gap: 0.55rem; align-items: center; padding: 0.55rem 0.65rem; border-radius: 0.75rem; border: 1px solid rgba(148,163,184,0.16); background: rgba(15,23,42,0.45); color: #cbd5e1; cursor: pointer; transition: all 0.2s; }
+.p-jump-item:hover { border-color: rgba(59,130,246,0.4); background: rgba(15,23,42,0.7); }
+.p-jump-item.is-active { border-color: var(--accent-color); background: color-mix(in srgb, var(--accent-color) 18%, rgba(15,23,42,0.82)); color: #fff; box-shadow: 0 14px 34px -18px var(--accent-color); position: relative; }
+.p-jump-item.is-active::after { content: 'Current'; position: absolute; top: -0.42rem; right: 0.45rem; padding: 0.08rem 0.4rem; border-radius: 999px; font-size: 0.52rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; background: var(--accent-color); color: #fff; }
+.p-jump-item__index { font-family: 'Space Mono', monospace; font-size: 0.68rem; opacity: 0.8; }
+.p-jump-item__meta { min-width: 0; }
+.p-jump-item__title { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-jump-item__notes { display: block; font-size: 0.62rem; color: #94a3b8; margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.p-main-col { display: flex; flex-direction: column; gap: 1.5rem; }
-.p-side-col { display: flex; flex-direction: column; gap: 1.5rem; }
+.p-body { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(330px, 1fr); gap: 0.85rem; flex-grow: 1; min-height: 0; }
 
-.p-box { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(10px); }
+.p-main-col { display: flex; flex-direction: column; gap: 0.8rem; min-height: 0; overflow: hidden; }
+.p-side-col { display: grid; grid-template-rows: minmax(160px, 0.4fr) minmax(260px, 0.6fr); gap: 0.8rem; min-height: 0; overflow: hidden; }
+#p-next-box { min-height: 160px; height: auto !important; opacity: 0.85; }
+#p-notes-box { min-height: 260px; }
+
+.p-box { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.2rem; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(10px); }
 .p-box-header { padding: 1rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.05); display:flex; justify-content: space-between; }
 
 .p-preview-container { flex-grow: 1; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .p-scale-wrapper { width: 1200px; height: 800px; position: absolute; transform-origin: center center; background: #000; border-radius: 1rem; overflow: hidden; }
+.p-end-state { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; background: radial-gradient(circle at 50% 24%, rgba(59,130,246,0.2) 0%, rgba(2,6,23,0.92) 48%, #000 100%); border: 1px dashed rgba(148,163,184,0.45); color: #e2e8f0; gap: 0.55rem; }
+.p-end-state__title { font-size: 2rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: #f8fafc; }
+.p-end-state__meta { font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; }
 
 .p-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .p-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1.5rem; border-radius: 1rem; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
@@ -479,11 +502,59 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .p-btn-next { background: var(--accent-color); border-color: var(--accent-color); box-shadow: 0 10px 30px -10px var(--accent-color); }
 .p-btn-next:hover { background: color-mix(in srgb, var(--accent-color) 80%, white); box-shadow: 0 15px 40px -10px var(--accent-color); }
 
-.p-notes-content { padding: 1.5rem; flex-grow: 1; overflow-y: auto; font-size: 1.5rem; line-height: 1.6; color: #e2e8f0; font-weight: 300; }
+.p-notes-content { padding: 1rem 1.1rem; flex-grow: 1; overflow-y: auto; font-size: clamp(1rem, 1vw, 1.18rem); line-height: 1.45; color: #e2e8f0; font-weight: 400; }
+.p-notes-controls { display: flex; align-items: center; gap: 0.5rem; }
+.p-chip-btn { border: 1px solid rgba(148,163,184,0.35); background: rgba(15,23,42,0.8); color: #cbd5e1; padding: 0.3rem 0.65rem; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.2s; }
+.p-chip-btn:hover { border-color: var(--accent-color); color: white; }
+.p-shortcuts-box { margin-top: 0.2rem; flex-shrink: 0; }
+.p-shortcuts-grid { display: flex; align-items: center; gap: 0.4rem; padding: 0.75rem 1rem; flex-wrap: wrap; }
+.p-shortcut { display: flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.42rem 0.62rem; border-radius: 999px; border: 1px solid rgba(148,163,184,0.22); background: rgba(15,23,42,0.55); color: #cbd5e1; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
+.p-shortcut kbd { font-family: 'Space Mono', monospace; font-size: 0.66rem; padding: 0.1rem 0.35rem; border-radius: 0.35rem; background: rgba(2,6,23,0.85); border: 1px solid rgba(148,163,184,0.28); color: #f8fafc; }
 
-.timer-wrap { display: flex; flex-direction: column; align-items: flex-end; }
+.p-timer-grid { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0.5rem 0.75rem; margin-top: 0.9rem; }
+.p-timer-meta { display: flex; align-items: center; justify-content: flex-end; gap: 0.6rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.p-target-select { border: 1px solid rgba(148,163,184,0.28); background: rgba(15,23,42,0.86); color: #e2e8f0; padding: 0.45rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.p-status-pill { padding: 0.28rem 0.55rem; border-radius: 999px; background: rgba(30,41,59,0.7); border: 1px solid rgba(148,163,184,0.2); color: #cbd5e1; }
+.p-status-pill.is-warning { color: #f59e0b; border-color: rgba(245,158,11,0.45); }
+.p-status-pill.is-danger { color: #fb7185; border-color: rgba(251,113,133,0.45); }
+.p-remaining-time { font-family: 'Space Mono', monospace; color: #cbd5e1; }
+
+#speakerShortcutBtn { position: fixed; top: 5rem; right: 3.5rem; z-index: 2000; border: 1px solid color-mix(in srgb, var(--accent-color) 45%, transparent); background: color-mix(in srgb, var(--accent-color) 18%, #020617); color: #e2e8f0; border-radius: 999px; padding: 0.45rem 0.85rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; box-shadow: 0 10px 35px -18px var(--accent-color); transition: all 0.2s; }
+#speakerShortcutBtn:hover { transform: translateY(-1px); color: white; }
+#speakerShortcutBtn .speaker-key { opacity: 0.8; }
+#speakerShortcutBtn.is-compact { width: 2.2rem; height: 2.2rem; padding: 0; justify-content: center; border-radius: 999px; }
+#speakerShortcutBtn.is-compact .speaker-label,
+#speakerShortcutBtn.is-compact .speaker-key { display: none; }
+#speakerShortcutBtn.is-compact:hover,
+#speakerShortcutBtn.is-compact:focus-visible { width: auto; padding: 0.45rem 0.85rem; }
+#speakerShortcutBtn.is-compact:hover .speaker-label,
+#speakerShortcutBtn.is-compact:hover .speaker-key,
+#speakerShortcutBtn.is-compact:focus-visible .speaker-label,
+#speakerShortcutBtn.is-compact:focus-visible .speaker-key { display: inline; }
+#speakerShortcutBtn.is-compact::after { content: 'S'; position: absolute; top: -0.35rem; right: -0.2rem; width: 1rem; height: 1rem; border-radius: 999px; font-size: 0.58rem; font-weight: 900; display: flex; align-items: center; justify-content: center; background: var(--accent-color); color: white; box-shadow: 0 0 0 2px #020617; }
+#speakerShortcutBtn.is-compact:hover::after,
+#speakerShortcutBtn.is-compact:focus-visible::after { display: none; }
+#speakerHintToast { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 2200; border-radius: 0.9rem; border: 1px solid rgba(59,130,246,0.35); background: rgba(2,6,23,0.92); color: #e2e8f0; padding: 0.8rem 0.95rem; font-size: 0.8rem; max-width: 280px; box-shadow: 0 18px 45px -25px #000; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; pointer-events: none; }
+#speakerHintToast.show { opacity: 1; transform: translateY(0); }
+
+#p-notes-restore { margin-top: 0.75rem; display: none; width: 100%; }
+.p-side-col.notes-collapsed #p-notes-box { display: none !important; }
+.p-side-col.notes-collapsed #p-notes-restore { display: inline-flex; align-items: center; justify-content: center; }
+
+body.p-focus-mode .p-header,
+body.p-focus-mode .p-shortcuts-box,
+body.p-focus-mode .p-top-jump,
+body.p-focus-mode #p-notes-box,
+body.p-focus-mode #p-next-box { display: none !important; }
+body.p-focus-mode .p-body { display: block; height: auto; }
+body.p-focus-mode .p-main-col { height: 100%; }
+body.p-focus-mode .p-main-col .p-box { height: 100%; }
+
+@media (max-width: 980px) { #speakerShortcutBtn { right: 2rem; top: 4.5rem; } }
+
+.timer-wrap { display: flex; flex-direction: column; align-items: flex-end; margin-top: 0.1rem; }
 .timer-label { font-size: 0.65rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.1em; font-weight: 700; margin-bottom: -0.5rem; z-index: 10; }
-.timer-controls { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.9rem; }
+.timer-controls { display: flex; align-items: center; gap: 0.5rem; margin-top: 0; }
 .timer-btn { border: 1px solid rgba(59,130,246,0.35); background: rgba(15,23,42,0.86); color: #e2e8f0; padding: 0.5rem 0.9rem; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.2s; }
 .timer-btn:hover { border-color: var(--accent-color); color: white; }
 
@@ -510,6 +581,16 @@ ${pdfPrintStyles}
     <div id="helpBtn" class="fixed top-20 right-6 w-8 h-8 bg-slate-900/50 border border-slate-700/50 rounded-full flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 hover:border-slate-500 cursor-pointer z-[2000] shadow-lg transition-all opacity-20 hover:opacity-100" onclick="document.getElementById('helpModal').style.display='flex'">
         <i class="fa-solid fa-question text-xs"></i>
     </div>
+
+    <button id="speakerShortcutBtn" onclick="openSpeakerView()" aria-label="Open speaker view">
+        <i class="fa-solid fa-desktop"></i>
+        <span class="speaker-label">Speaker View</span>
+        <span class="speaker-key">(S)</span>
+    </button>
+
+    <div id="speakerHintToast">
+        Press <strong style="font-family:'Space Mono',monospace;">S</strong> anytime to open Speaker View.
+    </div>
     
     <div id="helpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[3000] hidden items-center justify-center transition-all" onclick="this.style.display='none'">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl max-w-md w-full text-center shadow-2xl" onclick="event.stopPropagation()">
@@ -529,16 +610,35 @@ ${pdfPrintStyles}
 </div>
 
 <div id="presenterView">
+    <div id="presenterStage">
     <div class="p-header">
         <div class="p-title-area">
             <h2>${escapeHtml(globalSettings.headerText)} <span class="p-badge">Speaker View</span></h2>
             <div class="text-slate-400 text-sm mt-1 font-mono uppercase tracking-widest" id="p-slide-status">Slide 1 of ${totalSlides}</div>
         </div>
+        <div class="p-box p-top-jump">
+            <div class="p-box-header">All Slides <span id="p-slide-count">${totalSlides}</span></div>
+            <div class="p-jump-list" id="p-jump-list"></div>
+        </div>
         <div class="timer-wrap">
             <span class="timer-label">Elapsed Time</span>
             <div id="timerDisplay" class="p-time" style="color: var(--accent-color);">00:00:00</div>
-            <div class="timer-controls">
-                <button id="timerToggleBtn" class="timer-btn" onclick="toggleTimer()"><i class="fa-solid fa-pause"></i> Pause</button>
+            <div class="p-timer-grid">
+                <div class="timer-controls">
+                    <button id="timerToggleBtn" class="timer-btn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i> Start</button>
+                    <button id="timerResetBtn" class="timer-btn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                </div>
+                <select id="timerTargetSelect" class="p-target-select" onchange="setTimerTarget(this.value)">
+                    <option value="0">No Target</option>
+                    <option value="900000">15 min</option>
+                    <option value="1800000" selected>30 min</option>
+                    <option value="2700000">45 min</option>
+                    <option value="3600000">60 min</option>
+                </select>
+                <div class="p-timer-meta" style="grid-column: 1 / -1;">
+                    <span id="timerStatusPill" class="p-status-pill">Ready</span>
+                    <span id="timerRemaining" class="p-remaining-time">Remaining 30:00</span>
+                </div>
             </div>
         </div>
     </div>
@@ -555,18 +655,39 @@ ${pdfPrintStyles}
                 <button class="p-btn p-btn-next" onclick="nextSlide()">Next <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>
-        <div class="p-side-col">
-            <div class="p-box" style="height: 35vh; opacity: 0.8;">
+        <div class="p-side-col" id="p-side-col">
+            <div id="p-next-box" class="p-box" style="height: 35vh; opacity: 0.8;">
                 <div class="p-box-header"><span>Next Slide</span> <span id="p-next-indicator" class="text-slate-500">2</span></div>
                 <div class="p-preview-container" id="p-next-wrapper">
                      <div class="p-scale-wrapper" id="p-next-container"></div>
                 </div>
             </div>
-            <div class="p-box" style="flex-grow: 1;">
-                <div class="p-box-header">Speaker Notes</div>
+            <div id="p-notes-box" class="p-box" style="flex-grow: 1;">
+                <div class="p-box-header">
+                    <span>Speaker Notes</span>
+                    <div class="p-notes-controls">
+                        <button class="p-chip-btn" onclick="adjustNotesSize(-1)">A-</button>
+                        <button class="p-chip-btn" onclick="adjustNotesSize(1)">A+</button>
+                        <button class="p-chip-btn" id="p-notes-toggle-btn" onclick="toggleNotesPanel()">Hide</button>
+                    </div>
+                </div>
                 <div class="p-notes-content" id="p-notes-content"></div>
             </div>
+            <button id="p-notes-restore" class="p-btn" onclick="toggleNotesPanel()"><i class="fa-regular fa-note-sticky"></i> Show Notes</button>
         </div>
+    </div>
+    <div class="p-box p-shortcuts-box">
+        <div class="p-box-header">Shortcuts</div>
+        <div class="p-shortcuts-grid">
+            <div class="p-shortcut"><kbd>S</kbd> Speaker</div>
+            <div class="p-shortcut"><kbd>F</kbd> Focus</div>
+            <div class="p-shortcut"><kbd>H</kbd> Notes</div>
+            <div class="p-shortcut"><kbd>N</kbd> Next</div>
+            <div class="p-shortcut"><kbd>P</kbd> Prev</div>
+            <div class="p-shortcut"><kbd>T</kbd> Timer</div>
+            <div class="p-shortcut"><kbd>R</kbd> Reset</div>
+        </div>
+    </div>
     </div>
 </div>
 
@@ -574,6 +695,8 @@ ${pdfPrintStyles}
 const container = document.getElementById('container');
 const dotsContainer = document.getElementById('indicator');
 const navItems = document.querySelectorAll('.nav-item');
+const presenterRoot = document.getElementById('presenterView');
+const presenterStage = document.getElementById('presenterStage');
 const numSlides = ${totalSlides};
 const slidePayload = ${slidePayload};
 const notesData = ${notesData};
@@ -584,6 +707,9 @@ const instanceId = Math.random().toString(36).slice(2);
 let timerState = { elapsedMs: 0, running: false, updatedAt: Date.now() };
 let hasTimerState = false;
 let timerInterval = null;
+let notesFontSize = 1.5;
+let speakerHintTimer = null;
+let timerTargetMs = 1800000;
 
 const syncChannel = new BroadcastChannel(syncKey);
 
@@ -594,10 +720,10 @@ if (isPresenter) {
     document.getElementById('standardView').style.display = 'none';
     document.getElementById('presenterView').style.display = 'flex';
     document.title = "Speaker View - " + document.title;
-    timerState = { elapsedMs: 0, running: true, updatedAt: Date.now() };
+    timerState = { elapsedMs: 0, running: false, updatedAt: Date.now() };
     hasTimerState = true;
     ensureTimerTicker();
-    window.addEventListener('resize', scalePresenterPreviews);
+    scalePresenterLayout();
 } else {
     if (document.body) {
         document.body.setAttribute('tabindex', '-1');
@@ -609,6 +735,22 @@ if (isPresenter) {
         dotsContainer.appendChild(dot);
     }
     requestAnimationFrame(() => applyAutoFitToDeck());
+    showSpeakerShortcutHint();
+}
+
+function showSpeakerShortcutHint() {
+    const toast = document.getElementById('speakerHintToast');
+    const shortcutButton = document.getElementById('speakerShortcutBtn');
+    if (!toast) return;
+    toast.classList.add('show');
+    if (shortcutButton) shortcutButton.classList.remove('is-compact');
+    if (speakerHintTimer) clearTimeout(speakerHintTimer);
+    speakerHintTimer = setTimeout(() => {
+        if (shortcutButton) shortcutButton.classList.add('is-compact');
+    }, 6200);
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 4200);
 }
 
 // Fit overflowing slide content down to always fill (not overflow) the canvas
@@ -661,6 +803,20 @@ function applyAutoFitToDeck() {
     document.querySelectorAll('#container .slide').forEach((slide) => fitSlideContent(slide));
 }
 
+function scalePresenterLayout() {
+    if (!isPresenter || !presenterRoot || !presenterStage) return;
+    const stageWidth = 1440;
+    const stageHeight = 860;
+    const viewportW = Math.max(320, window.innerWidth);
+    const viewportH = Math.max(320, window.innerHeight);
+    const rawScale = Math.min(viewportW / stageWidth, viewportH / stageHeight);
+    const scale = Math.min(1.75, rawScale);
+
+    presenterStage.style.transform = 'scale(' + scale + ')';
+    presenterStage.style.left = ((viewportW - (stageWidth * scale)) / 2).toFixed(1) + 'px';
+    presenterStage.style.top = ((viewportH - (stageHeight * scale)) / 2).toFixed(1) + 'px';
+}
+
 function clampSlideIndex(index) {
     return Math.min(Math.max(index, 0), Math.max(0, numSlides - 1));
 }
@@ -679,14 +835,55 @@ function getEffectiveElapsedMs() {
     return timerState.elapsedMs + Math.max(0, Date.now() - timerState.updatedAt);
 }
 
+function formatDuration(ms, withHours = true) {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (withHours || hours > 0) {
+        return [hours, minutes, seconds].map((part) => String(part).padStart(2, '0')).join(':');
+    }
+
+    return [minutes, seconds].map((part) => String(part).padStart(2, '0')).join(':');
+}
+
+function escapeRuntimeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function updateTimerDisplay() {
     const display = document.getElementById('timerDisplay');
     if (!display) return;
     const diff = getEffectiveElapsedMs();
-    const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-    const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-    const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-    display.innerText = h + ':' + m + ':' + s;
+    display.innerText = formatDuration(diff, true);
+
+    const remaining = document.getElementById('timerRemaining');
+    const status = document.getElementById('timerStatusPill');
+    if (!remaining || !status) return;
+
+    if (!timerTargetMs) {
+        remaining.innerText = 'No target';
+        status.innerText = timerState.running ? 'Running' : 'Ready';
+        status.className = 'p-status-pill';
+        return;
+    }
+
+    const delta = timerTargetMs - diff;
+    if (delta >= 0) {
+        remaining.innerText = 'Remaining ' + formatDuration(delta, false);
+        status.innerText = delta < 300000 ? 'Closing' : (timerState.running ? 'On Track' : 'Ready');
+        status.className = delta < 300000 ? 'p-status-pill is-warning' : 'p-status-pill';
+    } else {
+        remaining.innerText = 'Over ' + formatDuration(Math.abs(delta), false);
+        status.innerText = 'Over Time';
+        status.className = 'p-status-pill is-danger';
+    }
 }
 
 function updateTimerButton() {
@@ -694,7 +891,7 @@ function updateTimerButton() {
     if (!button) return;
     button.innerHTML = timerState.running
         ? '<i class="fa-solid fa-pause"></i> Pause'
-        : '<i class="fa-solid fa-play"></i> Resume';
+        : '<i class="fa-solid fa-play"></i> Start';
 }
 
 function ensureTimerTicker() {
@@ -708,7 +905,8 @@ function ensureTimerTicker() {
 function buildSyncState() {
     return {
         currentSlide,
-        timerState: hasTimerState ? timerState : null
+        timerState: hasTimerState ? timerState : null,
+        timerTargetMs
     };
 }
 
@@ -716,8 +914,20 @@ function postSyncMessage(type, payload = {}) {
     syncChannel.postMessage({ type, payload, sourceId: instanceId });
 }
 
+function postWindowState(targetWindow) {
+    if (!targetWindow || targetWindow.closed) return;
+    try {
+        targetWindow.postMessage({ type: 'OPENDECK_STATE', payload: buildSyncState(), sourceId: instanceId }, '*');
+    } catch (e) { }
+}
+
 function syncPresentationState() {
     postSyncMessage('STATE', buildSyncState());
+    if (isPresenter) {
+        postWindowState(window.opener);
+    } else {
+        postWindowState(presenterWindow);
+    }
 }
 
 function applyIncomingState(nextState) {
@@ -729,6 +939,12 @@ function applyIncomingState(nextState) {
         timerState = remoteTimerState;
         hasTimerState = true;
         ensureTimerTicker();
+    }
+
+    if (typeof nextState.timerTargetMs === 'number') {
+        timerTargetMs = Math.max(0, nextState.timerTargetMs);
+        const targetSelect = document.getElementById('timerTargetSelect');
+        if (targetSelect) targetSelect.value = String(timerTargetMs);
     }
 
     updateSlide(true);
@@ -747,13 +963,37 @@ function createPresenterPreview(index) {
 // Initialize the presenter view once the DOM is ready
 function initializePresenterView() {
     if (!isPresenter) return;
+    scalePresenterLayout();
     updateSlide(true);
+    renderSlideJumpList();
     requestAnimationFrame(() => {
         scalePresenterPreviews();
         document.querySelectorAll('.p-scale-wrapper').forEach(fitSlideContent);
         setTimeout(() => { updateSlide(true); }, 180);
     });
     postSyncMessage('READY');
+}
+
+function renderSlideJumpList() {
+    const list = document.getElementById('p-jump-list');
+    if (!list) return;
+
+    list.innerHTML = slidePayload.map((slide, index) => {
+        const notesLabel = notesData[index]?.notes ? 'Has notes' : 'No notes';
+        const isActive = index === currentSlide;
+        return '<button class="p-jump-item' + (isActive ? ' is-active' : '') + '" aria-current="' + (isActive ? 'true' : 'false') + '" onclick="goToSlide(' + index + ')">'
+            + '<span class="p-jump-item__index">' + String(index + 1).padStart(2, '0') + '</span>'
+            + '<span class="p-jump-item__meta">'
+            + '<span class="p-jump-item__title">' + escapeRuntimeHtml(slide.name || 'Untitled') + '</span>'
+            + '<span class="p-jump-item__notes">' + notesLabel + '</span>'
+            + '</span>'
+            + '</button>';
+    }).join('');
+
+    const activeItem = list.querySelector('.p-jump-item.is-active');
+    if (activeItem) {
+        activeItem.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -846,10 +1086,13 @@ function updateSlide(skipSync = false) {
         if (nextPreview) {
             nextBox.appendChild(nextPreview);
             requestAnimationFrame(() => fitSlideContent(nextPreview));
+        } else {
+            nextBox.innerHTML = '<div class="p-end-state"><div class="p-end-state__title">End</div><div class="p-end-state__meta">No more slides</div></div>';
         }
         scalePresenterPreviews();
         updateTimerDisplay();
         updateTimerButton();
+        renderSlideJumpList();
     }
 
     if (!skipSync) {
@@ -907,6 +1150,43 @@ function openSpeakerView() {
     presenterWindow.location.replace(window.location.href.split('#')[0] + '#presenter');
 }
 
+function adjustNotesSize(direction) {
+    notesFontSize = Math.min(2.2, Math.max(1, notesFontSize + (direction * 0.1)));
+    const notes = document.getElementById('p-notes-content');
+    if (notes) notes.style.fontSize = notesFontSize.toFixed(2) + 'rem';
+}
+
+function setTimerTarget(value) {
+    timerTargetMs = Math.max(0, Number(value) || 0);
+    updateTimerDisplay();
+    syncPresentationState();
+}
+
+function toggleNotesPanel() {
+    const notesBox = document.getElementById('p-notes-box');
+    const sideCol = document.getElementById('p-side-col');
+    const toggleButton = document.getElementById('p-notes-toggle-btn');
+    if (!notesBox || !sideCol) return;
+    const hidden = sideCol.classList.toggle('notes-collapsed');
+    if (toggleButton) toggleButton.innerText = hidden ? 'Show' : 'Hide';
+}
+
+function resetTimer() {
+    timerState = { elapsedMs: 0, running: false, updatedAt: Date.now() };
+    hasTimerState = true;
+    ensureTimerTicker();
+    syncPresentationState();
+}
+
+function toggleFocusMode() {
+    if (!isPresenter) return;
+    document.body.classList.toggle('p-focus-mode');
+    setTimeout(() => {
+        scalePresenterPreviews();
+        document.querySelectorAll('.p-scale-wrapper').forEach(fitSlideContent);
+    }, 40);
+}
+
 syncChannel.onmessage = (event) => {
     const message = event.data || {};
     if (message.sourceId === instanceId) return;
@@ -921,7 +1201,21 @@ syncChannel.onmessage = (event) => {
     }
 };
 
+window.addEventListener('message', (event) => {
+    const message = event.data || {};
+    if (message.sourceId === instanceId) return;
+    if (message.type === 'OPENDECK_STATE') {
+        applyIncomingState(message.payload);
+    }
+});
+
 function handleDeckKeydown(e) {
+    if (e.defaultPrevented) return;
+
+    const target = e.target;
+    const isTypingTarget = target && (target.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(target.tagName));
+    if (isTypingTarget) return;
+
     const key = (e.key || '').toLowerCase();
     const isModified = e.metaKey || e.ctrlKey || e.altKey;
 
@@ -937,6 +1231,42 @@ function handleDeckKeydown(e) {
         return;
     }
 
+    if (!isModified && key === 'n') {
+        e.preventDefault();
+        nextSlide();
+        return;
+    }
+
+    if (!isModified && key === 'p') {
+        e.preventDefault();
+        prevSlide();
+        return;
+    }
+
+    if (!isModified && key === 't') {
+        e.preventDefault();
+        toggleTimer();
+        return;
+    }
+
+    if (!isModified && key === 'r') {
+        e.preventDefault();
+        resetTimer();
+        return;
+    }
+
+    if (!isModified && key === 'h') {
+        e.preventDefault();
+        toggleNotesPanel();
+        return;
+    }
+
+    if (!isModified && key === 'f') {
+        e.preventDefault();
+        toggleFocusMode();
+        return;
+    }
+
     const isSpeakerShortcut = !isModified && (key === 's' || e.key === 'S' || e.code === 'KeyS' || e.keyCode === 83);
     if (isSpeakerShortcut) {
         e.preventDefault();
@@ -946,11 +1276,10 @@ function handleDeckKeydown(e) {
 }
 
 document.addEventListener('keydown', handleDeckKeydown, true);
-window.addEventListener('keydown', handleDeckKeydown);
-window.onkeydown = handleDeckKeydown;
 
 window.addEventListener('resize', () => {
     if (isPresenter) {
+        scalePresenterLayout();
         scalePresenterPreviews();
         document.querySelectorAll('.p-scale-wrapper').forEach(fitSlideContent);
         return;
