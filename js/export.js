@@ -519,26 +519,29 @@ body { font-family: var(--global-font); background-color: var(--bg-dark); color:
 .p-timer-grid { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0.5rem 0.75rem; margin-top: 0.9rem; }
 .p-timer-meta { display: flex; align-items: center; justify-content: flex-end; gap: 0.6rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .p-target-select { border: 1px solid rgba(148,163,184,0.28); background: rgba(15,23,42,0.86); color: #e2e8f0; padding: 0.45rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.p-custom-target-wrap { display: none; align-items: center; gap: 0.4rem; margin-top: 0.4rem; }
+.p-custom-target-wrap.visible { display: flex; }
+.p-custom-target-input { width: 5.5rem; border: 1px solid rgba(148,163,184,0.28); background: rgba(15,23,42,0.86); color: #e2e8f0; padding: 0.35rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-align: center; outline: none; }
+.p-custom-target-input:focus { border-color: var(--accent-color); }
+.p-custom-target-btn { border: 1px solid rgba(148,163,184,0.28); background: rgba(15,23,42,0.86); color: #e2e8f0; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; cursor: pointer; }
+.p-custom-target-btn:hover { background: color-mix(in srgb, var(--accent-color) 20%, transparent); border-color: var(--accent-color); color: white; }
 .p-status-pill { padding: 0.28rem 0.55rem; border-radius: 999px; background: rgba(30,41,59,0.7); border: 1px solid rgba(148,163,184,0.2); color: #cbd5e1; }
 .p-status-pill.is-warning { color: #f59e0b; border-color: rgba(245,158,11,0.45); }
 .p-status-pill.is-danger { color: #fb7185; border-color: rgba(251,113,133,0.45); }
 .p-remaining-time { font-family: 'Space Mono', monospace; color: #cbd5e1; }
 
-#speakerShortcutBtn { position: fixed; top: 5rem; right: 3.5rem; z-index: 2000; border: 1px solid rgba(59, 130, 246, 0.45); border: 1px solid color-mix(in srgb, var(--accent-color) 45%, transparent); background: rgba(10, 22, 46, 0.9); background: color-mix(in srgb, var(--accent-color) 18%, #020617); color: #e2e8f0; border-radius: 999px; padding: 0.45rem 0.85rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; box-shadow: 0 10px 35px -18px var(--accent-color); transition: all 0.2s; }
-#speakerShortcutBtn:hover { transform: translateY(-1px); color: white; }
-#speakerShortcutBtn .speaker-key { opacity: 0.8; }
-#speakerShortcutBtn.is-compact { width: 2.2rem; height: 2.2rem; padding: 0; justify-content: center; border-radius: 999px; }
+#speakerShortcutBtn { border: 1px solid rgba(59, 130, 246, 0.3); border: 1px solid color-mix(in srgb, var(--accent-color) 30%, transparent); background: transparent; color: #94a3b8; border-radius: 999px; padding: 0.3rem 0.7rem; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; opacity: 0.5; transition: all 0.2s; flex-shrink: 0; }
+#speakerShortcutBtn:hover { opacity: 1; color: white; background: color-mix(in srgb, var(--accent-color) 15%, transparent); }
+#speakerShortcutBtn .speaker-key { opacity: 0.7; }
+#speakerShortcutBtn.is-compact { width: 2rem; height: 2rem; padding: 0; justify-content: center; }
 #speakerShortcutBtn.is-compact .speaker-label,
 #speakerShortcutBtn.is-compact .speaker-key { display: none; }
 #speakerShortcutBtn.is-compact:hover,
-#speakerShortcutBtn.is-compact:focus-visible { width: auto; padding: 0.45rem 0.85rem; }
+#speakerShortcutBtn.is-compact:focus-visible { width: auto; padding: 0.3rem 0.7rem; opacity: 1; }
 #speakerShortcutBtn.is-compact:hover .speaker-label,
 #speakerShortcutBtn.is-compact:hover .speaker-key,
 #speakerShortcutBtn.is-compact:focus-visible .speaker-label,
 #speakerShortcutBtn.is-compact:focus-visible .speaker-key { display: inline; }
-#speakerShortcutBtn.is-compact::after { content: 'S'; position: absolute; top: -0.35rem; right: -0.2rem; width: 1rem; height: 1rem; border-radius: 999px; font-size: 0.58rem; font-weight: 900; display: flex; align-items: center; justify-content: center; background: var(--accent-color); color: white; box-shadow: 0 0 0 2px #020617; }
-#speakerShortcutBtn.is-compact:hover::after,
-#speakerShortcutBtn.is-compact:focus-visible::after { display: none; }
 #speakerHintToast { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 2200; border-radius: 0.9rem; border: 1px solid rgba(59,130,246,0.35); background: rgba(2,6,23,0.92); color: #e2e8f0; padding: 0.8rem 0.95rem; font-size: 0.8rem; max-width: 280px; box-shadow: 0 18px 45px -25px #000; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; pointer-events: none; }
 #speakerHintToast.show { opacity: 1; transform: translateY(0); }
 
@@ -555,7 +558,7 @@ body.p-focus-mode .p-body { display: block; height: auto; }
 body.p-focus-mode .p-main-col { height: 100%; }
 body.p-focus-mode .p-main-col .p-box { height: 100%; }
 
-@media (max-width: 980px) { #speakerShortcutBtn { right: 2rem; top: 4.5rem; } }
+@media (max-width: 980px) { #speakerShortcutBtn .speaker-label, #speakerShortcutBtn .speaker-key { display: none; } #speakerShortcutBtn { width: 2rem; height: 2rem; padding: 0; justify-content: center; } }
 
 .timer-wrap { display: flex; flex-direction: column; align-items: flex-end; margin-top: 0.1rem; }
 .timer-label { font-size: 0.65rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.1em; font-weight: 700; margin-bottom: -0.5rem; z-index: 10; }
@@ -570,9 +573,14 @@ ${pdfPrintStyles}
 
 <div id="standardView">
     <nav class="top-nav" id="topNav">
-        <div class="flex items-center gap-2 mr-8 flex-shrink-0">
+        <div class="flex items-center gap-3 mr-8 flex-shrink-0">
             <div class="bg-blue-600 rounded px-2 py-0.5 font-bold text-white text-sm" style="background-color: var(--accent-color)">${escapeHtml(globalSettings.headerIcon)}</div>
             <span class="font-bold tracking-tight whitespace-nowrap">${escapeHtml(globalSettings.headerText)}</span>
+            <button id="speakerShortcutBtn" onclick="openSpeakerView()" aria-label="Open speaker view">
+                <i class="fa-solid fa-desktop"></i>
+                <span class="speaker-label">Speaker View</span>
+                <span class="speaker-key">(S)</span>
+            </button>
         </div>
         <div class="nav-links-container">${navItems}</div>
     </nav>
@@ -586,12 +594,6 @@ ${pdfPrintStyles}
     <div id="helpBtn" class="fixed top-20 right-6 w-8 h-8 bg-slate-900/50 border border-slate-700/50 rounded-full flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 hover:border-slate-500 cursor-pointer z-[2000] shadow-lg transition-all opacity-20 hover:opacity-100" onclick="document.getElementById('helpModal').style.display='flex'">
         <i class="fa-solid fa-question text-xs"></i>
     </div>
-
-    <button id="speakerShortcutBtn" onclick="openSpeakerView()" aria-label="Open speaker view">
-        <i class="fa-solid fa-desktop"></i>
-        <span class="speaker-label">Speaker View</span>
-        <span class="speaker-key">(S)</span>
-    </button>
 
     <div id="speakerHintToast">
         Press <strong style="font-family:'Space Mono',monospace;">S</strong> anytime to open Speaker View.
@@ -633,13 +635,22 @@ ${pdfPrintStyles}
                     <button id="timerToggleBtn" class="timer-btn" onclick="toggleTimer()"><i class="fa-solid fa-play"></i> Start</button>
                     <button id="timerResetBtn" class="timer-btn" onclick="resetTimer()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
                 </div>
-                <select id="timerTargetSelect" class="p-target-select" onchange="setTimerTarget(this.value)">
-                    <option value="0">No Target</option>
-                    <option value="900000">15 min</option>
-                    <option value="1800000" selected>30 min</option>
-                    <option value="2700000">45 min</option>
-                    <option value="3600000">60 min</option>
-                </select>
+                <div>
+                    <select id="timerTargetSelect" class="p-target-select" onchange="setTimerTarget(this.value)">
+                        <option value="0">No Target</option>
+                        <option value="900000">15 min</option>
+                        <option value="1800000" selected>30 min</option>
+                        <option value="2700000">45 min</option>
+                        <option value="3600000">60 min</option>
+                        <option value="custom">Custom…</option>
+                    </select>
+                    <div class="p-custom-target-wrap" id="customTargetWrap">
+                        <input id="timerCustomInput" class="p-custom-target-input" type="text" placeholder="mm:ss" maxlength="5"
+                            onkeydown="if(event.key==='Enter')applyCustomTarget()"
+                            oninput="this.value=this.value.replace(/[^0-9:]/g,'')">
+                        <button class="p-custom-target-btn" onclick="applyCustomTarget()">Set</button>
+                    </div>
+                </div>
                 <div class="p-timer-meta" style="grid-column: 1 / -1;">
                     <span id="timerStatusPill" class="p-status-pill">Ready</span>
                     <span id="timerRemaining" class="p-remaining-time">Remaining 30:00</span>
@@ -708,6 +719,7 @@ const notesData = ${notesData};
 const syncKey = '${uniqueSyncKey}';
 let currentSlide = 0;
 let presenterWindow = null;
+let speakerWindowPoll = null;
 const instanceId = Math.random().toString(36).slice(2);
 let timerState = { elapsedMs: 0, running: false, updatedAt: Date.now() };
 let hasTimerState = false;
@@ -950,7 +962,19 @@ function applyIncomingState(nextState) {
     if (typeof nextState.timerTargetMs === 'number') {
         timerTargetMs = Math.max(0, nextState.timerTargetMs);
         const targetSelect = document.getElementById('timerTargetSelect');
-        if (targetSelect) targetSelect.value = String(timerTargetMs);
+        if (targetSelect) {
+            const existing = Array.from(targetSelect.options).find(o => o.value === String(timerTargetMs));
+            if (existing) {
+                targetSelect.value = String(timerTargetMs);
+            } else if (timerTargetMs > 0) {
+                const mins = Math.floor(timerTargetMs / 60000);
+                const secs = Math.floor((timerTargetMs % 60000) / 1000);
+                const label = secs > 0 ? (mins + 'm ' + String(secs).padStart(2,'0') + 's') : (mins + ' min');
+                const customOpt = Array.from(targetSelect.options).find(o => o.value === 'custom' || o.classList?.contains('custom-entry'));
+                if (customOpt) { customOpt.text = label; customOpt.value = String(timerTargetMs); }
+                targetSelect.value = String(timerTargetMs);
+            }
+        }
     }
 
     updateSlide(true);
@@ -1144,6 +1168,17 @@ function openSpeakerView() {
     }
 
     presenterWindow = popup;
+    const speakerBtn = document.getElementById('speakerShortcutBtn');
+    if (speakerBtn) speakerBtn.style.display = 'none';
+    if (speakerWindowPoll) clearInterval(speakerWindowPoll);
+    speakerWindowPoll = setInterval(() => {
+        if (presenterWindow && presenterWindow.closed) {
+            clearInterval(speakerWindowPoll);
+            speakerWindowPoll = null;
+            presenterWindow = null;
+            if (speakerBtn) speakerBtn.style.display = '';
+        }
+    }, 500);
 
     if (window.location.protocol === 'blob:') {
         const documentMarkup = '<!DOCTYPE html>' + document.documentElement.outerHTML;
@@ -1163,7 +1198,44 @@ function adjustNotesSize(direction) {
 }
 
 function setTimerTarget(value) {
+    const wrap = document.getElementById('customTargetWrap');
+    if (value === 'custom') {
+        if (wrap) wrap.classList.add('visible');
+        const input = document.getElementById('timerCustomInput');
+        if (input) input.focus();
+        return;
+    }
+    if (wrap) wrap.classList.remove('visible');
     timerTargetMs = Math.max(0, Number(value) || 0);
+    updateTimerDisplay();
+    syncPresentationState();
+}
+
+function applyCustomTarget() {
+    const input = document.getElementById('timerCustomInput');
+    if (!input) return;
+    const raw = input.value.trim();
+    let ms = 0;
+    if (raw.includes(':')) {
+        const parts = raw.split(':');
+        const mins = parseInt(parts[0], 10) || 0;
+        const secs = parseInt(parts[1], 10) || 0;
+        ms = (mins * 60 + Math.min(secs, 59)) * 1000;
+    } else {
+        ms = (parseInt(raw, 10) || 0) * 60000;
+    }
+    if (ms <= 0) return;
+    timerTargetMs = ms;
+    const wrap = document.getElementById('customTargetWrap');
+    if (wrap) wrap.classList.remove('visible');
+    const select = document.getElementById('timerTargetSelect');
+    const mins = Math.floor(ms / 60000);
+    const secs = Math.floor((ms % 60000) / 1000);
+    const label = secs > 0 ? (mins + 'm ' + String(secs).padStart(2,'0') + 's') : (mins + ' min');
+    const customOpt = select ? Array.from(select.options).find(o => o.value === 'custom') : null;
+    if (customOpt) { customOpt.text = label; customOpt.value = String(ms); }
+    if (select) select.value = String(ms);
+    input.value = '';
     updateTimerDisplay();
     syncPresentationState();
 }
