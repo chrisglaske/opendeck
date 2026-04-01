@@ -708,6 +708,7 @@ const notesData = ${notesData};
 const syncKey = '${uniqueSyncKey}';
 let currentSlide = 0;
 let presenterWindow = null;
+let speakerWindowPoll = null;
 const instanceId = Math.random().toString(36).slice(2);
 let timerState = { elapsedMs: 0, running: false, updatedAt: Date.now() };
 let hasTimerState = false;
@@ -1144,6 +1145,17 @@ function openSpeakerView() {
     }
 
     presenterWindow = popup;
+    const speakerBtn = document.getElementById('speakerShortcutBtn');
+    if (speakerBtn) speakerBtn.style.display = 'none';
+    if (speakerWindowPoll) clearInterval(speakerWindowPoll);
+    speakerWindowPoll = setInterval(() => {
+        if (presenterWindow && presenterWindow.closed) {
+            clearInterval(speakerWindowPoll);
+            speakerWindowPoll = null;
+            presenterWindow = null;
+            if (speakerBtn) speakerBtn.style.display = '';
+        }
+    }, 500);
 
     if (window.location.protocol === 'blob:') {
         const documentMarkup = '<!DOCTYPE html>' + document.documentElement.outerHTML;
