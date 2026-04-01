@@ -3,7 +3,7 @@
 **OpenDeck** is a high-performance, privacy-centric presentation builder designed for the modern web. It enables users to create beautiful, branded tech talks and corporate decks with zero backend dependencies, zero tracking, and 100% data ownership.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![Version](https://img.shields.io/badge/Version-1.0-green)
+![Version](https://img.shields.io/badge/Version-2.1.3-green)
 ![Privacy](https://img.shields.io/badge/Privacy-100%25_Local-blueviolet)
 [![Wiki](https://img.shields.io/badge/Documentation-Wiki-orange.svg)](https://github.com/chrisglaske/opendeck/wiki)
 
