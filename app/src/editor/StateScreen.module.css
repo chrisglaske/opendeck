@@ -1,0 +1,84 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.bar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.home {
+  display: flex;
+  padding: 0 6px 0 2px;
+  border-radius: var(--r-sm);
+}
+
+.name {
+  font-weight: 600;
+  font-size: var(--fs-ui);
+  padding: 4px 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-6);
+  background: var(--canvas);
+}
+
+.msg {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+
+.title {
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.text {
+  color: var(--muted);
+  font-size: var(--fs-ui);
+}
+
+.text p {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+}

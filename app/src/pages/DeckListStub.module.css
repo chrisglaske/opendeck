@@ -1,0 +1,139 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.bar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.content {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--s-6) var(--s-6) var(--s-8);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-4);
+  min-height: 36px;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.confirm {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+
+.thumb {
+  flex: none;
+  width: 88px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--subtle);
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta,
+.question {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--faint);
+}
+
+.question {
+  font-size: var(--fs-ui);
+  color: var(--ink);
+}
+
+.question b {
+  font-weight: 600;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: var(--s-8) var(--s-4);
+}
+
+.emptyIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+
+.emptyTitle {
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.emptyText {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: var(--fs-ui);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -8,6 +8,7 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
+  text-decoration: none;
   transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 

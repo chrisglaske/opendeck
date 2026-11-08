@@ -1,0 +1,45 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 6px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-caption);
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.ok svg {
+  color: var(--success);
+}
+
+.error {
+  color: var(--danger);
+  background: var(--danger-tint);
+  font-weight: 600;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

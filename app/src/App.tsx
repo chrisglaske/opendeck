@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import EditorPage from './editor/EditorPage'
+import DeckListStub from './pages/DeckListStub'
 import DesignSystemPage from './pages/DesignSystemPage'
-import HomeStub from './pages/HomeStub'
 import { ToastHost } from './ui'
 
 function useHash(): string {
@@ -13,11 +14,20 @@ function useHash(): string {
   return hash
 }
 
+const DECK_ROUTE = /^#\/deck\/([A-Za-z0-9_-]{1,64})$/
+
+function Page({ hash }: { hash: string }) {
+  if (hash === '#/design') return <DesignSystemPage />
+  const deck = DECK_ROUTE.exec(hash)
+  if (deck) return <EditorPage key={deck[1]} deckId={deck[1]} />
+  return <DeckListStub />
+}
+
 export default function App() {
   const hash = useHash()
   return (
     <>
-      {hash === '#/design' ? <DesignSystemPage /> : <HomeStub />}
+      <Page hash={hash} />
       <ToastHost />
     </>
   )

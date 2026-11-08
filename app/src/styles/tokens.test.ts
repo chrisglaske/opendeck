@@ -57,3 +57,22 @@ describe('tokens.css', () => {
     expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(4)
   })
 })
+
+describe('stage 2 tokens', () => {
+  it('uses the firmer control borders (M8, option B)', () => {
+    expect(readTokens(css, 'light')['--line-strong']).toBe('#B9B4C6')
+    expect(readTokens(css, 'dark')['--line-strong']).toBe('#55555D')
+  })
+  it('defines snap guide and readout colors', () => {
+    expect(readTokens(css, 'light')['--guide']).toBe('#E2457A')
+    expect(readTokens(css, 'dark')['--guide']).toBe('#FF6B9A')
+    expect(readTokens(css, 'light')['--readout-bg']).toBe('#1C1B2A')
+    expect(readTokens(css, 'dark')['--readout-bg']).toBe('#1C1B2A')
+  })
+  it('keeps the no-JS dark fallback in sync with dark mode', () => {
+    const media = /@media \(prefers-color-scheme: dark\)\s*\{\s*:root:not\(\[data-mode\]\)\s*\{([^{}]*)\}/.exec(css)
+    expect(media).not.toBeNull()
+    const fallback = readTokens(`[data-mode="dark"] {${media![1]}}`, 'dark')
+    expect(fallback).toEqual(readTokens(css, 'dark'))
+  })
+})

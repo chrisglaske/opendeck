@@ -1,0 +1,40 @@
+.loading,
+.page {
+  min-height: 100vh;
+  background: var(--canvas);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+.bar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.home {
+  display: flex;
+  padding: 0 6px 0 2px;
+  border-radius: var(--r-sm);
+}
+
+.name {
+  font-weight: 600;
+  font-size: var(--fs-ui);
+  padding: 4px 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.stage {
+  flex: 1;
+}
