@@ -35,6 +35,15 @@
   outline: none;
 }
 
+.static {
+  position: static;
+}
+
+.static .item {
+  cursor: default;
+}
+
+.hl,
 .item:focus,
 .item:focus-visible {
   background: var(--subtle);

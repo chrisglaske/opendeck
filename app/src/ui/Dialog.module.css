@@ -1,4 +1,5 @@
-.dialog {
+.dialog,
+.surface {
   width: min(420px, calc(100vw - 32px));
   padding: 0;
   border: 1px solid var(--line);
@@ -6,6 +7,10 @@
   background: var(--raised);
   color: var(--ink);
   box-shadow: var(--shadow-float);
+}
+
+.surface {
+  width: auto;
 }
 
 .dialog::backdrop {

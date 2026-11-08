@@ -183,3 +183,27 @@ export function Menu({
     </span>
   )
 }
+
+/** The menu's look with one highlighted row, for static previews (no menu semantics). */
+export function MenuPreview({ items, highlight }: { items: MenuItem[]; highlight?: string }) {
+  return (
+    <div className={`${styles.menu} ${styles.static}`}>
+      {items.map((item, i) => {
+        if (item === 'separator') return <hr key={`sep-${i}`} className={styles.sep} />
+        const Icon = item.icon
+        return (
+          <div
+            key={item.id}
+            className={[styles.item, item.danger && styles.danger, item.id === highlight && styles.hl]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden className={styles.icon} />}
+            <span>{item.label}</span>
+            {item.shortcut && <kbd className={styles.kbd}>{item.shortcut}</kbd>}
+          </div>
+        )
+      })}
+    </div>
+  )
+}

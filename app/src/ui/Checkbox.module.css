@@ -2,7 +2,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   font-size: var(--fs-ui);
   color: var(--ink);
   cursor: pointer;

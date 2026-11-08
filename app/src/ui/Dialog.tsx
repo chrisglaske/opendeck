@@ -68,18 +68,54 @@ function OpenDialog({
         if (e.target === e.currentTarget) onCloseRef.current()
       }}
     >
-      <div className={styles.box}>
-        <h3 id={titleId} className={styles.title}>
-          {title}
-        </h3>
-        {description && (
-          <p id={descId} className={styles.description}>
-            {description}
-          </p>
-        )}
+      <DialogBox titleId={titleId} descId={descId} title={title} description={description} actions={actions}>
         {children}
-        <div className={styles.actions}>{actions}</div>
-      </div>
+      </DialogBox>
     </dialog>
+  )
+}
+
+function DialogBox({
+  titleId,
+  descId,
+  title,
+  description,
+  children,
+  actions,
+}: {
+  titleId?: string
+  descId?: string
+  title: string
+  description?: string
+  children?: ReactNode
+  actions: ReactNode
+}) {
+  return (
+    <div className={styles.box}>
+      <h3 id={titleId} className={styles.title}>
+        {title}
+      </h3>
+      {description && (
+        <p id={descId} className={styles.description}>
+          {description}
+        </p>
+      )}
+      {children}
+      <div className={styles.actions}>{actions}</div>
+    </div>
+  )
+}
+
+/** The dialog's look without the modal behaviour, for static previews. */
+export function DialogSurface(props: {
+  title: string
+  description?: string
+  children?: ReactNode
+  actions: ReactNode
+}) {
+  return (
+    <div className={styles.surface}>
+      <DialogBox {...props} />
+    </div>
   )
 }

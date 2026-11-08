@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import { useEffect, useRef, useState, type HTMLAttributes } from 'react'
 import styles from './Toast.module.css'
 
 type ToastOptions = { actionLabel?: string; onAction?(): void; durationMs?: number }
@@ -58,18 +59,39 @@ function ToastItem({ toast: t, onDismiss }: { toast: ToastData; onDismiss(): voi
   }, [])
 
   return (
-    <div className={styles.toast} onMouseEnter={pause} onMouseLeave={start}>
-      <span>{t.message}</span>
-      {t.actionLabel && (
-        <button
-          type="button"
-          className={styles.action}
-          onClick={() => {
-            t.onAction?.()
-            onDismiss()
-          }}
-        >
-          {t.actionLabel}
+    <ToastView
+      message={t.message}
+      actionLabel={t.actionLabel}
+      onAction={() => {
+        t.onAction?.()
+        onDismiss()
+      }}
+      onMouseEnter={pause}
+      onMouseLeave={start}
+    />
+  )
+}
+
+/** The toast's look, also used for static previews. */
+export function ToastView({
+  message,
+  icon: Icon,
+  actionLabel,
+  onAction,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & {
+  message: string
+  icon?: LucideIcon
+  actionLabel?: string
+  onAction?(): void
+}) {
+  return (
+    <div className={styles.toast} {...rest}>
+      {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden />}
+      <span>{message}</span>
+      {actionLabel && (
+        <button type="button" className={styles.action} onClick={onAction}>
+          {actionLabel}
         </button>
       )}
     </div>
