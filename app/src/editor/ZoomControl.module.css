@@ -1,0 +1,31 @@
+.zoom {
+  right: 12px;
+  bottom: 12px;
+}
+
+/* Opens upwards: the control sits at the bottom of the canvas. */
+.zoom [role='menu'] {
+  top: auto;
+  bottom: calc(100% + 4px);
+  left: auto;
+  right: 0;
+  width: 160px;
+}
+
+.level {
+  min-width: 76px;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.level:hover {
+  background: var(--subtle);
+  color: var(--ink);
+}

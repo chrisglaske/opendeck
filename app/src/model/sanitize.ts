@@ -43,6 +43,11 @@ const ICON_NAME = /^[a-z0-9-]{1,64}$/
 const FONT_NAME = /^[A-Za-z0-9 ._-]{1,64}$/
 const SAFE_HREF = /^(https?:\/\/|mailto:)[^\s\u0000-\u001f\u007f]+$/i
 
+/** True for the only link targets OpenDeck allows: http(s) and mailto. */
+export function isSafeHref(v: string): boolean {
+  return v.length <= LIMITS.href && SAFE_HREF.test(v)
+}
+
 type Obj = Record<string, unknown>
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v)
 

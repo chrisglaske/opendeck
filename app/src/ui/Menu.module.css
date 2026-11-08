@@ -76,3 +76,15 @@
   border: 0;
   border-top: 1px solid var(--line);
 }
+
+.fixed {
+  position: fixed;
+  z-index: 60;
+}
+
+.cap {
+  margin: 2px 9px 4px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--faint);
+}

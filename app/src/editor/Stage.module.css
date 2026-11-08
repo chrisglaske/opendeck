@@ -1,0 +1,51 @@
+.stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--canvas);
+}
+
+.scroller {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+/* Grows with the zoomed slide; auto margins center it without clipping when it overflows. */
+.content {
+  display: flex;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 56px 36px 56px 76px;
+}
+
+.frame {
+  position: relative;
+  flex: none;
+  margin: auto;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: var(--shadow-slide);
+}
+
+/* Floating controls over the canvas. */
+.chip {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  box-shadow: var(--shadow-float);
+}
+
+.showPanel {
+  top: 12px;
+  right: 12px;
+}

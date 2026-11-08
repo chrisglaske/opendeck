@@ -7,10 +7,10 @@ import { acquireDeckLock, takeOverDeckLock } from '../storage/deckLock'
 import type { HeldLock } from '../storage/deckLock'
 import { openDeck } from '../storage/deckStore'
 import type { DeckStore } from '../storage/deckStore'
-import { Button, Logo, ModeSwitch } from '../ui'
+import { Button } from '../ui'
 import buttonStyles from '../ui/Button.module.css'
-import { EditorProvider, useEditor } from './EditorContext'
-import { SaveStatus } from './SaveStatus'
+import { EditorProvider } from './EditorContext'
+import { EditorShell } from './EditorShell'
 import { StateScreen } from './StateScreen'
 import { createEditorStore } from './store'
 import type { EditorStore } from './store'
@@ -147,25 +147,8 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
     case 'ready':
       return (
         <EditorProvider store={view.store}>
-          <EditorPlaceholder autosaver={view.autosaver} />
+          <EditorShell autosaver={view.autosaver} />
         </EditorProvider>
       )
   }
-}
-
-/** Temporary editor frame; replaced by the editor shell. */
-function EditorPlaceholder({ autosaver }: { autosaver: Autosaver }) {
-  const name = useEditor((s) => s.deck.name)
-  return (
-    <div className={styles.page}>
-      <header className={styles.bar}>
-        <a href="#/" className={styles.home} aria-label="All decks"><Logo size={24} wordmark={false} /></a>
-        <span className={styles.name}>{name}</span>
-        <SaveStatus autosaver={autosaver} />
-        <span className={styles.spacer} />
-        <ModeSwitch />
-      </header>
-      <main className={styles.stage} />
-    </div>
-  )
 }

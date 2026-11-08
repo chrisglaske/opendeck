@@ -1,0 +1,77 @@
+/* Slide content is styled only by the deck theme (--t-* variables), never by app tokens,
+   so a slide looks the same in light and dark mode. */
+.root {
+  position: relative;
+  overflow: hidden;
+  transform-origin: 0 0;
+  isolation: isolate;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.el {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.text {
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.para {
+  margin: 0;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.2em;
+  list-style: disc;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.line {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.lineHit {
+  stroke: transparent;
+  pointer-events: stroke;
+}
+
+.image {
+  overflow: hidden;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  background: var(--t-surface);
+}
+
+.frame {
+  position: absolute;
+  overflow: hidden;
+}
+
+.frame img,
+.background {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+}
+
+.background {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

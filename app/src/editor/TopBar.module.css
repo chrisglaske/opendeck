@@ -1,0 +1,60 @@
+.bar {
+  grid-column: 1 / -1;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+/* The bar is at the top of the window, so its tooltips open below. */
+.bar [role='tooltip'] {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+
+.home {
+  display: flex;
+  padding: 0 6px 0 2px;
+  border-radius: var(--r-sm);
+}
+
+.name {
+  max-width: 320px;
+  overflow: hidden;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-ui);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+
+.name:hover {
+  background: var(--subtle);
+}
+
+.nameField {
+  border-color: var(--accent);
+  background: var(--raised);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+  outline: none;
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: var(--line);
+}
+
+.spacer {
+  flex: 1;
+}

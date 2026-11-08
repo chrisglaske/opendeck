@@ -1,0 +1,152 @@
+.rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  padding: 12px 12px 12px 6px;
+  overflow-y: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thumb {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+/* The ring goes on the slide picture, not around the number. */
+.thumb:focus-visible {
+  box-shadow: none;
+}
+
+.thumb:focus-visible .mini {
+  box-shadow: var(--focus-ring);
+}
+
+.num {
+  flex: none;
+  width: 16px;
+  padding-top: 3px;
+  font-size: var(--fs-overline);
+  color: var(--faint);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini {
+  position: relative;
+  flex: none;
+  box-sizing: content-box;
+  width: 128px;
+  height: 72px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.miniSlide {
+  position: absolute;
+  inset: 0;
+}
+
+.thumb[aria-selected='true'] .mini {
+  border-color: var(--accent);
+}
+
+.thumb[aria-selected='true'] .num {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.current .mini {
+  box-shadow: 0 0 0 2px var(--accent-tint);
+}
+
+.thumb[data-hidden] .miniSlide {
+  opacity: 0.35;
+}
+
+.thumb[data-hidden] .num {
+  text-decoration: line-through;
+}
+
+.eyeOff {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--readout-bg);
+  color: var(--readout-ink);
+}
+
+/* The slides being dragged leave a dashed gap behind. */
+.thumb[data-dragging] .mini {
+  border: 1px dashed var(--line-strong);
+}
+
+.thumb[data-dragging] .miniSlide {
+  visibility: hidden;
+}
+
+.dropLine {
+  position: relative;
+  height: 2px;
+  margin: -6px 0 -6px 22px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.dropLine::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.ghost {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  transform: rotate(-3deg) scale(0.92);
+  transform-origin: 0 0;
+  border-radius: 6px;
+  box-shadow: var(--shadow-float);
+  opacity: 0.92;
+}
+
+.ghost .mini {
+  border-color: var(--accent);
+}
+
+.add {
+  flex: none;
+  margin-left: 22px;
+  justify-content: center;
+}

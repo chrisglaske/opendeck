@@ -1,0 +1,123 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  flex: none;
+  padding: 0 8px 0 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs {
+  align-self: stretch;
+  align-items: flex-end;
+  flex: 1;
+  border-bottom: 0;
+}
+
+.tabs [role='tab'] {
+  padding: 12px 10px 11px;
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 14px 18px;
+}
+
+.heading {
+  display: block;
+  margin: 0 0 8px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-ui);
+  font-weight: 600;
+}
+
+.title svg {
+  color: var(--muted);
+}
+
+.bgOptions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.bgOption {
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bgOption[aria-checked='true'] {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+
+.bgOption:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.notes {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 92px;
+  padding: 9px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--raised);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-ui);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.notes::placeholder {
+  color: var(--faint);
+}
+
+.notes:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.toggleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-ui);
+}
+
+.hint {
+  padding-left: 37px;
+  font-size: var(--fs-caption);
+  color: var(--faint);
+}

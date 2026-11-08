@@ -26,10 +26,13 @@ export function Tooltip({
   content,
   shortcut,
   children,
+  decorative = false,
 }: {
   content: string
   shortcut?: string
   children: ReactElement<TriggerProps>
+  /** The trigger's accessible name already says this, so the tooltip is hidden from assistive tech. */
+  decorative?: boolean
 }) {
   const id = useId()
   const [open, setOpen] = useState(false)
@@ -49,7 +52,7 @@ export function Tooltip({
   const p = children.props
 
   const trigger = cloneElement(children, {
-    'aria-describedby': [p['aria-describedby'], open ? id : undefined].filter(Boolean).join(' ') || undefined,
+    'aria-describedby': [p['aria-describedby'], open && !decorative ? id : undefined].filter(Boolean).join(' ') || undefined,
     onMouseEnter: (e) => {
       p.onMouseEnter?.(e)
       clear()
@@ -77,7 +80,7 @@ export function Tooltip({
     <span className={styles.anchor}>
       {trigger}
       {open && (
-        <span role="tooltip" id={id} className={styles.tip}>
+        <span role="tooltip" id={id} className={styles.tip} aria-hidden={decorative || undefined}>
           {content}
           {shortcut && <kbd className={styles.kbd}>{shortcut}</kbd>}
         </span>

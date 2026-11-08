@@ -9,6 +9,7 @@ export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'chi
   pressed?: boolean
   size?: 'sm' | 'md'
   shortcut?: string
+  iconSize?: number
 }
 
 export function IconButton({
@@ -17,12 +18,14 @@ export function IconButton({
   pressed,
   size = 'md',
   shortcut,
+  iconSize = 16,
   type = 'button',
   className,
   ...rest
 }: IconButtonProps) {
   return (
-    <Tooltip content={label} shortcut={shortcut}>
+    // The tooltip repeats the aria-label, so screen readers would hear it twice.
+    <Tooltip content={label} shortcut={shortcut} decorative>
       <button
         type={type}
         aria-label={label}
@@ -30,7 +33,7 @@ export function IconButton({
         className={[styles.ibtn, styles[size], className].filter(Boolean).join(' ')}
         {...rest}
       >
-        <Icon size={16} strokeWidth={1.75} aria-hidden />
+        <Icon size={iconSize} strokeWidth={1.75} aria-hidden />
       </button>
     </Tooltip>
   )

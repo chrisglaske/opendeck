@@ -1,5 +1,6 @@
 import { afterEach, expect, it } from 'vitest'
 import source from '../../public/mode-init.js?raw'
+import indexHtml from '../../index.html?raw'
 import { mediaStub } from '../test/setup'
 
 const run = () => new Function(source)()
@@ -32,4 +33,9 @@ it('falls back to the system when localStorage throws', () => {
   mediaStub.matches = false
   expect(run).not.toThrow()
   expect(document.documentElement.dataset.mode).toBe('light')
+})
+
+it('is loaded from a root path that Vite prefixes with the base once', () => {
+  // Vite adds the /v2/ base to public files itself; writing it here too gives /v2/v2/ in dev.
+  expect(indexHtml).toContain('<script src="/mode-init.js"></script>')
 })

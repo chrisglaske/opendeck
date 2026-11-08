@@ -37,8 +37,11 @@ describe('IconButton', () => {
     const btn = screen.getByRole('button', { name: 'Bold' })
     expect(btn).toHaveAttribute('aria-pressed', 'true')
     act(() => btn.focus())
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Bold')
-    expect(btn).toHaveAttribute('aria-describedby', screen.getByRole('tooltip').id)
+    // The tooltip only repeats the name, so it is hidden from assistive tech (no double reading).
+    const tip = screen.getByRole('tooltip', { hidden: true })
+    expect(tip).toHaveTextContent('Bold')
+    expect(tip).toHaveAttribute('aria-hidden', 'true')
+    expect(btn).not.toHaveAttribute('aria-describedby')
   })
   it('has no aria-pressed when pressed is undefined', () => {
     render(<IconButton icon={Bold} label="Bold" />)
