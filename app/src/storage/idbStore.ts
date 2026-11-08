@@ -44,6 +44,9 @@ export async function openIdbStore(): Promise<DeckStore> {
   async function write(store: 'decks' | 'assets', value: unknown): Promise<void> {
     const tx = db.transaction(store, 'readwrite')
     tx.objectStore(store).put(value)
+    // Commit right away instead of when the event loop idles: a save started while the page
+    // is unloading (pagehide) is otherwise dropped along with the page.
+    tx.commit?.()
     await done(tx)
   }
 
