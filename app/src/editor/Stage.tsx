@@ -5,8 +5,16 @@ import { SLIDE_H, SLIDE_W } from '../model/types'
 import type { Point } from '../model/types'
 import { SlideView } from '../render/SlideView'
 import { IconButton } from '../ui'
+import { bounds, unionRect } from '../model/geometry'
+import { ElementMenu } from './canvas/ContextMenu'
+import { Overlay } from './canvas/Overlay'
+import { QuickBar } from './canvas/QuickBar'
+import { useCanvasGestures } from './canvas/useCanvasGestures'
+import { useCanvasKeys } from './canvas/useCanvasKeys'
+import { worldItems } from './canvas/world'
+import { useClipboard } from './clipboard'
 import { Dock } from './Dock'
-import { useEditor } from './EditorContext'
+import { useEditor, useEditorStore } from './EditorContext'
 import { ZoomControl } from './ZoomControl'
 import type { Zoom } from './ZoomControl'
 import styles from './Stage.module.css'
@@ -89,6 +97,26 @@ export function Stage({
     [frame, scale],
   )
   const api = useMemo<StageApi>(() => ({ scale, toSlidePoint, frame }), [scale, toSlidePoint, frame])
+  const canvas = useCanvasGestures(frame, scale, toSlidePoint)
+  const store = useEditorStore()
+  const [stageEl, setStageEl] = useState<HTMLElement | null>(null)
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
+  useClipboard()
+
+  // The context menu key opens the menu at the selection's top-right corner.
+  useCanvasKeys(() => {
+    const st = store.getState()
+    const items = worldItems(slide, st.selection.ids)
+    const r = frame?.getBoundingClientRect()
+    if (!items.length || !r) return
+    const b = unionRect(items.map((i) => bounds(i.el)))
+    setMenu({ x: r.left + (b.x + b.w) * scale, y: r.top + b.y * scale })
+  })
+
+  const onContextMenu = (e: MouseEvent) => {
+    e.preventDefault()
+    if (canvas.selectAt(e.clientX, e.clientY)) setMenu({ x: e.clientX, y: e.clientY })
+  }
 
   // Links on the slide work when presenting; while editing a click selects instead.
   const stopLinks = (e: MouseEvent) => {
@@ -97,20 +125,32 @@ export function Stage({
 
   return (
     <StageContext.Provider value={api}>
-      <main className={styles.stage} aria-label="Slide canvas">
+      <main ref={setStageEl} className={styles.stage} aria-label="Slide canvas">
         <div ref={scrollerRef} className={styles.scroller} data-stage-scroller="">
-          <div className={styles.content}>
+          <div className={styles.content} {...canvas.canvasHandlers} onContextMenu={onContextMenu}>
             <div
               ref={setFrame}
               className={styles.frame}
               style={{ width: `${SLIDE_W * scale}px`, height: `${SLIDE_H * scale}px` }}
               onClickCapture={stopLinks}
             >
-              {slide && <SlideView slide={slide} theme={theme} scale={scale} editingId={editingId} />}
+              <div className={styles.slide}>
+                {slide && <SlideView slide={slide} theme={theme} scale={scale} editingId={editingId} />}
+              </div>
+              <Overlay
+                scale={scale}
+                hoverId={canvas.hoverId}
+                visuals={canvas.visuals}
+                onResize={canvas.startResize}
+                onRotate={canvas.startRotate}
+                onEndpoint={canvas.startEndpoint}
+              />
               {children}
             </div>
           </div>
         </div>
+        <QuickBar frame={frame} scale={scale} container={stageEl} hidden={canvas.busy || menu !== null} onMore={(x, y) => setMenu({ x, y })} />
+        {menu && <ElementMenu x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
         <Dock />
         <ZoomControl zoom={zoom} fit={fit} onZoom={onZoom} />
         {panelHidden && (

@@ -72,7 +72,12 @@ export function Tooltip({
     },
     onKeyDown: (e) => {
       p.onKeyDown?.(e)
-      if (e.key === 'Escape' && open) hide()
+      if (e.key === 'Escape' && open) {
+        // This Esc closes the tooltip only; it must not reach the page (and clear a selection).
+        e.preventDefault()
+        e.stopPropagation()
+        hide()
+      }
     },
   })
 

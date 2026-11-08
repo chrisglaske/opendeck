@@ -20,12 +20,20 @@
   min-width: 100%;
   min-height: 100%;
   padding: 56px 36px 56px 76px;
+  touch-action: none;
+  user-select: none;
 }
 
+/* The frame is not clipped, so handles and readouts can reach past the slide edge. */
 .frame {
   position: relative;
   flex: none;
   margin: auto;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
   border-radius: 3px;
   overflow: hidden;
   box-shadow: var(--shadow-slide);

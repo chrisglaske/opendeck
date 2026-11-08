@@ -32,8 +32,9 @@
 }
 
 .prefix {
+  display: flex;
   flex: none;
-  width: 12px;
+  min-width: 12px;
   font-size: var(--fs-overline);
   font-weight: 600;
   color: var(--faint);
@@ -61,4 +62,18 @@
 
 .numeric {
   font-variant-numeric: tabular-nums;
+}
+
+.suffix {
+  flex: none;
+  color: var(--faint);
+}
+
+/* Compact fields for quick-style bars. */
+.sm {
+  height: 28px;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: var(--fs-caption);
 }

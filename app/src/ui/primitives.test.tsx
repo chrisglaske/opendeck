@@ -70,6 +70,34 @@ describe('NumberField', () => {
     await userEvent.type(input, '{Shift>}{ArrowUp}{/Shift}')
     expect(onChange).toHaveBeenLastCalledWith(12)
   })
+  it('accepts a comma as the decimal separator', async () => {
+    const { onChange, input } = setup()
+    await userEvent.clear(input)
+    await userEvent.type(input, '12,5{Enter}')
+    expect(onChange).toHaveBeenLastCalledWith(12.5)
+  })
+  it('steps from the typed value, not the stored one', async () => {
+    const { onChange, input } = setup()
+    await userEvent.clear(input)
+    await userEvent.type(input, '40{ArrowUp}')
+    expect(onChange).toHaveBeenLastCalledWith(41)
+  })
+  it('is a spinbutton that reports its value and range', () => {
+    render(<NumberField label="Size" value={10} min={1} max={99} onChange={() => {}} />)
+    const spin = screen.getByRole('spinbutton', { name: 'Size' })
+    expect(spin).toHaveAttribute('aria-valuenow', '10')
+    expect(spin).toHaveAttribute('aria-valuemin', '1')
+    expect(spin).toHaveAttribute('aria-valuemax', '99')
+  })
+  it('keeps Esc to itself', async () => {
+    const outside = vi.fn()
+    window.addEventListener('keydown', outside)
+    const { input } = setup()
+    await userEvent.type(input, '5{Escape}')
+    window.removeEventListener('keydown', outside)
+    expect(outside.mock.calls.filter(([e]) => (e as KeyboardEvent).key === 'Escape')).toEqual([])
+    expect(input).toHaveValue('10')
+  })
   it('reverts non-numeric text on blur without calling onChange', async () => {
     const { onChange, input } = setup()
     await userEvent.clear(input)
@@ -162,6 +190,19 @@ describe('Tooltip', () => {
     expect(screen.getByRole('tooltip')).toHaveTextContent('Undo')
     fireEvent.keyDown(screen.getByRole('button'), { key: 'Escape' })
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+  })
+  it('keeps the Esc that closes it from reaching the page', () => {
+    const outside = vi.fn()
+    window.addEventListener('keydown', outside)
+    render(
+      <Tooltip content="Undo">
+        <button type="button">u</button>
+      </Tooltip>,
+    )
+    act(() => screen.getByRole('button').focus())
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'Escape' })
+    window.removeEventListener('keydown', outside)
+    expect(outside).not.toHaveBeenCalled()
   })
   it('appears after 400ms of hover', () => {
     vi.useFakeTimers()

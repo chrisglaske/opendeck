@@ -1,27 +1,14 @@
-import { Circle, Group, Image, Minus, PanelRightClose, Smile, Square, Type } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { Group, PanelRightClose } from 'lucide-react'
 import { useState } from 'react'
 import { findElement } from '../../model/ops'
-import type { SlideElement } from '../../model/types'
 import { IconButton, TabPanel, Tabs } from '../../ui'
 import { useEditor } from '../EditorContext'
+import { ArrangeTab } from './ArrangeTab'
+import { elementTitle } from './elementTitle'
 import { SlideTab } from './SlideTab'
 import styles from './Panel.module.css'
 
 const PANEL_TABS_ID = 'editor-panel'
-
-export function elementTitle(el: SlideElement): { icon: LucideIcon; label: string } {
-  switch (el.type) {
-    case 'text': return { icon: Type, label: 'Text' }
-    case 'shape':
-      if (el.shape === 'ellipse') return { icon: Circle, label: 'Ellipse' }
-      return { icon: Square, label: el.radius > 0 ? 'Rounded rectangle' : 'Rectangle' }
-    case 'image': return { icon: Image, label: 'Image' }
-    case 'icon': return { icon: Smile, label: 'Icon' }
-    case 'line': return { icon: Minus, label: 'Line' }
-    case 'group': return { icon: Group, label: 'Group' }
-  }
-}
 
 /** Slide settings when nothing is selected; Style and Arrange for the selection. */
 export function Panel({ onHide }: { onHide(): void }) {
@@ -50,6 +37,7 @@ export function Panel({ onHide }: { onHide(): void }) {
               <title.icon size={16} strokeWidth={1.75} aria-hidden />
               {title.label}
             </div>
+            {value === 'arrange' && <ArrangeTab key={ids.join(',')} slide={slide} ids={ids} />}
           </div>
         ) : (
           <SlideTab slide={slide} />

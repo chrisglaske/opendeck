@@ -1,0 +1,234 @@
+/* Everything here is drawn in screen pixels over the scaled slide. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.box {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.hover {
+  margin: -1px;
+  border: 1px solid var(--accent);
+  opacity: 0.55;
+}
+
+.member {
+  margin: -1px;
+  border: 1px solid var(--accent);
+}
+
+.selected {
+  border: 1.5px solid var(--accent);
+}
+
+.box.selected {
+  margin: -1px;
+}
+
+.group {
+  border-style: dashed;
+}
+
+.editing {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.lineOutline {
+  position: absolute;
+  height: 0;
+  margin-top: -1px;
+  transform-origin: 0 50%;
+}
+
+.lineOutline.hover,
+.lineOutline.member,
+.lineOutline.selected {
+  margin: 0;
+  border-width: 0;
+  border-top-width: 1.5px;
+}
+
+/* Resize handles: 9px squares centered on the box edges. */
+.handle {
+  position: absolute;
+  box-sizing: border-box;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border: 1.5px solid var(--accent);
+  border-radius: 2px;
+  background: var(--handle-fill);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.handle[data-handle='tl'] { left: 0; top: 0; cursor: nwse-resize; }
+.handle[data-handle='tm'] { left: 50%; top: 0; cursor: ns-resize; }
+.handle[data-handle='tr'] { left: 100%; top: 0; cursor: nesw-resize; }
+.handle[data-handle='ml'] { left: 0; top: 50%; cursor: ew-resize; }
+.handle[data-handle='mr'] { left: 100%; top: 50%; cursor: ew-resize; }
+.handle[data-handle='bl'] { left: 0; top: 100%; cursor: nesw-resize; }
+.handle[data-handle='bm'] { left: 50%; top: 100%; cursor: ns-resize; }
+.handle[data-handle='br'] { left: 100%; top: 100%; cursor: nwse-resize; }
+
+/* Rotate handle: a knob on a short stem, 26px below the box. */
+.rotate {
+  position: absolute;
+  left: 50%;
+  bottom: -26px;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  background: var(--handle-fill);
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.rotate::before {
+  content: '';
+  position: absolute;
+  left: 3.75px;
+  top: -14px;
+  height: 12px;
+  border-left: 1.5px solid var(--accent);
+}
+
+.endpoint {
+  position: absolute;
+  box-sizing: border-box;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  background: var(--handle-fill);
+  cursor: move;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.guideV,
+.guideH,
+.gapH,
+.gapV {
+  position: absolute;
+}
+
+.guideV {
+  border-left: 1px dashed var(--guide);
+}
+
+.guideH {
+  border-top: 1px dashed var(--guide);
+}
+
+/* Equal-spacing marks: a solid line with end ticks and the gap size. */
+.gapH {
+  height: 0;
+  border-top: 1px solid var(--guide);
+}
+
+.gapV {
+  width: 0;
+  border-left: 1px solid var(--guide);
+}
+
+.gapH::before,
+.gapH::after,
+.gapV::before,
+.gapV::after {
+  content: '';
+  position: absolute;
+}
+
+.gapH::before,
+.gapH::after {
+  top: -4px;
+  height: 7px;
+  border-left: 1px solid var(--guide);
+}
+
+.gapH::before { left: 0; }
+.gapH::after { right: 0; }
+
+.gapV::before,
+.gapV::after {
+  left: -4px;
+  width: 7px;
+  border-top: 1px solid var(--guide);
+}
+
+.gapV::before { top: 0; }
+.gapV::after { bottom: 0; }
+
+.gapLabel,
+.readout {
+  position: absolute;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.gapLabel {
+  color: var(--readout-ink);
+  background: var(--guide);
+}
+
+.gapH .gapLabel {
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%);
+}
+
+.gapV .gapLabel {
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%);
+}
+
+.readout {
+  margin-top: 34px;
+  color: var(--readout-ink);
+  background: var(--readout-bg);
+  font-variant-numeric: tabular-nums;
+}
+
+.marquee {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.lock {
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--muted);
+  opacity: 1;
+}
+
+.lineOutline .lock {
+  right: auto;
+  left: 50%;
+}

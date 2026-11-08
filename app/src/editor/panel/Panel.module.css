@@ -121,3 +121,160 @@
   font-size: var(--fs-caption);
   color: var(--faint);
 }
+
+.headingNote {
+  margin-left: 4px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 2px;
+}
+
+.buttonRow + .buttonRow {
+  margin-top: 4px;
+}
+
+/* Layers: one row per top-level element, topmost first. */
+.layers {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.layer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.layer:hover {
+  background: var(--subtle);
+}
+
+.layer[data-selected] {
+  background: var(--accent-tint);
+}
+
+.layer[data-dragging] {
+  opacity: 0.45;
+}
+
+.layerName {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 100%;
+  padding: 0 4px 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-ui);
+  text-align: left;
+  cursor: pointer;
+}
+
+.layerName span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layerName svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.layerName:focus-visible,
+.layerLock:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* The lock shows when set, on hover, or with keyboard focus. */
+.layerLock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.layer:hover .layerLock,
+.layerLock:focus-visible,
+.layerLock[data-locked] {
+  opacity: 1;
+}
+
+.grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 100%;
+  color: var(--faint);
+  cursor: grab;
+  touch-action: none;
+}
+
+.layerDrop {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: -2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.layerEnd {
+  position: relative;
+  height: 0;
+}
+
+/* Grid cells may shrink below the inputs' built-in width. */
+.grid2 > * {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.row > * {
+  box-sizing: border-box;
+}
