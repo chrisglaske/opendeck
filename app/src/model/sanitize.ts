@@ -306,7 +306,7 @@ function sanitizeSource(c: Ctx, v: unknown): ThemeSource | null {
   return null
 }
 
-function sanitizeTheme(c: Ctx, v: unknown): Theme {
+function cleanTheme(c: Ctx, v: unknown): Theme {
   const d = OPENDECK_THEME
   if (!isObj(v)) { c.fix(); return structuredClone(d) }
   const colorsIn = isObj(v.colors) ? v.colors : (c.fix(), {} as Obj)
@@ -361,12 +361,17 @@ export function sanitizeDeck(raw: unknown): SanitizeResult {
     version: DECK_VERSION,
     id: c.id(raw.id),
     name: c.str(raw.name, 'Untitled deck', LIMITS.name),
-    theme: sanitizeTheme(c, raw.theme),
+    theme: cleanTheme(c, raw.theme),
     slides,
     createdAt: c.num(raw.createdAt, now, 0, Number.MAX_SAFE_INTEGER),
     updatedAt: c.num(raw.updatedAt, now, 0, Number.MAX_SAFE_INTEGER),
   }
   return { ok: true, deck, repaired: c.repaired }
+}
+
+/** Cleans a theme from outside (e.g. a brand kit). Anything invalid falls back to the OpenDeck theme's value. */
+export function sanitizeTheme(raw: unknown): Theme {
+  return cleanTheme(new Ctx(), raw)
 }
 
 /** Cleans a list of elements from outside (e.g. the clipboard). Ids are unique within the list. */

@@ -1,8 +1,9 @@
 import { newestFirst, summarize } from './deckStore'
-import type { DeckStore, DeckSummary, StoredAsset } from './deckStore'
+import type { DeckStore, DeckSummary, StoredAsset, StoredFont } from './deckStore'
 
 const DB_NAME = 'opendeck-v2'
-const DB_VERSION = 1
+/** 1: decks, assets. 2: adds fonts and brand kits. */
+const DB_VERSION = 2
 
 function req<T>(r: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -31,8 +32,14 @@ function openDb(): Promise<IDBDatabase> {
       const db = r.result
       if (!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', { keyPath: 'id' })
       if (!db.objectStoreNames.contains('assets')) db.createObjectStore('assets', { keyPath: 'id' })
+      if (!db.objectStoreNames.contains('fonts')) db.createObjectStore('fonts', { keyPath: 'id' })
+      if (!db.objectStoreNames.contains('kits')) db.createObjectStore('kits', { keyPath: 'id' })
     }
-    r.onsuccess = () => resolve(r.result)
+    r.onsuccess = () => {
+      // A newer version opened in another tab: let it upgrade instead of blocking it.
+      r.result.onversionchange = () => r.result.close()
+      resolve(r.result)
+    }
     r.onerror = () => reject(r.error)
     r.onblocked = () => reject(new DOMException('Database upgrade blocked by another tab', 'InvalidStateError'))
   })
@@ -41,7 +48,7 @@ function openDb(): Promise<IDBDatabase> {
 export async function openIdbStore(): Promise<DeckStore> {
   const db = await openDb()
 
-  async function write(store: 'decks' | 'assets', value: unknown): Promise<void> {
+  async function write(store: 'decks' | 'assets' | 'fonts' | 'kits', value: unknown): Promise<void> {
     const tx = db.transaction(store, 'readwrite')
     tx.objectStore(store).put(value)
     // Commit right away instead of when the event loop idles: a save started while the page
@@ -68,6 +75,19 @@ export async function openIdbStore(): Promise<DeckStore> {
     async getAsset(id) {
       const a = (await req(db.transaction('assets').objectStore('assets').get(id))) as StoredAsset | undefined
       return a ?? null
+    },
+    async listFonts() {
+      return (await req(db.transaction('fonts').objectStore('fonts').getAll())) as StoredFont[]
+    },
+    putFont: (f) => write('fonts', f),
+    async listKits() {
+      return (await req(db.transaction('kits').objectStore('kits').getAll())) as unknown[]
+    },
+    putKit: (k) => write('kits', k),
+    async deleteKit(id) {
+      const tx = db.transaction('kits', 'readwrite')
+      tx.objectStore('kits').delete(id)
+      await done(tx)
     },
   }
 }

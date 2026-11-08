@@ -1,8 +1,15 @@
+import type { FontFormat, FontStyle } from '../fonts/fontFile'
+import type { BrandKit } from '../model/brandKit'
 import { sanitizeDeck } from '../model/sanitize'
 import type { Deck } from '../model/types'
 
 export type DeckSummary = { id: string; name: string; updatedAt: number; slideCount: number }
 export type StoredAsset = { id: string; blob: Blob; type: string; width: number; height: number }
+/** One uploaded font face (a family can have several). */
+export type StoredFont = {
+  id: string; family: string; weight: string; style: FontStyle; format: FontFormat
+  data: ArrayBuffer; fileName: string; size: number
+}
 
 export interface DeckStore {
   /** Newest first. */
@@ -13,6 +20,12 @@ export interface DeckStore {
   deleteDeck(id: string): Promise<void>
   putAsset(a: StoredAsset): Promise<void>
   getAsset(id: string): Promise<StoredAsset | null>
+  listFonts(): Promise<StoredFont[]>
+  putFont(f: StoredFont): Promise<void>
+  /** Raw stored data: callers must run each through `sanitizeKit`. */
+  listKits(): Promise<unknown[]>
+  putKit(k: BrandKit): Promise<void>
+  deleteKit(id: string): Promise<void>
   /** True when this deck lives only in this tab because writing it failed. */
   isUnsaved?(id: string): boolean
 }
@@ -50,6 +63,8 @@ export const newestFirst = (a: DeckSummary, b: DeckSummary) => b.updatedAt - a.u
 export function createMemoryStore(): DeckStore {
   const decks = new Map<string, unknown>()
   const assets = new Map<string, StoredAsset>()
+  const fonts = new Map<string, StoredFont>()
+  const kits = new Map<string, BrandKit>()
   return {
     async listDecks() {
       return [...decks.values()].map(summarize).filter((s): s is DeckSummary => s !== null).sort(newestFirst)
@@ -70,17 +85,34 @@ export function createMemoryStore(): DeckStore {
       const a = assets.get(id)
       return a ? { ...a } : null
     },
+    async listFonts() {
+      return [...fonts.values()].map((f) => ({ ...f }))
+    },
+    async putFont(f) {
+      fonts.set(f.id, { ...f })
+    },
+    async listKits() {
+      return [...kits.values()].map((k) => structuredClone(k))
+    },
+    async putKit(k) {
+      kits.set(k.id, structuredClone(k))
+    },
+    async deleteKit(id) {
+      kits.delete(id)
+    },
   }
 }
 
 /**
  * Wraps a store so a write that fails (storage full or blocked) still leaves the
- * deck or image usable in this tab. The write still rejects, so the editor can
+ * deck, image or font usable in this tab. The write still rejects, so the editor can
  * say "Not saved"; the kept copy is dropped once a later write succeeds.
  */
 export function keepUnsaved(store: DeckStore): DeckStore {
   const decks = new Map<string, Deck>()
   const assets = new Map<string, StoredAsset>()
+  const fonts = new Map<string, StoredFont>()
+  const kits = new Map<string, BrandKit>()
   return {
     async listDecks() {
       const saved = await store.listDecks().catch(() => [])
@@ -118,13 +150,45 @@ export function keepUnsaved(store: DeckStore): DeckStore {
       const kept = assets.get(id)
       return kept ? { ...kept } : store.getAsset(id)
     },
+    async listFonts() {
+      const saved = await store.listFonts().catch(() => [])
+      return [...fonts.values(), ...saved.filter((f) => !fonts.has(f.id))].map((f) => ({ ...f }))
+    },
+    async putFont(f) {
+      try {
+        await store.putFont(f)
+        fonts.delete(f.id)
+      } catch (e) {
+        fonts.set(f.id, { ...f })
+        throw e
+      }
+    },
+    async listKits() {
+      const saved = await store.listKits().catch(() => [])
+      const keptIds = new Set(kits.keys())
+      const fromStore = saved.filter((k) => !(typeof k === 'object' && k !== null && keptIds.has((k as { id?: unknown }).id as string)))
+      return [...[...kits.values()].map((k) => structuredClone(k)), ...fromStore]
+    },
+    async putKit(k) {
+      try {
+        await store.putKit(k)
+        kits.delete(k.id)
+      } catch (e) {
+        kits.set(k.id, structuredClone(k))
+        throw e
+      }
+    },
+    async deleteKit(id) {
+      kits.delete(id)
+      await store.deleteKit(id)
+    },
     isUnsaved: (id) => decks.has(id),
   }
 }
 
 /**
- * Used when the browser blocks storage (e.g. some private windows). Decks and
- * images live in memory for this tab only, and every write rejects so the
+ * Used when the browser blocks storage (e.g. some private windows). Decks,
+ * images and fonts live in memory for this tab only, and every write rejects so the
  * editor shows "Not saved".
  */
 export function createSessionOnlyStore(): DeckStore {
@@ -135,6 +199,12 @@ export function createSessionOnlyStore(): DeckStore {
       throw notSaved()
     },
     async putAsset() {
+      throw notSaved()
+    },
+    async putFont() {
+      throw notSaved()
+    },
+    async putKit() {
       throw notSaved()
     },
   })

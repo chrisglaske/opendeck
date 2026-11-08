@@ -54,3 +54,30 @@ if (!HTMLDialogElement.prototype.close) {
     this.dispatchEvent(new Event('close'))
   }
 }
+
+// jsdom has no font loading. This stand-in loads every face; tests spy on `load` to make one fail.
+if (typeof globalThis.FontFace === 'undefined') {
+  class FontFaceStub {
+    status: FontFaceLoadStatus = 'unloaded'
+    family: string
+    source: unknown
+    descriptors: FontFaceDescriptors
+    constructor(family: string, source: unknown, descriptors: FontFaceDescriptors = {}) {
+      this.family = family
+      this.source = source
+      this.descriptors = descriptors
+    }
+    async load() {
+      this.status = 'loaded'
+      return this as unknown as FontFace
+    }
+  }
+  ;(globalThis as unknown as { FontFace: unknown }).FontFace = FontFaceStub
+}
+if (!('fonts' in document)) {
+  const faces = new Set<FontFace>()
+  Object.defineProperty(document, 'fonts', {
+    configurable: true,
+    value: { add: (f: FontFace) => faces.add(f), delete: (f: FontFace) => faces.delete(f), check: () => true, ready: Promise.resolve() },
+  })
+}

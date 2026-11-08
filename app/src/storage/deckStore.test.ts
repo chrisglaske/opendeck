@@ -124,3 +124,26 @@ describe('openDeck', () => {
     expect(r.repaired).toBeGreaterThan(0)
   })
 })
+
+describe('fonts', () => {
+  const font = (id: string, size = 4) => ({
+    id, family: 'Acme Sans', weight: '700', style: 'normal' as const, format: 'woff2' as const,
+    data: new Uint8Array(size).buffer, fileName: 'AcmeSans-Bold.woff2', size,
+  })
+  it('memory store round-trips fonts', async () => {
+    const s = createMemoryStore()
+    await s.putFont(font('f1'))
+    expect((await s.listFonts()).map((f) => f.id)).toEqual(['f1'])
+  })
+  it('keepUnsaved keeps a font that could not be written', async () => {
+    const base = createMemoryStore()
+    const s = keepUnsaved({ ...base, async putFont() { throw new DOMException('full', 'QuotaExceededError') } })
+    await expect(s.putFont(font('f1'))).rejects.toThrow('full')
+    expect((await s.listFonts()).map((f) => f.id)).toEqual(['f1'])
+  })
+  it('session-only store keeps fonts for the tab and reports them as not saved', async () => {
+    const s = createSessionOnlyStore()
+    await expect(s.putFont(font('f1'))).rejects.toMatchObject({ name: 'InvalidStateError' })
+    expect((await s.listFonts()).map((f) => f.id)).toEqual(['f1'])
+  })
+})

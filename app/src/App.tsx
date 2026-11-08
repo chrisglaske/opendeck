@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import EditorPage from './editor/EditorPage'
+import { loadStoredFonts } from './fonts/uploadedFonts'
 import DeckListStub from './pages/DeckListStub'
 import DesignSystemPage from './pages/DesignSystemPage'
+import { getDeckStore } from './storage/appStore'
 import { ToastHost } from './ui'
 
 function useHash(): string {
@@ -25,6 +27,10 @@ function Page({ hash }: { hash: string }) {
 
 export default function App() {
   const hash = useHash()
+  // Uploaded fonts are registered once, before decks that use them are drawn.
+  useEffect(() => {
+    void loadStoredFonts(getDeckStore())
+  }, [])
   return (
     <>
       <Page hash={hash} />
