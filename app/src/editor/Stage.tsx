@@ -1,18 +1,22 @@
 import { PanelRightOpen } from 'lucide-react'
-import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import type { MouseEvent, ReactNode, RefObject } from 'react'
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { DragEvent, MouseEvent, ReactNode, RefObject } from 'react'
 import { SLIDE_H, SLIDE_W } from '../model/types'
 import type { Point } from '../model/types'
 import { SlideView } from '../render/SlideView'
 import { IconButton } from '../ui'
 import { bounds, unionRect } from '../model/geometry'
 import { ElementMenu } from './canvas/ContextMenu'
+import { CropMode } from './canvas/CropMode'
 import { Overlay } from './canvas/Overlay'
 import { QuickBar } from './canvas/QuickBar'
+import { TextEditor } from './canvas/TextEditor'
+import { exitTextEditing, watchTextEditing, writeParagraphs } from './canvas/textSession'
 import { useCanvasGestures } from './canvas/useCanvasGestures'
 import { useCanvasKeys } from './canvas/useCanvasKeys'
 import { worldItems } from './canvas/world'
 import { useClipboard } from './clipboard'
+import { addImages, imageFiles } from './media'
 import { Dock } from './Dock'
 import { useEditor, useEditorStore } from './EditorContext'
 import { ZoomControl } from './ZoomControl'
@@ -102,6 +106,7 @@ export function Stage({
   const [stageEl, setStageEl] = useState<HTMLElement | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   useClipboard()
+  useEffect(() => watchTextEditing(store), [store])
 
   // The context menu key opens the menu at the selection's top-right corner.
   useCanvasKeys(() => {
@@ -114,8 +119,26 @@ export function Stage({
   })
 
   const onContextMenu = (e: MouseEvent) => {
+    // Inside the text being edited, the browser's menu (spelling, copy) is more useful.
+    if ((e.target as HTMLElement).closest('[data-text-editor]')) return
     e.preventDefault()
     if (canvas.selectAt(e.clientX, e.clientY)) setMenu({ x: e.clientX, y: e.clientY })
+  }
+
+  // Image files dropped on the canvas land where they are dropped.
+  const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer.types).includes('Files')
+  const onDragOver = (e: DragEvent) => {
+    if (!hasFiles(e)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+  }
+  const onDrop = (e: DragEvent) => {
+    if (!hasFiles(e)) return
+    e.preventDefault()
+    const files = imageFiles(e.dataTransfer.files)
+    const all = Array.from(e.dataTransfer.files)
+    // Non-image files still go through the import, which explains why they can't be used.
+    void addImages(store, files.length ? files : all.slice(0, 1), toSlidePoint(e.clientX, e.clientY))
   }
 
   // Links on the slide work when presenting; while editing a click selects instead.
@@ -127,7 +150,7 @@ export function Stage({
     <StageContext.Provider value={api}>
       <main ref={setStageEl} className={styles.stage} aria-label="Slide canvas">
         <div ref={scrollerRef} className={styles.scroller} data-stage-scroller="">
-          <div className={styles.content} {...canvas.canvasHandlers} onContextMenu={onContextMenu}>
+          <div className={styles.content} {...canvas.canvasHandlers} onContextMenu={onContextMenu} onDragOver={onDragOver} onDrop={onDrop}>
             <div
               ref={setFrame}
               className={styles.frame}
@@ -135,7 +158,23 @@ export function Stage({
               onClickCapture={stopLinks}
             >
               <div className={styles.slide}>
-                {slide && <SlideView slide={slide} theme={theme} scale={scale} editingId={editingId} />}
+                {slide && (
+                  <SlideView
+                    slide={slide}
+                    theme={theme}
+                    scale={scale}
+                    editingId={editingId}
+                    renderTextEditor={(el) => (
+                      <TextEditor
+                        key={el.id}
+                        el={el}
+                        theme={theme}
+                        onCommit={(ps, coalesce) => writeParagraphs(store, el.id, ps, coalesce)}
+                        onExit={() => exitTextEditing(store)}
+                      />
+                    )}
+                  />
+                )}
               </div>
               <Overlay
                 scale={scale}
@@ -145,6 +184,7 @@ export function Stage({
                 onRotate={canvas.startRotate}
                 onEndpoint={canvas.startEndpoint}
               />
+              <CropMode scale={scale} />
               {children}
             </div>
           </div>

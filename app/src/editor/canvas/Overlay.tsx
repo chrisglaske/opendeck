@@ -5,6 +5,7 @@ import { bounds, unionRect } from '../../model/geometry'
 import type { Handle } from '../../model/geometry'
 import type { LineEl, SlideElement } from '../../model/types'
 import { useEditor } from '../EditorContext'
+import { useCropId } from './cropSession'
 import type { Visuals } from './useCanvasGestures'
 import { worldItem, worldItems } from './world'
 import s from './Overlay.module.css'
@@ -29,7 +30,9 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
   const slide = useEditor((st) => st.deck.slides.find((x) => x.id === st.selection.slideId) ?? st.deck.slides[0])
   const ids = useEditor((st) => st.selection.ids)
   const editingId = useEditor((st) => st.editingId)
-  const items = useMemo(() => (slide ? worldItems(slide, ids) : []), [slide, ids])
+  const cropping = useCropId() !== null
+  // Crop mode draws its own frame and handles.
+  const items = useMemo(() => (slide && !cropping ? worldItems(slide, ids) : []), [slide, ids, cropping])
   const hover = slide && hoverId && !ids.includes(hoverId) ? worldItem(slide, hoverId) : null
   const px = (n: number) => `${n * scale}px`
 

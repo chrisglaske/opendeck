@@ -9,6 +9,8 @@ import type { LineEl, Point, Rect, Slide, SlideElement } from '../../model/types
 import { useEditorStore } from '../EditorContext'
 import { isMac } from '../shortcuts'
 import type { EditorState } from '../store'
+import { startCrop } from './cropSession'
+import { enterTextEditing, exitTextEditing } from './textSession'
 import { useDrag } from './useDrag'
 import { snapTargets, worldItem, worldItems } from './world'
 import type { WorldItem } from './world'
@@ -186,8 +188,10 @@ export function useCanvasGestures(frame: HTMLElement | null, scale: number, toSl
 
   const onPointerDown = (e: ReactPointerEvent) => {
     if (e.button !== 0) return
+    // Clicks in the text being edited place the caret.
+    if ((e.target as Element).closest?.('[data-text-editor]')) return
+    if (store.getState().editingId) exitTextEditing(store)
     const st = store.getState()
-    if (st.editingId) store.setEditing(null)
     e.preventDefault() // no text selection or native image drag
     blurFocus()
     const slide = slideOf(st)
@@ -210,13 +214,17 @@ export function useCanvasGestures(frame: HTMLElement | null, scale: number, toSl
   }
 
   const onDoubleClick = (e: ReactMouseEvent) => {
+    if ((e.target as Element).closest?.('[data-text-editor]')) return
     const st = store.getState()
     const slide = slideOf(st)
     const chain = chainAt(e.clientX, e.clientY)
     const target = pick(chain, slide, st.selection.ids)
     if (!target) return
     const inner = chain[chain.indexOf(target) + 1]
-    if (inner && worldItem(slide, target)?.el.type === 'group') store.select({ slideId: slide.id, ids: [inner] })
+    const kind = worldItem(slide, target)?.el.type
+    if (inner && kind === 'group') store.select({ slideId: slide.id, ids: [inner] })
+    else if (kind === 'text') enterTextEditing(store, target, { mode: 'point', x: e.clientX, y: e.clientY })
+    else if (kind === 'image') startCrop(store, target)
   }
 
   const onPointerMove = (e: ReactPointerEvent) => {

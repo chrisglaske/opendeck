@@ -33,3 +33,17 @@
   font-size: var(--fs-caption);
   color: var(--muted);
 }
+
+.sizeField {
+  width: 56px;
+}
+
+/* The size list button sits flush against the size field. */
+.sizeMenu {
+  width: 20px;
+  margin-left: -2px;
+}
+
+.anchor {
+  display: inline-flex;
+}

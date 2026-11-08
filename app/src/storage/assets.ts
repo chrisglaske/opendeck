@@ -1,5 +1,88 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { newId } from '../model/ids'
 import { getDeckStore } from './appStore'
+import type { DeckStore } from './deckStore'
+
+// ── Importing images ───────────────────────────────────────────────────
+
+/** Image types OpenDeck accepts. SVG is left out on purpose: it can carry script. */
+export const ACCEPTED = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+export const MAX_INPUT_BYTES = 25 * 1024 * 1024
+/** Longest side, in pixels, an image is stored at. */
+export const MAX_EDGE = 2400
+const WEBP_QUALITY = 0.85
+
+export class UnsupportedImageError extends Error {
+  constructor() {
+    super("That file isn't an image OpenDeck can use")
+    this.name = 'UnsupportedImageError'
+  }
+}
+
+export class ImageTooLargeError extends Error {
+  constructor() {
+    super('That image is over 25 MB')
+    this.name = 'ImageTooLargeError'
+  }
+}
+
+export type CompressedImage = { blob: Blob; type: string; width: number; height: number }
+
+type Canvas2D = { getContext(kind: '2d'): { drawImage(img: CanvasImageSource, x: number, y: number, w: number, h: number): void } | null }
+
+/** Draws the image at the given size and encodes it as WebP (alpha is kept). */
+async function encodeWebp(img: ImageBitmap, w: number, h: number): Promise<Blob> {
+  if (typeof OffscreenCanvas !== 'undefined') {
+    const c = new OffscreenCanvas(w, h)
+    ;(c as unknown as Canvas2D).getContext('2d')?.drawImage(img, 0, 0, w, h)
+    return c.convertToBlob({ type: 'image/webp', quality: WEBP_QUALITY })
+  }
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  c.getContext('2d')?.drawImage(img, 0, 0, w, h)
+  return new Promise((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new UnsupportedImageError())), 'image/webp', WEBP_QUALITY))
+}
+
+/**
+ * Prepares an image for storage: checks the type and size, scales it down
+ * when its longest side is over MAX_EDGE, and re-encodes it as WebP when
+ * that is smaller. A GIF that needs no resizing is kept as it is, so its
+ * animation survives.
+ */
+export async function compressImage(file: Blob): Promise<CompressedImage> {
+  if (!ACCEPTED.includes(file.type)) throw new UnsupportedImageError()
+  if (file.size > MAX_INPUT_BYTES) throw new ImageTooLargeError()
+  let img: ImageBitmap
+  try {
+    img = await createImageBitmap(file)
+  } catch {
+    throw new UnsupportedImageError()
+  }
+  try {
+    const { width, height } = img
+    if (!width || !height) throw new UnsupportedImageError()
+    const k = Math.min(1, MAX_EDGE / Math.max(width, height))
+    const w = Math.max(1, Math.round(width * k)), h = Math.max(1, Math.round(height * k))
+    const resized = k < 1
+    if (!resized && file.type === 'image/gif') return { blob: file, type: file.type, width, height }
+    const webp = await encodeWebp(img, w, h)
+    if (!resized && webp.size >= file.size) return { blob: file, type: file.type, width, height }
+    return { blob: webp, type: 'image/webp', width: w, height: h }
+  } finally {
+    img.close?.()
+  }
+}
+
+/** Compresses an image and saves it as an asset. */
+export async function importImage(store: DeckStore, file: Blob): Promise<{ assetId: string; width: number; height: number }> {
+  const img = await compressImage(file)
+  const assetId = newId()
+  await store.putAsset({ id: assetId, blob: img.blob, type: img.type, width: img.width, height: img.height })
+  return { assetId, width: img.width, height: img.height }
+}
+
+// ── Showing stored images ──────────────────────────────────────────────
 
 /** Loads the image data for an asset id; resolves null when the asset is missing. */
 export type AssetLoader = (id: string) => Promise<Blob | null>

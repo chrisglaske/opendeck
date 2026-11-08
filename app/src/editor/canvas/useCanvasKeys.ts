@@ -3,6 +3,7 @@ import { moveElement } from '../../model/geometry'
 import { elementCommands } from '../commands'
 import { useEditorStore } from '../EditorContext'
 import { isMac, isTypingTarget } from '../shortcuts'
+import { enterTextEditing } from './textSession'
 import { slideOf, writeBack } from './useCanvasGestures'
 import { worldItem, worldItems } from './world'
 
@@ -13,10 +14,21 @@ const ARROWS: Record<string, [number, number]> = {
 /** Focus inside these widgets keeps arrow keys, Delete and Esc for itself. */
 const OWN_KEYS = '[role="listbox"],[role="tablist"],[role="menu"],[role="radiogroup"],[role="dialog"],[role="slider"]'
 
+/** The one selected text box that typing would go into, if any. */
+function selectedText(store: ReturnType<typeof useEditorStore>) {
+  const st = store.getState()
+  const ids = st.selection.ids
+  if (st.editingId || ids.length !== 1) return null
+  const item = worldItem(slideOf(st), ids[0])
+  return item && item.el.type === 'text' && !item.locked ? item.id : null
+}
+
+const ownsKeys = (t: EventTarget | null) => isTypingTarget(t) || (t instanceof Element && t.closest(OWN_KEYS) !== null)
+
 /**
  * Keyboard commands for the canvas selection: nudge, delete, select all, Esc,
- * duplicate, group, layer order and the context menu key. Text fields, open
- * menus and lists keep their own keys.
+ * duplicate, group, layer order, the context menu key, and Enter or typing to
+ * edit a selected text box. Text fields, open menus and lists keep their own keys.
  */
 export function useCanvasKeys(onMenuKey: () => void) {
   const store = useEditorStore()
@@ -29,7 +41,7 @@ export function useCanvasKeys(onMenuKey: () => void) {
       if (e.defaultPrevented || e.isComposing) return
       const st = store.getState()
       if (st.editingId) return
-      if (isTypingTarget(e.target) || (e.target instanceof Element && e.target.closest(OWN_KEYS))) return
+      if (ownsKeys(e.target)) return
       const slide = slideOf(st)
       const ids = st.selection.ids
       const sid = slide.id
@@ -41,7 +53,10 @@ export function useCanvasKeys(onMenuKey: () => void) {
       }
       const arrow = ARROWS[e.key]
 
-      if (arrow && !mod && !e.altKey) {
+      const text = selectedText(store)
+      if (text && e.key === 'Enter' && !mod && !e.shiftKey && !e.altKey) {
+        run(() => enterTextEditing(store, text, { mode: 'end' }))
+      } else if (arrow && !mod && !e.altKey) {
         const items = worldItems(slide, ids).filter((i) => !i.locked)
         if (items.length === 0) return
         const n = e.shiftKey ? 10 : 1
@@ -67,7 +82,22 @@ export function useCanvasKeys(onMenuKey: () => void) {
         run(menu.current)
       }
     }
+    // Typing on a selected text box starts editing with that character. This runs
+    // first so single-letter insert shortcuts don't take the key.
+    const onType = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.isComposing || e.key.length !== 1 || e.metaKey || e.ctrlKey) return
+      if (ownsKeys(e.target)) return
+      const text = selectedText(store)
+      if (!text) return
+      e.preventDefault()
+      e.stopPropagation()
+      enterTextEditing(store, text, { mode: 'type', text: e.key })
+    }
+    window.addEventListener('keydown', onType, true)
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onType, true)
+      window.removeEventListener('keydown', onKey)
+    }
   }, [store])
 }

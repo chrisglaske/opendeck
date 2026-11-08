@@ -1,7 +1,12 @@
 import type { Deck, Selection } from '../model/types'
 
 export type EditorState = { deck: Deck; selection: Selection; editingId: string | null; canUndo: boolean; canRedo: boolean }
-export type CommitOpts = { selection?: Selection; coalesce?: string }
+export type CommitOpts = {
+  selection?: Selection
+  coalesce?: string
+  /** With `coalesce`: merge into the previous step if it has the same key, however long ago. */
+  join?: boolean
+}
 
 export interface EditorStore {
   getState(): EditorState
@@ -67,7 +72,8 @@ export function createEditorStore(initial: Deck, opts: { historyLimit?: number }
       const next = fn(state.deck)
       if (next === state.deck) return
       const now = Date.now()
-      const merge = o.coalesce !== undefined && lastCoalesce?.key === o.coalesce && now - lastCoalesce.at < COALESCE_MS && past.length > 0
+      const sameKey = o.coalesce !== undefined && lastCoalesce?.key === o.coalesce
+      const merge = sameKey && (o.join || now - lastCoalesce!.at < COALESCE_MS) && past.length > 0
       if (!merge) pushPast(current())
       future = []
       lastCoalesce = o.coalesce !== undefined ? { key: o.coalesce, at: now } : null

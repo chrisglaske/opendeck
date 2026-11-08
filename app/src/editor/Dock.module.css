@@ -21,3 +21,11 @@
   bottom: auto;
   transform: translateY(-50%);
 }
+
+.anchor {
+  display: inline-flex;
+}
+
+.iconPopover {
+  overflow: hidden;
+}

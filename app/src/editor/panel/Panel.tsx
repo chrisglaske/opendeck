@@ -6,6 +6,7 @@ import { useEditor } from '../EditorContext'
 import { ArrangeTab } from './ArrangeTab'
 import { elementTitle } from './elementTitle'
 import { SlideTab } from './SlideTab'
+import { StyleTab } from './StyleTab'
 import styles from './Panel.module.css'
 
 const PANEL_TABS_ID = 'editor-panel'
@@ -37,6 +38,7 @@ export function Panel({ onHide }: { onHide(): void }) {
               <title.icon size={16} strokeWidth={1.75} aria-hidden />
               {title.label}
             </div>
+            {value === 'style' && ids.length === 1 && <StyleTab slide={slide} id={ids[0]} />}
             {value === 'arrange' && <ArrangeTab key={ids.join(',')} slide={slide} ids={ids} />}
           </div>
         ) : (

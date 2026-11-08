@@ -110,6 +110,23 @@ describe('editor store', () => {
     expect(store.getState().deck.name).toBe('a')
   })
 
+  it('joins the previous step with the same key however long ago, when asked', () => {
+    const { store } = setup()
+    store.apply(rename('a'), { coalesce: 'type' })
+    vi.advanceTimersByTime(5000)
+    store.apply(rename('b'), { coalesce: 'type', join: true })
+    store.undo()
+    expect(store.getState().deck.name).toBe('Start')
+  })
+
+  it('does not join a step with a different key', () => {
+    const { store } = setup()
+    store.apply(rename('a'), { coalesce: 'type' })
+    store.apply(rename('b'), { coalesce: 'other', join: true })
+    store.undo()
+    expect(store.getState().deck.name).toBe('a')
+  })
+
   it('does not coalesce different keys', () => {
     const { store } = setup()
     store.apply(rename('a'), { coalesce: 'type' })

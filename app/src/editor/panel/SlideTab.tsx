@@ -1,11 +1,15 @@
 import { updateSlide } from '../../model/ops'
 import { themeVars } from '../../model/theme'
 import type { ColorRef, Slide, ThemeColorToken } from '../../model/types'
-import { Toggle } from '../../ui'
+import { ImageOff, ImagePlus, Replace } from 'lucide-react'
+import { useAssetUrl } from '../../storage/assets'
+import { Button, Toggle } from '../../ui'
 import { useEditor, useEditorStore } from '../EditorContext'
+import { pickImageFile, setBackgroundImage } from '../media'
+import { ColorButton } from '../pickers/ColorPicker'
 import styles from './Panel.module.css'
 
-/** Theme colors offered as slide backgrounds. Custom colors and images join with their pickers. */
+/** Theme colors offered as slide backgrounds; any other color comes from the picker below them. */
 const BACKGROUNDS: { token: ThemeColorToken; label: string }[] = [
   { token: 'bg', label: 'Background' },
   { token: 'surface', label: 'Surface' },
@@ -45,6 +49,26 @@ export function SlideTab({ slide }: { slide: Slide }) {
             )
           })}
         </div>
+        <div className={styles.rowGap}>
+          <ColorButton
+            variant="field"
+            label="Custom background color"
+            noneLabel="None"
+            value={'hex' in slide.background.color ? slide.background.color : null}
+            onChange={(color) => color && set({ background: { ...slide.background, color } }, `bg:${slide.id}`)}
+          />
+        </div>
+      </section>
+      <section>
+        <h2 className={styles.heading}>Background image</h2>
+        <BackgroundImage
+          imageId={slide.background.imageId}
+          onPick={() => pickImageFile((f) => void setBackgroundImage(store, slide.id, f))}
+          onRemove={() => {
+            const { imageId: _removed, ...rest } = slide.background
+            set({ background: rest })
+          }}
+        />
       </section>
       <section>
         <label className={styles.heading} htmlFor="slide-notes">Speaker notes</label>
@@ -60,6 +84,31 @@ export function SlideTab({ slide }: { slide: Slide }) {
       <div className={styles.toggleRow}>
         <Toggle label="Hide this slide" checked={slide.hidden} onChange={(hidden) => set({ hidden })} />
         <span className={styles.hint}>Skipped when presenting</span>
+      </div>
+    </div>
+  )
+}
+
+/** The slide's background picture, drawn under everything and cropped to cover the slide. */
+function BackgroundImage({ imageId, onPick, onRemove }: { imageId?: string; onPick(): void; onRemove(): void }) {
+  const url = useAssetUrl(imageId)
+  if (!imageId) {
+    return (
+      <Button size="sm" variant="secondary" icon={ImagePlus} onClick={onPick}>
+        Add image
+      </Button>
+    )
+  }
+  return (
+    <div className={styles.bgImage}>
+      {url ? <img className={styles.bgPreview} src={url} alt="" /> : <span className={styles.bgPreview} />}
+      <div className={styles.bgActions}>
+        <Button size="sm" variant="ghost" icon={Replace} onClick={onPick}>
+          Replace
+        </Button>
+        <Button size="sm" variant="ghost" icon={ImageOff} onClick={onRemove}>
+          Remove image
+        </Button>
       </div>
     </div>
   )

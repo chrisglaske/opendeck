@@ -6,6 +6,7 @@ import { addElements, deleteElements, findElement } from '../model/ops'
 import { sanitizeElements } from '../model/sanitize'
 import type { Slide, SlideElement } from '../model/types'
 import { useEditorStore } from './EditorContext'
+import { addImages, imageFiles } from './media'
 import { isTypingTarget } from './shortcuts'
 import type { EditorStore } from './store'
 
@@ -116,7 +117,7 @@ export function pasteInto(store: EditorStore, data: DataTransfer): boolean {
     els = fromClip.map((e) => moveElement(e, dx, dy))
   } else {
     const text = data.getData('text/plain')
-    // Image files are handled by the image flow; anything else without text is ignored.
+    // Image files are handled before this (see useClipboard); anything else without text is ignored.
     if (!text.trim()) return false
     els = [textBox(text)]
   }
@@ -149,7 +150,11 @@ export function useClipboard(): void {
     }
     const onPaste = (e: ClipboardEvent) => {
       if (!e.clipboardData || !forCanvas(store, e)) return
-      if (pasteInto(store, e.clipboardData)) e.preventDefault()
+      const images = imageFiles(e.clipboardData.files)
+      if (images.length) {
+        e.preventDefault()
+        void addImages(store, images)
+      } else if (pasteInto(store, e.clipboardData)) e.preventDefault()
     }
     document.addEventListener('copy', onCopy)
     document.addEventListener('cut', onCut)

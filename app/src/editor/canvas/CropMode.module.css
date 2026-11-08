@@ -1,0 +1,104 @@
+/* Crop mode, drawn in screen pixels over the scaled slide. */
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+/* Softly dims the rest of the slide. */
+.dim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--readout-bg) 35%, transparent);
+}
+
+.box {
+  position: absolute;
+  transform-origin: 50% 50%;
+}
+
+.whole,
+.inner {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* The picture outside the frame shows dimmed. */
+.whole {
+  opacity: 0.4;
+}
+
+.frame {
+  position: absolute;
+  box-sizing: border-box;
+  outline: 1.5px solid var(--handle-fill);
+  cursor: move;
+  touch-action: none;
+}
+
+.clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* A light thirds grid. */
+.thirds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, transparent calc(33.333% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(33.333% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px), transparent calc(66.667% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(66.667% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(66.667% + 0.5px), transparent calc(66.667% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(33.333% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(33.333% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px), transparent calc(66.667% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(66.667% - 0.5px), color-mix(in srgb, var(--handle-fill) 55%, transparent) calc(66.667% + 0.5px), transparent calc(66.667% + 0.5px));
+}
+
+/* White corner squares and edge bars. */
+.handle {
+  position: absolute;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 2px;
+  background: var(--handle-fill);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--readout-bg) 45%, transparent);
+  touch-action: none;
+}
+
+.handle[data-crop-handle='tm'],
+.handle[data-crop-handle='bm'] {
+  width: 22px;
+  height: 6px;
+  margin: -3px 0 0 -11px;
+}
+
+.handle[data-crop-handle='ml'],
+.handle[data-crop-handle='mr'] {
+  width: 6px;
+  height: 22px;
+  margin: -11px 0 0 -3px;
+}
+
+.handle[data-crop-handle='tl'] { left: 0; top: 0; cursor: nwse-resize; }
+.handle[data-crop-handle='tm'] { left: 50%; top: 0; cursor: ns-resize; }
+.handle[data-crop-handle='tr'] { left: 100%; top: 0; cursor: nesw-resize; }
+.handle[data-crop-handle='ml'] { left: 0; top: 50%; cursor: ew-resize; }
+.handle[data-crop-handle='mr'] { left: 100%; top: 50%; cursor: ew-resize; }
+.handle[data-crop-handle='bl'] { left: 0; top: 100%; cursor: nesw-resize; }
+.handle[data-crop-handle='bm'] { left: 50%; top: 100%; cursor: ns-resize; }
+.handle[data-crop-handle='br'] { left: 100%; top: 100%; cursor: nwse-resize; }
+
+.bar {
+  z-index: 7;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
