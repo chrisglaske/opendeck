@@ -1,0 +1,26 @@
+.root {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-md);
+  background: var(--subtle);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-ui);
+  cursor: pointer;
+}
+
+.option[aria-pressed='true'] {
+  background: var(--raised);
+  color: var(--ink);
+}
