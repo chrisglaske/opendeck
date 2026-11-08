@@ -1,0 +1,36 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+}
+
+.neutral {
+  background: var(--subtle);
+  color: var(--muted);
+}
+
+.accent {
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+
+.peach {
+  background: var(--peach-tint);
+  color: var(--ink);
+}
+
+.success {
+  background: var(--success-tint);
+  color: var(--success);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}

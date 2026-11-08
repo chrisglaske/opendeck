@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import DesignSystemPage from './pages/DesignSystemPage'
 import HomeStub from './pages/HomeStub'
+import { ToastHost } from './ui'
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -14,5 +15,10 @@ function useHash(): string {
 
 export default function App() {
   const hash = useHash()
-  return hash === '#/design' ? <DesignSystemPage /> : <HomeStub />
+  return (
+    <>
+      {hash === '#/design' ? <DesignSystemPage /> : <HomeStub />}
+      <ToastHost />
+    </>
+  )
 }

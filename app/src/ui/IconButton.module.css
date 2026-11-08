@@ -1,0 +1,36 @@
+.ibtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+}
+
+.sm {
+  width: 28px;
+  height: 28px;
+}
+
+.ibtn:hover:not(:disabled) {
+  background: var(--subtle);
+  color: var(--ink);
+}
+
+.ibtn[aria-pressed='true'] {
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+
+.ibtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

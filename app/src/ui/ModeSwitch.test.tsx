@@ -6,8 +6,8 @@ import ModeSwitch from './ModeSwitch'
 
 it('clicking Dark applies and remembers dark mode', async () => {
   render(<ModeSwitch />)
-  expect(screen.getByRole('group', { name: 'Appearance' })).toBeInTheDocument()
-  await userEvent.click(screen.getByRole('button', { name: 'Dark' }))
+  expect(screen.getByRole('radiogroup', { name: 'Appearance' })).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('radio', { name: 'Dark' }))
   expect(document.documentElement.dataset.mode).toBe('dark')
   expect(localStorage.getItem(MODE_STORAGE_KEY)).toBe('dark')
 })

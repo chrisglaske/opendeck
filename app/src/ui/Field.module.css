@@ -1,0 +1,64 @@
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--raised);
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+.icon {
+  flex: none;
+  color: var(--faint);
+}
+
+.prefix {
+  flex: none;
+  width: 12px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  color: var(--faint);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+}
+
+/* The field shows the focus state; the input itself needs no ring. */
+.input:focus-visible {
+  box-shadow: none;
+}
+
+.input::placeholder {
+  color: var(--faint);
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,55 @@
+import type { LucideIcon } from 'lucide-react'
+import { useRef, type KeyboardEvent } from 'react'
+import { nextIndex } from './rovingKeys'
+import styles from './SegmentedControl.module.css'
+
+export type SegmentedOption<T extends string> = { value: T; label: string; icon?: LucideIcon }
+
+export function SegmentedControl<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: SegmentedOption<T>[]
+  value: T
+  onChange(v: T): void
+}) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([])
+  const selected = Math.max(0, options.findIndex((o) => o.value === value))
+
+  const onKeyDown = (e: KeyboardEvent, index: number) => {
+    const next = nextIndex(e.key, index, options.length)
+    if (next === null) return
+    e.preventDefault()
+    refs.current[next]?.focus()
+    onChange(options[next].value)
+  }
+
+  return (
+    <div role="radiogroup" aria-label={label} className={styles.seg}>
+      {options.map((o, i) => {
+        const Icon = o.icon
+        return (
+          <button
+            key={o.value}
+            ref={(el) => {
+              refs.current[i] = el
+            }}
+            type="button"
+            role="radio"
+            aria-checked={i === selected && o.value === value}
+            tabIndex={i === selected ? 0 : -1}
+            className={styles.option}
+            onClick={() => onChange(o.value)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+          >
+            {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden />}
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
