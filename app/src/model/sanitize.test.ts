@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { sanitizeDeck, sanitizeElements } from './sanitize'
-import { createDeck, createIcon, createImage, createLine, createShape, createText } from './factory'
+import { createDeck, createIcon, createImage, createLine, createLogo, createShape, createText } from './factory'
 import { MIN_SIZE } from './geometry'
-import type { Deck, GroupEl, SlideElement, TextEl } from './types'
+import type { Deck, GroupEl, ShapeEl, SlideElement, TextEl } from './types'
 
 /** A deck with one of every element type, as plain JSON (what storage hands back). */
 function richDeck(): Deck {
@@ -172,6 +172,55 @@ describe('sanitizeDeck', () => {
 
   it('drops images with no asset id', () => {
     expect(firstEls(withEls([{ ...createImage('a', { w: 1, h: 1 }), assetId: 5 }]))).toEqual([])
+  })
+})
+
+describe('theme additions', () => {
+  function themed() {
+    const d = createDeck()
+    d.theme.logo = { main: 'a1' }
+    d.theme.manualColors = ['muted']
+    d.theme.source = { kind: 'kit', id: 'k1', name: 'Acme', updatedAt: 5 }
+    d.slides[0].elements = [
+      { ...createShape('rect'), id: 's1', radius: 'theme' },
+      { ...createText('title'), id: 't1', fontFamily: 'Lora' },
+      { ...createLogo(), id: 'lg1' },
+    ]
+    return JSON.parse(JSON.stringify(d)) as Deck
+  }
+
+  it('keeps theme corners, font families and logo elements', () => {
+    const d = themed()
+    expect(sanitizeDeck(d)).toEqual({ ok: true, deck: d, repaired: 0 })
+  })
+
+  it('cleans bad theme additions', () => {
+    const d = themed() as unknown as Record<string, any>
+    d.slides[0].elements[0].radius = 'round'
+    d.slides[0].elements[1].fontFamily = "x'); background:url(y)"
+    d.theme.logo = { main: '../x' }
+    d.theme.manualColors = ['bg', 'muted', 'nope']
+    d.theme.source = { kind: 'evil' }
+    const r = ok(d)
+    const [shape, text] = r.deck.slides[0].elements
+    expect((shape as ShapeEl).radius).toBe(0)
+    expect('fontFamily' in text).toBe(false)
+    expect(r.deck.theme.logo).toEqual({})
+    expect(r.deck.theme.manualColors).toEqual(['muted'])
+    expect(r.deck.theme.source).toBeNull()
+    expect(r.repaired).toBe(6) // radius, fontFamily, logo, two manualColors entries, source
+  })
+
+  it('defaults theme additions for decks saved before them', () => {
+    const d = JSON.parse(JSON.stringify(createDeck())) as Record<string, any>
+    delete d.theme.logo
+    delete d.theme.manualColors
+    delete d.theme.source
+    const r = ok(d)
+    expect(r.deck.theme.logo).toEqual({})
+    expect(r.deck.theme.manualColors).toEqual([])
+    expect(r.deck.theme.source).toBeNull()
+    expect(r.repaired).toBe(0)
   })
 })
 

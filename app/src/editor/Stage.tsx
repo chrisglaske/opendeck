@@ -163,6 +163,7 @@ export function Stage({
                     slide={slide}
                     theme={theme}
                     scale={scale}
+                    placeholders
                     editingId={editingId}
                     renderTextEditor={(el) => (
                       <TextEditor

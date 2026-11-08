@@ -7,12 +7,12 @@
 import { childToParent, MIN_SIZE } from './geometry'
 import { newId } from './ids'
 import { OPENDECK_THEME } from './theme'
-import type { Theme, ThemeTextStyle } from './theme'
+import type { Theme, ThemeSource, ThemeTextStyle } from './theme'
 import { createSlide } from './factory'
 import { DECK_VERSION, THEME_COLOR_TOKENS } from './types'
 import type {
-  ColorRef, Deck, GroupEl, IconEl, ImageEl, LineEl, Paragraph, Rect, Run, ShapeEl, Slide, SlideElement, Stroke,
-  TextEl, TextStyleId, ThemeColorToken,
+  ColorRef, Deck, DerivedColor, GroupEl, IconEl, ImageEl, LineEl, Paragraph, Rect, Run, ShapeEl, Slide, SlideElement, Stroke,
+  LogoEl, TextEl, TextStyleId, ThemeColorToken,
 } from './types'
 
 export type SanitizeResult = { ok: true; deck: Deck; repaired: number } | { ok: false; reason: 'not-a-deck' | 'newer-version' }
@@ -37,6 +37,7 @@ export const LIMITS = {
 } as const
 
 const TEXT_STYLES: readonly TextStyleId[] = ['title', 'heading', 'body', 'caption']
+const DERIVED_COLORS: readonly DerivedColor[] = ['muted', 'accentText', 'onAccent', 'line']
 const HEX = /^#[0-9a-f]{6}$/i
 const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/
 const ICON_NAME = /^[a-z0-9-]{1,64}$/
@@ -174,7 +175,7 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
     }
     return [el]
   }
-  if (!['text', 'shape', 'image', 'icon', 'group'].includes(type as string)) { c.fix(); return [] }
+  if (!['text', 'shape', 'image', 'icon', 'logo', 'group'].includes(type as string)) { c.fix(); return [] }
   if (type === 'image' && (typeof v.assetId !== 'string' || !SAFE_ID.test(v.assetId))) { c.fix(); return [] }
 
   const box = {
@@ -194,6 +195,10 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
         const font = c.oneOf<'heading' | 'body' | ''>(v.font, ['heading', 'body'], '')
         if (font) el.font = font
       }
+      if (v.fontFamily !== undefined) {
+        if (typeof v.fontFamily === 'string' && FONT_NAME.test(v.fontFamily)) el.fontFamily = v.fontFamily
+        else c.fix()
+      }
       if (v.size !== undefined) el.size = c.num(v.size, 40, LIMITS.fontMin, LIMITS.fontMax)
       const color = c.colorOpt(v.color)
       if (color) el.color = color
@@ -204,7 +209,7 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
     case 'shape': {
       const el: ShapeEl = {
         ...box, type: 'shape', shape: c.oneOf(v.shape, ['rect', 'ellipse'], 'rect'),
-        radius: c.num(v.radius, 0, 0, LIMITS.size),
+        radius: v.radius === 'theme' ? 'theme' : c.num(v.radius, 0, 0, LIMITS.size),
         fill: v.fill === null ? null : c.color(v.fill, { theme: 'surface' }),
         stroke: v.stroke === null ? null : sanitizeStroke(c, v.stroke, { color: { theme: 'text' }, width: 4, dash: 'solid' }),
       }
@@ -220,6 +225,10 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
     case 'icon': {
       const name = typeof v.name === 'string' && ICON_NAME.test(v.name) ? v.name : (c.fix(), 'circle')
       const el: IconEl = { ...box, type: 'icon', name, color: c.color(v.color, { theme: 'accent' }), strokeWidth: c.num(v.strokeWidth, 1.75, 0.25, 10) }
+      return [el]
+    }
+    case 'logo': {
+      const el: LogoEl = { ...box, type: 'logo' }
       return [el]
     }
     default: { // group
@@ -260,6 +269,43 @@ function sanitizeSlide(c: Ctx, v: unknown): Slide | null {
   }
 }
 
+/** Theme fields added after decks were first saved: missing is fine, invalid is a repair. */
+function sanitizeLogo(c: Ctx, v: unknown): Theme['logo'] {
+  if (v === undefined) return {}
+  if (!isObj(v)) { c.fix(); return {} }
+  const out: Theme['logo'] = {}
+  for (const k of ['main', 'dark'] as const) {
+    if (v[k] === undefined) continue
+    if (typeof v[k] === 'string' && SAFE_ID.test(v[k])) out[k] = v[k]
+    else c.fix()
+  }
+  return out
+}
+
+function sanitizeManualColors(c: Ctx, v: unknown): DerivedColor[] {
+  if (v === undefined) return []
+  if (!Array.isArray(v)) { c.fix(); return [] }
+  const out: DerivedColor[] = []
+  for (const k of v) {
+    if ((DERIVED_COLORS as readonly unknown[]).includes(k) && !out.includes(k as DerivedColor)) out.push(k as DerivedColor)
+    else c.fix()
+  }
+  return out
+}
+
+function sanitizeSource(c: Ctx, v: unknown): ThemeSource | null {
+  if (v === undefined || v === null) return null
+  if (
+    isObj(v) && (v.kind === 'builtin' || v.kind === 'kit') && typeof v.id === 'string' && SAFE_ID.test(v.id)
+    && typeof v.name === 'string' && v.name.length <= LIMITS.name
+    && typeof v.updatedAt === 'number' && Number.isFinite(v.updatedAt) && v.updatedAt >= 0
+  ) {
+    return { kind: v.kind, id: v.id, name: v.name, updatedAt: v.updatedAt }
+  }
+  c.fix()
+  return null
+}
+
 function sanitizeTheme(c: Ctx, v: unknown): Theme {
   const d = OPENDECK_THEME
   if (!isObj(v)) { c.fix(); return structuredClone(d) }
@@ -292,6 +338,9 @@ function sanitizeTheme(c: Ctx, v: unknown): Theme {
     fonts: { heading: font(fontsIn.heading, d.fonts.heading), body: font(fontsIn.body, d.fonts.body) },
     radius: c.num(v.radius, d.radius, 0, 540),
     text,
+    logo: sanitizeLogo(c, v.logo),
+    manualColors: sanitizeManualColors(c, v.manualColors),
+    source: sanitizeSource(c, v.source),
   }
 }
 

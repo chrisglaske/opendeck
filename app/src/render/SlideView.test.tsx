@@ -1,6 +1,8 @@
-import { render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
-import { createIcon, createShape, createSlide, createText } from '../model/factory'
+import { render, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createIcon, createLogo, createShape, createSlide, createText } from '../model/factory'
+import type { Theme } from '../model/theme'
+import { AssetLoaderContext } from '../storage/assets'
 import { OPENDECK_THEME } from '../model/theme'
 import type { GroupEl, Paragraph, Slide, SlideElement } from '../model/types'
 import { SlideView } from './SlideView'
@@ -107,5 +109,50 @@ describe('SlideView', () => {
     )
     expect(getByTestId('editor').textContent).toBe(t.id)
     expect(container.textContent).not.toContain('Add some text')
+  })
+
+  it('uses the theme corners for a rectangle that follows the theme', () => {
+    const r = createShape('rect')
+    const { container } = draw(slideWith(r))
+    expect(node(container, r.id).style.borderRadius).toBe('27px')
+  })
+})
+
+describe('logo element', () => {
+  beforeEach(() => {
+    let n = 0
+    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: () => `blob:x${n++}`, revokeObjectURL: () => {} }))
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  const loader = async () => new Blob(['x'], { type: 'image/png' })
+  const drawLogo = (theme: Theme, slide: Slide, placeholders = false) => render(
+    <AssetLoaderContext.Provider value={loader}>
+      <SlideView slide={slide} theme={theme} scale={1} placeholders={placeholders} />
+    </AssetLoaderContext.Provider>,
+  )
+
+  it('draws the theme logo, or a placeholder only when asked', async () => {
+    const logo = createLogo()
+    const withLogo = drawLogo({ ...OPENDECK_THEME, logo: { main: 'a1' } }, slideWith(logo))
+    const el = node(withLogo.container, logo.id)
+    expect(el.getAttribute('data-logo-asset')).toBe('a1')
+    await waitFor(() => expect(el.querySelector('img')).not.toBeNull())
+    withLogo.unmount()
+
+    const hidden = drawLogo(OPENDECK_THEME, slideWith(logo))
+    expect(hidden.container.querySelector('[data-logo-placeholder]')).toBeNull()
+    expect(node(hidden.container, logo.id).querySelector('img')).toBeNull()
+    hidden.unmount()
+
+    const shown = drawLogo(OPENDECK_THEME, slideWith(logo), true)
+    expect(shown.container.querySelector('[data-logo-placeholder]')!.textContent).toBe('Logo')
+  })
+
+  it('uses the dark logo on a dark slide', () => {
+    const logo = createLogo()
+    const slide = { ...slideWith(logo), background: { color: { hex: '#0E1320' } } }
+    const { container } = drawLogo({ ...OPENDECK_THEME, logo: { main: 'a1', dark: 'a2' } }, slide)
+    expect(node(container, logo.id).getAttribute('data-logo-asset')).toBe('a2')
   })
 })

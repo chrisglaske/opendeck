@@ -1,7 +1,7 @@
 import { newId } from './ids'
 import { OPENDECK_THEME } from './theme'
 import { DECK_VERSION, SLIDE_H, SLIDE_W } from './types'
-import type { Deck, IconEl, ImageEl, LineEl, Point, ShapeEl, Slide, TextEl, TextStyleId } from './types'
+import type { Deck, IconEl, ImageEl, LineEl, LogoEl, Point, ShapeEl, Slide, TextEl, TextStyleId } from './types'
 
 export function createSlide(): Slide {
   return { id: newId(), elements: [], background: { color: { theme: 'bg' } }, notes: '', hidden: false }
@@ -39,7 +39,7 @@ export function createText(style: TextStyleId, at?: Point): TextEl {
 export function createShape(shape: 'rect' | 'ellipse', at?: Point): ShapeEl {
   return {
     id: newId(), type: 'shape', ...place(400, 400, at), w: 400, h: 400, rotation: 0, locked: false,
-    shape, radius: shape === 'rect' ? OPENDECK_THEME.radius : 0, fill: { theme: 'surface' }, stroke: null,
+    shape, radius: shape === 'rect' ? 'theme' : 0, fill: { theme: 'surface' }, stroke: null,
   }
 }
 
@@ -65,4 +65,9 @@ export function createIcon(name: string): IconEl {
     id: newId(), type: 'icon', ...place(160, 160), w: 160, h: 160, rotation: 0, locked: false,
     name, color: { theme: 'accent' }, strokeWidth: 1.75,
   }
+}
+
+/** A logo box in the top-left corner; it shows whatever logo the theme has. */
+export function createLogo(): LogoEl {
+  return { id: newId(), type: 'logo', x: 134, y: 97, w: 320, h: 120, rotation: 0, locked: false }
 }

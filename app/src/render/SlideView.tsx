@@ -8,11 +8,14 @@ import { boxStyle } from './elements/box'
 import { IconView } from './elements/IconView'
 import { ImageView } from './elements/ImageView'
 import { LineView } from './elements/LineView'
+import { LogoView } from './elements/LogoView'
 import { ShapeView } from './elements/ShapeView'
 import { TextView } from './elements/TextView'
 import s from './SlideView.module.css'
 
-type RenderCtx = { theme: Theme; editingId: string | null; renderTextEditor?: (el: TextEl) => ReactNode }
+type RenderCtx = {
+  theme: Theme; slide: Slide; placeholders: boolean; editingId: string | null; renderTextEditor?: (el: TextEl) => ReactNode
+}
 
 export type SlideViewProps = {
   slide: Slide
@@ -24,11 +27,13 @@ export type SlideViewProps = {
   /** The text element being edited; it is drawn by `renderTextEditor` instead. */
   editingId?: string | null
   renderTextEditor?: (el: TextEl) => ReactNode
+  /** Draw placeholders for empty theme slots (e.g. a logo box with no logo). Only the editing canvas does. */
+  placeholders?: boolean
 }
 
 /** The one slide renderer, shared by the canvas, the rail thumbnails, present and export. */
-export function SlideView({ slide, theme, scale, interactive = true, editingId = null, renderTextEditor }: SlideViewProps) {
-  const ctx: RenderCtx = { theme, editingId, renderTextEditor }
+export function SlideView({ slide, theme, scale, interactive = true, editingId = null, renderTextEditor, placeholders = false }: SlideViewProps) {
+  const ctx: RenderCtx = { theme, slide, placeholders, editingId, renderTextEditor }
   return (
     <div
       className={s.root}
@@ -61,11 +66,13 @@ function ElementView({ el, ctx }: { el: SlideElement; ctx: RenderCtx }) {
     case 'text':
       return el.id === ctx.editingId && ctx.renderTextEditor ? ctx.renderTextEditor(el) : <TextView el={el} theme={ctx.theme} />
     case 'shape':
-      return <ShapeView el={el} />
+      return <ShapeView el={el} theme={ctx.theme} />
     case 'image':
       return <ImageView el={el} />
     case 'icon':
       return <IconView el={el} />
+    case 'logo':
+      return <LogoView el={el} theme={ctx.theme} slide={ctx.slide} placeholders={ctx.placeholders} />
     case 'line':
       return <LineView el={el} />
     case 'group':

@@ -1,6 +1,9 @@
-import type { ColorRef, FontRef, TextEl, TextStyleId, ThemeColorToken } from './types'
+import type { ColorRef, DerivedColor, FontRef, TextEl, TextStyleId, ThemeColorToken } from './types'
 
 export type ThemeTextStyle = { font: FontRef; size: number; weight: number; lineHeight: number; letterSpacing: number }
+/** Where a deck's theme came from, so the editor can mark it current and spot a newer brand kit. */
+export type ThemeSource = { kind: 'builtin' | 'kit'; id: string; name: string; updatedAt: number }
+
 export type Theme = {
   id: string
   name: string
@@ -9,6 +12,11 @@ export type Theme = {
   fonts: { heading: string; body: string }
   radius: number
   text: Record<TextStyleId, ThemeTextStyle>
+  /** Asset ids of the logo; `dark` is used on dark slides when present. */
+  logo: { main?: string; dark?: string }
+  /** Helper colors the person set by hand; the rest are worked out from the main colors. */
+  manualColors: DerivedColor[]
+  source: ThemeSource | null
 }
 
 export const OPENDECK_THEME: Theme = {
@@ -26,20 +34,39 @@ export const OPENDECK_THEME: Theme = {
     body: { font: 'body', size: 40, weight: 400, lineHeight: 1.45, letterSpacing: 0 },
     caption: { font: 'body', size: 28, weight: 500, lineHeight: 1.4, letterSpacing: 0 },
   },
+  logo: {},
+  manualColors: [],
+  source: { kind: 'builtin', id: 'opendeck', name: 'OpenDeck', updatedAt: 0 },
 }
 
 const kebab = (s: string) => s.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())
 
-/** Self-hosted fonts register as "<Name> Variable"; the plain name is the fallback. */
-const fontStack = (name: string) => `'${name} Variable', '${name}', system-ui, sans-serif`
+/**
+ * Self-hosted fonts register as "<Name> Variable"; the plain name covers uploaded and
+ * installed fonts. `fallback` is used when neither is available.
+ */
+const fontStack = (name: string, fallback: string) => `'${name} Variable', '${name}', ${fallback}`
+const SYSTEM_FALLBACK = 'system-ui, sans-serif'
+
+/** Corner radius in slide units; `'theme'` follows the theme's corner style. */
+export function radiusPx(r: number | 'theme', t: Theme): number {
+  return r === 'theme' ? t.radius : r
+}
+
+/** CSS `font-family` for a text element: a hand-set family (falling back to the body font) or its theme role. */
+export function fontFamilyOf(el: TextEl, t: Theme): string {
+  if (el.fontFamily) return fontStack(el.fontFamily, 'var(--t-font-body)')
+  return `var(--t-font-${el.font ?? t.text[el.style].font})`
+}
 
 /** CSS custom properties for a theme, set on the slide root through the React style prop. */
 export function themeVars(t: Theme): Record<string, string> {
   const out: Record<string, string> = {}
   for (const [k, v] of Object.entries(t.colors)) out[`--t-${kebab(k)}`] = v
   out['--t-accent-tint'] = `color-mix(in srgb, ${t.colors.accent} 14%, ${t.colors.bg})`
-  out['--t-font-heading'] = fontStack(t.fonts.heading)
-  out['--t-font-body'] = fontStack(t.fonts.body)
+  const body = fontStack(t.fonts.body, SYSTEM_FALLBACK)
+  out['--t-font-heading'] = fontStack(t.fonts.heading, body)
+  out['--t-font-body'] = body
   out['--t-radius'] = `${t.radius}px`
   return out
 }
@@ -53,9 +80,8 @@ export type EffectiveTextStyle = { fontFamily: string; size: number; weight: num
 /** The text style an element ends up with: element overrides win over its theme style. */
 export function textStyleOf(el: TextEl, t: Theme): EffectiveTextStyle {
   const s = t.text[el.style]
-  const font = el.font ?? s.font
   return {
-    fontFamily: `var(--t-font-${font})`,
+    fontFamily: fontFamilyOf(el, t),
     size: el.size ?? s.size,
     weight: s.weight,
     lineHeight: el.lineHeight ?? s.lineHeight,

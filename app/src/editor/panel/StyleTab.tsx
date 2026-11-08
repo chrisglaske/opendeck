@@ -1,6 +1,6 @@
 import { Baseline, MoveLeft, MoveRight, Space } from 'lucide-react'
 import { findElement, updateElements } from '../../model/ops'
-import { resolveColor, themeVars } from '../../model/theme'
+import { radiusPx, resolveColor, themeVars } from '../../model/theme'
 import type { ColorRef, IconEl, ImageEl, LineEl, ShapeEl, Slide, TextEl, TextStyleId, ThemeColorToken } from '../../model/types'
 import { IconButton, NumberField, SegmentedControl, Toggle } from '../../ui'
 import { useTextSession } from '../canvas/textSession'
@@ -153,6 +153,7 @@ function useUpdate<T extends ShapeEl | LineEl | ImageEl | IconEl>(slideId: strin
 }
 
 function ShapeStyle({ slideId, el }: { slideId: string; el: ShapeEl }) {
+  const theme = useEditor((st) => st.deck.theme)
   const update = useUpdate(slideId, el)
   return (
     <>
@@ -196,7 +197,7 @@ function ShapeStyle({ slideId, el }: { slideId: string; el: ShapeEl }) {
       {el.shape === 'rect' && (
         <section>
           <h3 className={styles.heading}>Corners</h3>
-          <NumberField label="Corner radius" suffix="px" min={0} max={2000} value={Math.round(el.radius)} onChange={(radius) => update('radius', (e) => ({ ...e, radius }))} />
+          <NumberField label="Corner radius" suffix="px" min={0} max={2000} value={Math.round(radiusPx(el.radius, theme))} onChange={(radius) => update('radius', (e) => ({ ...e, radius }))} />
         </section>
       )}
     </>

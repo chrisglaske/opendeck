@@ -31,6 +31,7 @@ import { LIMITS } from '../../model/sanitize'
 import { Button, IconButton, Menu, NumberField, Popover, SegmentedControl } from '../../ui'
 import { elementCommands, selectionInfo } from '../commands'
 import { useEditor, useEditorStore } from '../EditorContext'
+import { radiusPx } from '../../model/theme'
 import { ALIGN_BUTTONS } from '../panel/ArrangeTab'
 import { ColorButton } from '../pickers/ColorPicker'
 import { FontMenu } from '../pickers/FontMenu'
@@ -166,6 +167,7 @@ function DuplicateButton() {
 }
 
 function ShapeBar({ slideId, el }: { slideId: string; el: ShapeEl }) {
+  const theme = useEditor((st) => st.deck.theme)
   const update = useUpdate(slideId, el)
   return (
     <>
@@ -199,7 +201,7 @@ function ShapeBar({ slideId, el }: { slideId: string; el: ShapeEl }) {
           prefix={<SquareDashed size={13} strokeWidth={1.75} />}
           min={0}
           max={2000}
-          value={Math.round(el.radius)}
+          value={Math.round(radiusPx(el.radius, theme))}
           onChange={(radius) => update('radius', (e) => ({ ...e, radius }))}
         />
       )}

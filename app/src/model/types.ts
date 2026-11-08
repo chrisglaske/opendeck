@@ -23,15 +23,25 @@ export type Run = { text: string; bold?: true; italic?: true; underline?: true; 
 export type Paragraph = { runs: Run[]; align: 'left' | 'center' | 'right'; list: 'none' | 'bullet' }
 export type Stroke = { color: ColorRef; width: number; dash: 'solid' | 'dashed' }
 
+export type MainColor = 'bg' | 'surface' | 'text' | 'accent' | 'accent2'
+/** Colors worked out from the main ones unless the person sets them by hand. */
+export type DerivedColor = 'muted' | 'accentText' | 'onAccent' | 'line'
+
 type Box = { id: string; x: number; y: number; w: number; h: number; rotation: number; locked: boolean }
 
 /** `letterSpacing` is in em; `lineHeight` is unitless. */
 export type TextEl = Box & {
   type: 'text'; style: TextStyleId; paragraphs: Paragraph[]
-  font?: FontRef; size?: number; color?: ColorRef; lineHeight?: number; letterSpacing?: number; autoFit: boolean
+  font?: FontRef
+  /** A hand-set font family; wins over `font` and the style's role, and stays through a theme switch. */
+  fontFamily?: string
+  size?: number; color?: ColorRef; lineHeight?: number; letterSpacing?: number; autoFit: boolean
 }
-/** A rounded rectangle is `shape: 'rect'` with `radius > 0`. */
-export type ShapeEl = Box & { type: 'shape'; shape: 'rect' | 'ellipse'; radius: number; fill: ColorRef | null; stroke: Stroke | null }
+/**
+ * A rounded rectangle is `shape: 'rect'` with a radius above 0. `'theme'` follows the theme's
+ * corner style; a number stays as set. Ellipses ignore the radius.
+ */
+export type ShapeEl = Box & { type: 'shape'; shape: 'rect' | 'ellipse'; radius: number | 'theme'; fill: ColorRef | null; stroke: Stroke | null }
 /** `crop` is in 0..1 of the source image. */
 export type ImageEl = Box & { type: 'image'; assetId: string; fit: 'fill' | 'fit'; crop: Rect; radius: number }
 export type IconEl = Box & { type: 'icon'; name: string; color: ColorRef; strokeWidth: number }
@@ -41,7 +51,9 @@ export type LineEl = {
   id: string; type: 'line'; x1: number; y1: number; x2: number; y2: number; locked: boolean
   stroke: Stroke; start: 'none' | 'arrow'; end: 'none' | 'arrow'
 }
-export type SlideElement = TextEl | ShapeEl | ImageEl | IconEl | GroupEl | LineEl
+/** Shows the current theme's logo, so it changes with the theme. */
+export type LogoEl = Box & { type: 'logo' }
+export type SlideElement = TextEl | ShapeEl | ImageEl | IconEl | LogoEl | GroupEl | LineEl
 export type BoxElement = Exclude<SlideElement, LineEl>
 
 /** `elements` are ordered bottom → top. */
