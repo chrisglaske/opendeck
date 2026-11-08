@@ -1,0 +1,133 @@
+/*
+ * OpenDeck V2 design tokens. The only place colors, type, radius, spacing and
+ * motion are defined. Light and dark use the same names; any subtree can be
+ * forced to a mode with data-mode="light" | "dark".
+ */
+
+:root {
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-pill: 999px;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 48px;
+  --s-9: 64px;
+
+  --font-ui: 'Inter Variable', Inter, system-ui, sans-serif;
+  --font-display: 'Manrope Variable', Manrope, var(--font-ui);
+  --fs-display: 44px;
+  --fs-h1: 28px;
+  --fs-h2: 20px;
+  --fs-h3: 15px;
+  --fs-body: 15px;
+  --fs-ui: 13px;
+  --fs-caption: 12px;
+  --fs-overline: 11px;
+
+  --dur-fast: 120ms;
+  --dur-med: 180ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}
+
+[data-mode="light"],
+:root:not([data-mode]) {
+  color-scheme: light;
+  --bg: #FCFBF8;
+  --surface: #FFFFFF;
+  --raised: #FFFFFF;
+  --subtle: #F3F1F7;
+  --line: #EEEBF2;
+  --line-strong: #DCD8E4;
+  --ink: #1C1B2A;
+  --muted: #5A5868;
+  --faint: #6E6C7F;
+  --accent: #6C4CF5;
+  --accent-hover: #5B3BE6;
+  --accent-text: #5236D6;
+  --accent-tint: #ECE7FF;
+  --on-accent: #FFFFFF;
+  --peach: #FFC9B5;
+  --peach-tint: #FFF1EB;
+  --success: #17744B;
+  --success-tint: #E3F4EC;
+  --warning: #9A5B00;
+  --warning-tint: #FFF3DC;
+  --danger: #C2362F;
+  --danger-tint: #FCE9E7;
+  --canvas: #EFEDF3;
+  --toast-link: #FFC9B5;
+  --shadow-float: 0 1px 2px rgba(28, 27, 42, 0.06), 0 8px 24px rgba(28, 27, 42, 0.1);
+}
+
+/* Graphite: neutral greys, violet only as the accent. */
+[data-mode="dark"] {
+  color-scheme: dark;
+  --bg: #141416;
+  --surface: #1B1B1E;
+  --raised: #232327;
+  --subtle: #26262A;
+  --line: #2D2D32;
+  --line-strong: #3C3C42;
+  --ink: #EDEDEF;
+  --muted: #B0B0B7;
+  --faint: #8E8E96;
+  --accent: #8B72FF;
+  --accent-hover: #9D88FF;
+  --accent-text: #A996FF;
+  --accent-tint: #2A2640;
+  --on-accent: #141416;
+  --peach: #FFC9B5;
+  --peach-tint: #3A2A24;
+  --success: #5CC596;
+  --success-tint: #16301F;
+  --warning: #E8A93B;
+  --warning-tint: #352A14;
+  --danger: #F07171;
+  --danger-tint: #3A1D1E;
+  --canvas: #0E0E10;
+  --toast-link: #5236D6;
+  --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* No-JS fallback: follow the system when mode-init.js has not run. Keep in sync with the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode]) {
+    color-scheme: dark;
+    --bg: #141416;
+    --surface: #1B1B1E;
+    --raised: #232327;
+    --subtle: #26262A;
+    --line: #2D2D32;
+    --line-strong: #3C3C42;
+    --ink: #EDEDEF;
+    --muted: #B0B0B7;
+    --faint: #8E8E96;
+    --accent: #8B72FF;
+    --accent-hover: #9D88FF;
+    --accent-text: #A996FF;
+    --accent-tint: #2A2640;
+    --on-accent: #141416;
+    --peach: #FFC9B5;
+    --peach-tint: #3A2A24;
+    --success: #5CC596;
+    --success-tint: #16301F;
+    --warning: #E8A93B;
+    --warning-tint: #352A14;
+    --danger: #F07171;
+    --danger-tint: #3A1D1E;
+    --canvas: #0E0E10;
+    --toast-link: #5236D6;
+    --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.45);
+  }
+}
