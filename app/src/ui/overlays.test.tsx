@@ -90,11 +90,23 @@ describe('Dialog', () => {
     expect(opener).toHaveFocus()
   })
 
+  it('a drag that starts inside the box and ends on the backdrop does not close it', async () => {
+    const onClose = vi.fn()
+    render(<Harness onClose={onClose} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const dialog = screen.getByRole('dialog')
+    fireEvent.pointerDown(screen.getByText('Delete deck?'))
+    // The click lands on the common ancestor: the <dialog> itself.
+    fireEvent.click(dialog)
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
   it('clicking the backdrop calls onClose', async () => {
     const onClose = vi.fn()
     render(<Harness onClose={onClose} />)
     await userEvent.click(screen.getByRole('button', { name: 'Open' }))
-    // A click whose target is the <dialog> itself lands on the backdrop.
+    // A press and click whose target is the <dialog> itself is on the backdrop.
+    fireEvent.pointerDown(screen.getByRole('dialog'))
     fireEvent.click(screen.getByRole('dialog'))
     expect(onClose).toHaveBeenCalledOnce()
   })
@@ -125,6 +137,40 @@ describe('toast', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('pauses while its action has keyboard focus', () => {
+    vi.useFakeTimers()
+    try {
+      render(<ToastHost />)
+      act(() => toast('Deck deleted', { actionLabel: 'Undo' }))
+      const undo = screen.getByRole('button', { name: 'Undo' })
+      act(() => undo.focus())
+      act(() => vi.advanceTimersByTime(10_000))
+      expect(screen.getByText('Deck deleted')).toBeInTheDocument()
+      act(() => undo.blur())
+      act(() => vi.advanceTimersByTime(5000))
+      expect(screen.queryByText('Deck deleted')).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('returns focus to where it was when a focused toast is dismissed', async () => {
+    render(
+      <>
+        <button type="button">Elsewhere</button>
+        <ToastHost />
+      </>,
+    )
+    const elsewhere = screen.getByRole('button', { name: 'Elsewhere' })
+    act(() => elsewhere.focus())
+    act(() => toast('Deck deleted', { actionLabel: 'Undo' }))
+    const undo = screen.getByRole('button', { name: 'Undo' })
+    act(() => undo.focus())
+    fireEvent.click(undo)
+    expect(screen.queryByText('Deck deleted')).not.toBeInTheDocument()
+    expect(elsewhere).toHaveFocus()
   })
 
   it('pauses its timer while hovered', () => {

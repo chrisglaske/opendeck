@@ -44,10 +44,14 @@
 }
 
 .hl,
-.item:focus,
+.item:focus {
+  background: var(--subtle);
+}
+
+/* --subtle barely differs from --raised, so keyboard focus also gets a ring. */
 .item:focus-visible {
   background: var(--subtle);
-  box-shadow: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .icon {

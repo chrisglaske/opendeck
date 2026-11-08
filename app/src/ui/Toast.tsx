@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { useEffect, useRef, useState, type HTMLAttributes } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FocusEvent, type HTMLAttributes, type Ref } from 'react'
 import styles from './Toast.module.css'
 
 type ToastOptions = { actionLabel?: string; onAction?(): void; durationMs?: number }
@@ -38,55 +38,86 @@ export function ToastHost() {
 }
 
 function ToastItem({ toast: t, onDismiss }: { toast: ToastData; onDismiss(): void }) {
+  const rootRef = useRef<HTMLDivElement>(null)
   const remaining = useRef(t.durationMs ?? 5000)
   const startedAt = useRef(0)
   const timer = useRef<number | undefined>(undefined)
+  // Hover and keyboard focus each hold the timer; it runs only when neither does.
+  const holds = useRef(new Set<'hover' | 'focus'>())
+  const returnFocusTo = useRef<HTMLElement | null>(null)
   const dismissRef = useRef(onDismiss)
   dismissRef.current = onDismiss
 
-  const start = () => {
+  const hold = (why: 'hover' | 'focus') => {
+    if (holds.current.size === 0) {
+      window.clearTimeout(timer.current)
+      remaining.current -= Date.now() - startedAt.current
+    }
+    holds.current.add(why)
+  }
+  const release = (why: 'hover' | 'focus') => {
+    if (!holds.current.delete(why) || holds.current.size > 0) return
     startedAt.current = Date.now()
     timer.current = window.setTimeout(() => dismissRef.current(), remaining.current)
   }
-  const pause = () => {
-    window.clearTimeout(timer.current)
-    remaining.current -= Date.now() - startedAt.current
-  }
 
   useEffect(() => {
-    start()
+    startedAt.current = Date.now()
+    timer.current = window.setTimeout(() => dismissRef.current(), remaining.current)
     return () => window.clearTimeout(timer.current)
   }, [])
 
+  // Runs before the node is removed: if focus is inside, send it back where it came from.
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    return () => {
+      if (root?.contains(document.activeElement)) returnFocusTo.current?.focus()
+    }
+  }, [])
+
+  const onFocus = (e: FocusEvent<HTMLDivElement>) => {
+    const from = e.relatedTarget as HTMLElement | null
+    if (!e.currentTarget.contains(from)) returnFocusTo.current = from
+    hold('focus')
+  }
+  const onBlur = (e: FocusEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) release('focus')
+  }
+
   return (
     <ToastView
+      ref={rootRef}
       message={t.message}
       actionLabel={t.actionLabel}
       onAction={() => {
         t.onAction?.()
         onDismiss()
       }}
-      onMouseEnter={pause}
-      onMouseLeave={start}
+      onMouseEnter={() => hold('hover')}
+      onMouseLeave={() => release('hover')}
+      onFocus={onFocus}
+      onBlur={onBlur}
     />
   )
 }
 
 /** The toast's look, also used for static previews. */
 export function ToastView({
+  ref,
   message,
   icon: Icon,
   actionLabel,
   onAction,
   ...rest
 }: HTMLAttributes<HTMLDivElement> & {
+  ref?: Ref<HTMLDivElement>
   message: string
   icon?: LucideIcon
   actionLabel?: string
   onAction?(): void
 }) {
   return (
-    <div className={styles.toast} {...rest}>
+    <div ref={ref} className={styles.toast} {...rest}>
       {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden />}
       <span>{message}</span>
       {actionLabel && (

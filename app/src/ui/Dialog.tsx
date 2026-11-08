@@ -37,6 +37,7 @@ function OpenDialog({
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
   const closingRef = useRef(false)
+  const pressedBackdrop = useRef(false)
 
   useLayoutEffect(() => {
     const dialog = ref.current
@@ -63,9 +64,14 @@ function OpenDialog({
       onClose={() => {
         if (!closingRef.current) onCloseRef.current()
       }}
+      // The inner box fills the dialog, so a press on the dialog itself is the backdrop.
+      // Both press and click must be there: a drag out of the box also clicks the dialog.
+      onPointerDown={(e) => {
+        pressedBackdrop.current = e.target === e.currentTarget
+      }}
       onClick={(e) => {
-        // The inner box fills the dialog, so a click on the dialog itself is the backdrop.
-        if (e.target === e.currentTarget) onCloseRef.current()
+        if (e.target === e.currentTarget && pressedBackdrop.current) onCloseRef.current()
+        pressedBackdrop.current = false
       }}
     >
       <DialogBox titleId={titleId} descId={descId} title={title} description={description} actions={actions}>
