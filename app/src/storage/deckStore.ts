@@ -13,6 +13,8 @@ export interface DeckStore {
   deleteDeck(id: string): Promise<void>
   putAsset(a: StoredAsset): Promise<void>
   getAsset(id: string): Promise<StoredAsset | null>
+  /** True when this deck lives only in this tab because writing it failed. */
+  isUnsaved?(id: string): boolean
 }
 
 export type OpenDeckResult =
@@ -72,22 +74,68 @@ export function createMemoryStore(): DeckStore {
 }
 
 /**
- * Used when the browser blocks storage (e.g. some private windows). Decks live
- * in memory for this tab only, and every write still rejects so the editor
- * shows "Not saved".
+ * Wraps a store so a write that fails (storage full or blocked) still leaves the
+ * deck or image usable in this tab. The write still rejects, so the editor can
+ * say "Not saved"; the kept copy is dropped once a later write succeeds.
  */
-export function createSessionOnlyStore(): DeckStore {
-  const mem = createMemoryStore()
-  const notSaved = () => new DOMException('Browser storage is not available', 'InvalidStateError')
+export function keepUnsaved(store: DeckStore): DeckStore {
+  const decks = new Map<string, Deck>()
+  const assets = new Map<string, StoredAsset>()
   return {
-    ...mem,
+    async listDecks() {
+      const saved = await store.listDecks().catch(() => [])
+      const kept = [...decks.values()].map(summarize).filter((s): s is DeckSummary => s !== null)
+      const keptIds = new Set(kept.map((s) => s.id))
+      return [...kept, ...saved.filter((s) => !keptIds.has(s.id))].sort(newestFirst)
+    },
+    async getDeck(id) {
+      const kept = decks.get(id)
+      return kept ? structuredClone(kept) : store.getDeck(id)
+    },
     async putDeck(d) {
-      await mem.putDeck(d)
-      throw notSaved()
+      try {
+        await store.putDeck(d)
+        decks.delete(d.id)
+      } catch (e) {
+        decks.set(d.id, structuredClone(d))
+        throw e
+      }
+    },
+    async deleteDeck(id) {
+      decks.delete(id)
+      await store.deleteDeck(id)
     },
     async putAsset(a) {
-      await mem.putAsset(a)
+      try {
+        await store.putAsset(a)
+        assets.delete(a.id)
+      } catch (e) {
+        assets.set(a.id, { ...a })
+        throw e
+      }
+    },
+    async getAsset(id) {
+      const kept = assets.get(id)
+      return kept ? { ...kept } : store.getAsset(id)
+    },
+    isUnsaved: (id) => decks.has(id),
+  }
+}
+
+/**
+ * Used when the browser blocks storage (e.g. some private windows). Decks and
+ * images live in memory for this tab only, and every write rejects so the
+ * editor shows "Not saved".
+ */
+export function createSessionOnlyStore(): DeckStore {
+  const notSaved = () => new DOMException('Browser storage is not available', 'InvalidStateError')
+  return keepUnsaved({
+    ...createMemoryStore(),
+    async putDeck() {
       throw notSaved()
     },
-  }
+    async putAsset() {
+      throw notSaved()
+    },
+  })
 }

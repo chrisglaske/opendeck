@@ -117,7 +117,7 @@ async function card(page: Page, x: number, stat: string) {
   return newestId(page)
 }
 
-/** Builds the mockup slide: kicker, title, body, two grouped stat cards and a photo. */
+/** Builds a typical results slide: kicker, title, body, two grouped stat cards and a photo. */
 async function buildSlide(page: Page) {
   const kicker = await addText(page, 'Q3 results', 'Caption')
   await place(page, { x: 120, y: 96, w: 800 })

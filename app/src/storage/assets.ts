@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { newId } from '../model/ids'
 import { getDeckStore } from './appStore'
+import { errorReason } from './autosave'
+import type { SaveErrorReason } from './autosave'
 import type { DeckStore } from './deckStore'
 
 // ── Importing images ───────────────────────────────────────────────────
@@ -75,11 +77,24 @@ export async function compressImage(file: Blob): Promise<CompressedImage> {
 }
 
 /** Compresses an image and saves it as an asset. */
-export async function importImage(store: DeckStore, file: Blob): Promise<{ assetId: string; width: number; height: number }> {
+/**
+ * Compresses and stores an image. When storage refuses the write but the store
+ * kept the image for this tab, it is still usable and `notSaved` says why.
+ */
+export async function importImage(
+  store: DeckStore,
+  file: Blob,
+): Promise<{ assetId: string; width: number; height: number; notSaved?: SaveErrorReason }> {
   const img = await compressImage(file)
   const assetId = newId()
-  await store.putAsset({ id: assetId, blob: img.blob, type: img.type, width: img.width, height: img.height })
-  return { assetId, width: img.width, height: img.height }
+  const r = { assetId, width: img.width, height: img.height }
+  try {
+    await store.putAsset({ id: assetId, blob: img.blob, type: img.type, width: img.width, height: img.height })
+    return r
+  } catch (e) {
+    if (!(await store.getAsset(assetId))) throw e
+    return { ...r, notSaved: errorReason(e) }
+  }
 }
 
 // ── Showing stored images ──────────────────────────────────────────────

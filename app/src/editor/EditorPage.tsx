@@ -55,6 +55,12 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
     s.lock = lock
     s.autosaver = autosaver
     s.offDeck = store.onDeckChange((d) => autosaver.schedule(d))
+    // A deck that only lives in this tab (its last write failed) tries again now, so the
+    // status shows "Not saved" and why from the start instead of a false "Saved".
+    if (deckStore.isUnsaved?.(deckId)) {
+      autosaver.schedule(r.deck)
+      void autosaver.flush()
+    }
     void lock.lost.then(() => {
       // Another tab took over. Stop writing so its copy wins.
       s.offDeck?.()
@@ -87,11 +93,17 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
 
     const flush = () => { void s.autosaver?.flush() }
     const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
+    // While saving is failing, the work exists only in this tab: ask before it is closed.
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (s.autosaver?.getStatus().state === 'error') e.preventDefault()
+    }
     window.addEventListener('pagehide', flush)
+    window.addEventListener('beforeunload', onBeforeUnload)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
       s.cancelled = true
       window.removeEventListener('pagehide', flush)
+      window.removeEventListener('beforeunload', onBeforeUnload)
       document.removeEventListener('visibilitychange', onVisibility)
       s.offDeck?.()
       const { autosaver, lock } = s

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { compressImage, ImageTooLargeError, importImage, MAX_EDGE, UnsupportedImageError } from './assets'
-import { createMemoryStore } from './deckStore'
+import { createMemoryStore, createSessionOnlyStore } from './deckStore'
 
 /** Fake decoder and canvas: images decode to a size, and WebP output has a chosen byte size. */
 let decoded: { width: number; height: number } | Error
@@ -87,5 +87,12 @@ describe('importImage', () => {
     expect(r).toMatchObject({ width: 800, height: 600 })
     const a = await store.getAsset(r.assetId)
     expect(a).toMatchObject({ id: r.assetId, type: 'image/webp', width: 800, height: 600 })
+  })
+
+  it('still adds the image when storage is blocked, and says it is not saved', async () => {
+    const store = createSessionOnlyStore()
+    const r = await importImage(store, file(1000, 'image/jpeg'))
+    expect(r.notSaved).toBe('unavailable')
+    expect(await store.getAsset(r.assetId)).not.toBeNull()
   })
 })

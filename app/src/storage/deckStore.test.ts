@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createMemoryStore, createSessionOnlyStore, openDeck } from './deckStore'
+import { createMemoryStore, createSessionOnlyStore, keepUnsaved, openDeck } from './deckStore'
+import type { DeckStore } from './deckStore'
 import { createDeck } from '../model/factory'
 
 describe('memory deck store', () => {
@@ -41,6 +42,59 @@ describe('session-only store', () => {
     const d = createDeck('A')
     await expect(s.putDeck(d)).rejects.toMatchObject({ name: 'InvalidStateError' })
     expect(await s.getDeck(d.id)).toEqual(d)
+  })
+})
+
+describe('keepUnsaved', () => {
+  const full = () => new DOMException('full', 'QuotaExceededError')
+  function flaky() {
+    const base = createMemoryStore()
+    const state = { failing: true }
+    const store: DeckStore = {
+      ...base,
+      async putDeck(d) {
+        if (state.failing) throw full()
+        await base.putDeck(d)
+      },
+      async putAsset(a) {
+        if (state.failing) throw full()
+        await base.putAsset(a)
+      },
+    }
+    return { state, store: keepUnsaved(store), base }
+  }
+
+  it('keeps a deck that could not be written, for this tab, and still reports the error', async () => {
+    const { store } = flaky()
+    const d = createDeck('Full disk')
+    await expect(store.putDeck(d)).rejects.toThrow('full')
+    expect(await store.getDeck(d.id)).toEqual(d)
+    expect((await store.listDecks()).map((x) => x.id)).toEqual([d.id])
+    expect(store.isUnsaved?.(d.id)).toBe(true)
+  })
+
+  it('forgets the kept copy once a write succeeds', async () => {
+    const { state, store, base } = flaky()
+    const d = createDeck('Later')
+    await store.putDeck(d).catch(() => {})
+    state.failing = false
+    await store.putDeck(d)
+    expect(store.isUnsaved?.(d.id)).toBe(false)
+    expect(await base.getDeck(d.id)).toEqual(d)
+  })
+
+  it('keeps an image that could not be written', async () => {
+    const { store } = flaky()
+    const a = { id: 'img1', blob: new Blob(['x']), type: 'image/png', width: 1, height: 1 }
+    await expect(store.putAsset(a)).rejects.toThrow('full')
+    expect((await store.getAsset('img1'))?.id).toBe('img1')
+  })
+
+  it('the session-only store marks every deck unsaved', async () => {
+    const s = createSessionOnlyStore()
+    const d = createDeck()
+    await s.putDeck(d).catch(() => {})
+    expect(s.isUnsaved?.(d.id)).toBe(true)
   })
 })
 

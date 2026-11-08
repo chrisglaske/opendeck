@@ -69,6 +69,9 @@ export function createEditorStore(initial: Deck, opts: { historyLimit?: number }
       return () => listeners.delete(fn)
     },
     apply(fn, o = {}) {
+      // A change that arrives mid-drag (a finished image import, a key) ends the drag first;
+      // otherwise the drag's next preview, built from its start, would drop the change.
+      if (gesture) this.cancel()
       const next = fn(state.deck)
       if (next === state.deck) return
       const now = Date.now()

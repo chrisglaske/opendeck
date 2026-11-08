@@ -116,7 +116,7 @@ function LogoPanel() {
       <span className={styles.tile} style={{ background: 'var(--accent-tint)' }}>
         <Logo size={34} wordmark={false} />
       </span>
-      {/* On an ink tile the front card takes the dark-mode violet, as in the mockup. */}
+      {/* On an ink tile the front card takes the dark-mode violet so it stands out. */}
       <span className={styles.tile} style={{ background: 'var(--ink)' }}>
         <span data-mode="dark" className={styles.inline}>
           <Logo size={34} wordmark={false} />

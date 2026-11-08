@@ -1,7 +1,8 @@
 import type { Deck } from '../model/types'
 import type { DeckStore } from './deckStore'
 
-export type SaveStatus = { state: 'saved' } | { state: 'saving' } | { state: 'error'; reason: 'quota' | 'unavailable' | 'unknown' }
+export type SaveErrorReason = 'quota' | 'unavailable' | 'unknown'
+export type SaveStatus = { state: 'saved' } | { state: 'saving' } | { state: 'error'; reason: SaveErrorReason }
 
 export interface Autosaver {
   schedule(d: Deck): void
@@ -13,7 +14,7 @@ export interface Autosaver {
 
 const RETRY_MS = 5000
 
-export function errorReason(e: unknown): 'quota' | 'unavailable' | 'unknown' {
+export function errorReason(e: unknown): SaveErrorReason {
   const name = (e as { name?: unknown } | null)?.name
   if (name === 'QuotaExceededError') return 'quota'
   if (name === 'InvalidStateError' || name === 'SecurityError' || name === 'UnknownError' || name === 'NotFoundError') return 'unavailable'
@@ -50,7 +51,11 @@ export function createAutosaver(store: DeckStore, opts: { delay?: number } = {})
   async function run(): Promise<void> {
     timer = null
     if (inFlight) await inFlight
-    if (disposed || !pending) return
+    if (disposed || !pending) {
+      // Another caller took the pending deck and is writing it; resolve when that write ends.
+      if (inFlight) await inFlight
+      return
+    }
     const deck = pending
     pending = null
     inFlight = (async () => {

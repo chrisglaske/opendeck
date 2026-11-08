@@ -4,6 +4,7 @@ import type { ImageEl, Point } from '../model/types'
 import { getDeckStore } from '../storage/appStore'
 import { ACCEPTED, ImageTooLargeError, importImage, UnsupportedImageError } from '../storage/assets'
 import { toast } from '../ui'
+import { SAVE_ERROR_TEXT } from './SaveStatus'
 import type { EditorStore } from './store'
 
 /** Opens the system file picker for images. */
@@ -26,7 +27,9 @@ export const imageFiles = (files: FileList | File[] | null | undefined): File[] 
 async function save(file: Blob) {
   toast('Adding image…', { durationMs: 2000 })
   try {
-    return await importImage(await getDeckStore(), file)
+    const r = await importImage(await getDeckStore(), file)
+    if (r.notSaved) toast(`Image added, but not saved. ${SAVE_ERROR_TEXT[r.notSaved]}`, { durationMs: 8000 })
+    return r
   } catch (e) {
     if (e instanceof UnsupportedImageError || e instanceof ImageTooLargeError) toast(e.message)
     else toast("Couldn't add that image. Try again, or try another file.")

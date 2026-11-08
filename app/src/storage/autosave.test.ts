@@ -24,6 +24,28 @@ function spyStore(fail?: () => Error): DeckStore & { puts: Deck[] } {
 const quota = () => new DOMException('full', 'QuotaExceededError')
 
 describe('autosaver', () => {
+  it('a second flush waits for the write the first flush started', async () => {
+    const base = createMemoryStore()
+    const gates: (() => void)[] = []
+    const store: DeckStore = { ...base, putDeck: (d) => new Promise<void>((res) => gates.push(() => void base.putDeck(d).then(res))) }
+    const a = createAutosaver(store)
+    a.schedule(createDeck('one'))
+    await vi.advanceTimersByTimeAsync(600) // write of "one" is in flight
+    a.schedule(createDeck('two'))
+    let firstDone = false
+    let secondDone = false
+    void a.flush().then(() => { firstDone = true })
+    void a.flush().then(() => { secondDone = true })
+    gates.shift()!() // "one" lands; a flush now writes "two"
+    await vi.advanceTimersByTimeAsync(0)
+    expect(gates).toHaveLength(1)
+    expect(secondDone).toBe(false)
+    expect(firstDone).toBe(false)
+    gates.shift()!()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(firstDone && secondDone).toBe(true)
+  })
+
   it('writes once with the latest deck after the delay', async () => {
     const store = spyStore()
     const a = createAutosaver(store)

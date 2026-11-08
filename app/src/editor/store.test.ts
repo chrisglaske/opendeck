@@ -18,6 +18,23 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers())
 
 describe('editor store', () => {
+  it('a change that lands during a drag cancels the drag instead of being lost', () => {
+    const { store, slideId } = setup()
+    const shape = createShape('rect')
+    store.apply((d) => addElements(d, slideId, [shape]))
+    store.begin()
+    store.preview((d) => rename('Dragging')(d))
+    const image = createShape('ellipse')
+    store.apply((d) => addElements(d, slideId, [image]))
+    store.preview((d) => rename('Still dragging')(d))
+    store.commit()
+    const st = store.getState()
+    expect(st.deck.name).toBe('Start')
+    expect(st.deck.slides[0].elements.map((e) => e.id)).toEqual([shape.id, image.id])
+    store.undo()
+    expect(store.getState().deck.slides[0].elements.map((e) => e.id)).toEqual([shape.id])
+  })
+
   it('starts with the deck, first slide selected, nothing to undo', () => {
     const { deck, store, slideId } = setup()
     expect(store.getState()).toEqual({ deck, selection: { slideId, ids: [] }, editingId: null, canUndo: false, canRedo: false })

@@ -331,6 +331,9 @@ export function TextEditor({ el, theme, onCommit, onExit }: Props) {
           commit(splitParagraph(cleared.paragraphs, cleared.caret))
           break
         }
+        case 'deleteByDrag':
+          // Dropping text is refused, so the drag must not delete it either.
+          break
         case 'deleteByCut':
         case 'deleteContent':
           commit(deleteRange(ps, r))

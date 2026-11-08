@@ -66,6 +66,14 @@ function input(inputType: string, data: string | null = null) {
 const modKey = (k: string) => fireEvent.keyDown(editor(), { key: k, metaKey: isMac, ctrlKey: !isMac })
 
 describe('text editor', () => {
+  it('dragging chosen words inside the box does not delete them', () => {
+    const el = textBox('Hello world')
+    const s = setup(el)
+    selectChars(0, 5)
+    expect(input('deleteByDrag').defaultPrevented).toBe(true)
+    expect(textOf(s, el.id)![0].runs).toEqual([{ text: 'Hello world' }])
+  })
+
   it('types into an empty box as one run and one undo step', () => {
     const el = textBox('')
     const s = setup(el)

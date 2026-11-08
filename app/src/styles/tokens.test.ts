@@ -58,8 +58,8 @@ describe('tokens.css', () => {
   })
 })
 
-describe('stage 2 tokens', () => {
-  it('uses the firmer control borders (M8, option B)', () => {
+describe('editor tokens', () => {
+  it('uses the firmer control borders', () => {
     expect(readTokens(css, 'light')['--line-strong']).toBe('#B9B4C6')
     expect(readTokens(css, 'dark')['--line-strong']).toBe('#55555D')
   })
