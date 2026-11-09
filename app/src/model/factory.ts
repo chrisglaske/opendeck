@@ -11,7 +11,7 @@ export function createDeck(name = 'Untitled deck'): Deck {
   const now = Date.now()
   return {
     format: 'opendeck', version: DECK_VERSION, id: newId(), name,
-    theme: structuredClone(OPENDECK_THEME), slides: [createSlide()], createdAt: now, updatedAt: now,
+    theme: structuredClone(OPENDECK_THEME), slides: [createSlide()], transition: 'fade', createdAt: now, updatedAt: now,
   }
 }
 

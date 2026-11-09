@@ -188,6 +188,8 @@ export function convertV1Project(p: V1Project, now: number): ConvertedDeck {
     name,
     theme: v1Theme(gs, logo, name) ?? structuredClone(OPENDECK_THEME),
     slides,
+    // V1's per-slide transitions aren't carried over; every converted deck fades.
+    transition: 'fade',
     createdAt: now,
     updatedAt: p.lastModified,
   }

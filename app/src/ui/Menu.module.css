@@ -134,3 +134,32 @@
   left: calc(100% + 6px);
   width: 200px;
 }
+
+.twoLine {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.twoLine .label {
+  font-weight: 600;
+  white-space: normal;
+}
+
+.description {
+  font-size: var(--fs-overline);
+  line-height: 1.4;
+  color: var(--faint);
+  white-space: normal;
+}
+
+.item:has(.twoLine) {
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.item:has(.twoLine) .icon {
+  margin-top: 2px;
+}

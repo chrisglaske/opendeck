@@ -302,3 +302,25 @@ describe('template fields', () => {
     expect('layout' in r.deck.slides[0]).toBe(false)
   })
 })
+
+describe('deck transition', () => {
+  const plain = () => JSON.parse(JSON.stringify(createDeck('T'))) as Record<string, unknown>
+  it('new decks fade', () => expect(createDeck().transition).toBe('fade'))
+  it('fills in fade for decks saved before transitions, without calling it a repair', () => {
+    const raw = plain()
+    delete raw.transition
+    const r = sanitizeDeck(raw)
+    expect(r.ok && r.deck.transition).toBe('fade')
+    expect(r.ok && r.repaired).toBe(0)
+  })
+  it('replaces an unknown transition with fade', () => {
+    const r = sanitizeDeck({ ...plain(), transition: 'spin' })
+    expect(r.ok && r.deck.transition).toBe('fade')
+  })
+  it('keeps a known transition', () => {
+    for (const t of ['none', 'fade', 'slide', 'zoom']) {
+      const r = sanitizeDeck({ ...plain(), transition: t })
+      expect(r.ok && r.deck.transition).toBe(t)
+    }
+  })
+})

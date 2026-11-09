@@ -48,11 +48,10 @@ describe('EditorShell', () => {
     expect(screen.queryByRole('textbox', { name: 'Deck name' })).toBeNull()
   })
 
-  it('leaves out features from later stages', () => {
+  it('has Present in the top bar', () => {
     setup()
-    for (const name of [/share/i, /present/i]) {
-      expect(screen.queryByRole('button', { name })).toBeNull()
-    }
+    expect(screen.getByRole('button', { name: 'Present' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Presenting options' })).toBeInTheDocument()
   })
 
   it('enables undo once there is something to undo', () => {

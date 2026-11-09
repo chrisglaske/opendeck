@@ -1,0 +1,6 @@
+/* The slides filling this tab (full screen mode). */
+.here {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}

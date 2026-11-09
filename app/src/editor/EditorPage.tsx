@@ -19,6 +19,13 @@ import { StateScreen } from './StateScreen'
 import { createEditorStore } from './store'
 import type { EditorStore } from './store'
 import { clearFromV1 } from '../v1/importV1'
+import { PresentContext } from '../present/presentContext'
+import { PresentSession } from '../present/PresentSession'
+import type { ShowStart } from '../present/PresentSession'
+import { BlockedDialog } from '../present/BlockedDialog'
+import { visibleOrder } from '../present/show'
+import { beginShow, cancelShowStart, takeShowRequest } from '../present/startRequest'
+import { toast } from '../ui'
 import styles from './EditorPage.module.css'
 
 type View =
@@ -58,17 +65,25 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
   }>({ cancelled: false })
   /** Bumped to open the deck again (after it is restored from the Trash). */
   const [attempt, setAttempt] = useState(0)
+  /** The running show, if any. While it runs this tab is the speaker view (or the full-screen slides). */
+  const [show, setShow] = useState<ShowStart | null>(null)
+  /** Home asked to present this deck but the browser blocked the slides window. */
+  const [blockedFromHome, setBlockedFromHome] = useState(false)
+  // A show ends when the deck stops being editable here (another tab took over, it went to the Trash).
+  useEffect(() => {
+    if (view.kind !== 'ready') setShow(null)
+  }, [view.kind])
 
-  /** Opens the deck under a lock this tab already holds. */
-  const start = useCallback(async (lock: HeldLock) => {
+  /** Opens the deck under a lock this tab already holds. Resolves to the editor store, or null when it couldn't open. */
+  const start = useCallback(async (lock: HeldLock): Promise<EditorStore | null> => {
     const s = session.current
     const deckStore = storeProp ?? (await getDeckStore())
     const r = await openDeck(deckStore, deckId)
-    if (s.cancelled) { lock.release(); return }
+    if (s.cancelled) { lock.release(); return null }
     if (r.kind !== 'ok') {
       lock.release()
       setView({ kind: r.kind })
-      return
+      return null
     }
     const store = createEditorStore(r.deck)
     const autosaver = createAutosaver(deckStore)
@@ -102,6 +117,7 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
       })
     })
     setView({ kind: 'ready', store, autosaver })
+    return store
   }, [deckId, storeProp])
 
   useEffect(() => {
@@ -109,25 +125,43 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
     session.current = s
     void (async () => {
       const deckStore = storeProp ?? (await getDeckStore())
+      // A show Home started for this deck can only run once the deck is open here.
+      const dropShowRequest = () => {
+        const req = takeShowRequest(deckId)
+        if (req) cancelShowStart(req)
+      }
       const first = await openDeck(deckStore, deckId)
       if (s.cancelled) return
       if (first.kind !== 'ok') {
+        dropShowRequest()
         setView({ kind: first.kind })
         return
       }
       const trashed = await isTrashed(deckStore, deckId)
       if (s.cancelled) return
       if (trashed) {
+        dropShowRequest()
         setView({ kind: 'trashed', name: first.deck.name })
         return
       }
       const lock = await acquireDeckLock(deckId)
       if (s.cancelled) { if (lock.held) lock.release(); return }
       if (!lock.held) {
+        dropShowRequest()
         setView({ kind: 'other-tab', name: first.deck.name })
         return
       }
-      await start(lock)
+      const editor = await start(lock)
+      if (s.cancelled) return
+      const req = takeShowRequest(deckId)
+      if (req && !editor) cancelShowStart(req)
+      else if (req === 'blocked') setBlockedFromHome(true)
+      else if (req && editor) {
+        if (visibleOrder(editor.getState().deck).length === 0) {
+          cancelShowStart(req)
+          toast('All slides in this deck are hidden.')
+        } else setShow(req)
+      }
       // The deck has now been opened, so it no longer shows the "From V1" chip on Home.
       await clearFromV1(deckStore, deckId).catch(() => {})
     })()
@@ -178,6 +212,13 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
     setAttempt((n) => n + 1)
   }
 
+  const retryFromHome = (mode: 'window' | 'fullscreen') => {
+    const r = beginShow({ mode, fromStart: true, fromSlideId: null })
+    if (r === 'blocked') return
+    setBlockedFromHome(false)
+    setShow(r)
+  }
+
   switch (view.kind) {
     case 'loading':
       return <div className={styles.loading} aria-busy="true" aria-label="Opening deck" />
@@ -225,11 +266,34 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
           <p>Restore it to keep working on it.</p>
         </StateScreen>
       )
-    case 'ready':
+    case 'ready': {
+      const { store } = view
+      if (show) {
+        return (
+          <PresentSession
+            deck={store.getState().deck}
+            start={show}
+            onEnd={(slideId) => {
+              store.select({ slideId, ids: [] })
+              setShow(null)
+            }}
+          />
+        )
+      }
       return (
-        <EditorProvider store={view.store}>
-          <EditorShell autosaver={view.autosaver} />
+        <EditorProvider store={store}>
+          <PresentContext.Provider value={setShow}>
+            <EditorShell autosaver={view.autosaver} />
+            {blockedFromHome ? (
+              <BlockedDialog
+                onRetry={() => retryFromHome('window')}
+                onFullscreen={() => retryFromHome('fullscreen')}
+                onClose={() => setBlockedFromHome(false)}
+              />
+            ) : null}
+          </PresentContext.Provider>
         </EditorProvider>
       )
+    }
   }
 }

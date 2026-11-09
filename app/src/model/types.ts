@@ -87,8 +87,12 @@ export type Slide = {
   id: string; elements: SlideElement[]; background: { color: ColorRef; imageId?: string }; notes: string; hidden: boolean
   layout?: string
 }
+/** How one slide gives way to the next when presenting. One choice per deck. */
+export type Transition = 'none' | 'fade' | 'slide' | 'zoom'
+export const TRANSITIONS: readonly Transition[] = ['none', 'fade', 'slide', 'zoom']
+
 export type Deck = {
   format: 'opendeck'; version: 1; id: string; name: string; theme: Theme
-  slides: Slide[]; createdAt: number; updatedAt: number
+  slides: Slide[]; transition: Transition; createdAt: number; updatedAt: number
 }
 export type Selection = { slideId: string; ids: string[] }

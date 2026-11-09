@@ -1,0 +1,21 @@
+.split {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hint {
+  display: inline-flex;
+  border-radius: var(--r-sm);
+}
+
+.main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.chev {
+  margin-left: 1px;
+  padding: 0 6px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

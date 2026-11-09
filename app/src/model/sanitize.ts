@@ -10,7 +10,7 @@ import { OPENDECK_THEME } from './theme'
 import type { Theme, ThemeSource, ThemeTextStyle } from './theme'
 import { createSlide } from './factory'
 import { ROLE } from './roles'
-import { DECK_VERSION, THEME_COLOR_TOKENS } from './types'
+import { DECK_VERSION, THEME_COLOR_TOKENS, TRANSITIONS } from './types'
 import type {
   ColorRef, Deck, DerivedColor, FadeDir, GroupEl, IconEl, ImageEl, LineEl, Paragraph, Rect, Run, ShapeEl, Slide, SlideElement, Stroke,
   LogoEl, SampleArt, TextEl, TextStyleId, ThemeColorToken,
@@ -427,6 +427,8 @@ export function sanitizeDeck(raw: unknown): SanitizeResult {
     name: c.str(raw.name, 'Untitled deck', LIMITS.name),
     theme: cleanTheme(c, raw.theme),
     slides,
+    // Decks saved before transitions existed simply get the default; that isn't a repair.
+    transition: raw.transition === undefined ? 'fade' : c.oneOf(raw.transition, TRANSITIONS, 'fade'),
     createdAt: c.num(raw.createdAt, now, 0, Number.MAX_SAFE_INTEGER),
     updatedAt: c.num(raw.updatedAt, now, 0, Number.MAX_SAFE_INTEGER),
   }

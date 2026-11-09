@@ -26,6 +26,8 @@ import { useLayoutPreview } from './slides/layoutPreview'
 import { slideMenuItems } from './slides/slideMenu'
 import { useSlidesPanel } from './slides/slidesPanelState'
 import { useDisplayTheme, usePreviewTheme } from './theme/themePreview'
+import { usePreviewTransition } from './theme/transitionPreview'
+import { TRANSITION_MS, TransitionDemo } from '../present/SlidesStage'
 import pillStyles from './theme/ThemePanel.module.css'
 import { ZoomControl } from './ZoomControl'
 import type { Zoom } from './ZoomControl'
@@ -118,6 +120,18 @@ export function Stage({
   const width = area.w
   const fit = fitScale(size.w, size.h, area.w, area.h)
   const scale = zoom === 'fit' ? fit : zoom / 100
+
+  // Hovering a transition plays it once: this slide to the next (or to itself on the last one).
+  const transition = usePreviewTransition()
+  const deck = useEditor((s) => s.deck)
+  const [demoRun, setDemoRun] = useState<number | null>(null)
+  useEffect(() => {
+    if (!transition) { setDemoRun(null); return }
+    setDemoRun(transition.run)
+    const t = setTimeout(() => setDemoRun(null), TRANSITION_MS + 250)
+    return () => clearTimeout(t)
+  }, [transition])
+  const nextId = slide ? (deck.slides[deck.slides.indexOf(slide) + 1]?.id ?? slide.id) : null
 
   const toSlidePoint = useCallback(
     (clientX: number, clientY: number): Point => {
@@ -233,6 +247,11 @@ export function Stage({
                   />
                 )}
               </div>
+              {transition && demoRun === transition.run && slide && nextId ? (
+                <div className={styles.slide}>
+                  <TransitionDemo key={transition.run} deck={deck} fromId={slide.id} toId={nextId} transition={transition.transition} scale={scale} />
+                </div>
+              ) : null}
               {shownLayout ? (
                 <AsideLayer slide={shownLayout.slide} theme={theme} scale={scale} editingId={null} renderTextEditor={renderTextEditor} />
               ) : (

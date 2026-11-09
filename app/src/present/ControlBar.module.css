@@ -1,0 +1,58 @@
+/* Sits on the black around the slides, so it is dark in both app modes. */
+.bar {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(20, 20, 22, 0.78);
+  color: #ededef;
+  font: 600 12px/1 var(--font-ui, Inter, system-ui, sans-serif);
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  transition: opacity 200ms ease;
+}
+
+.bar[data-visible='false'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.icon,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.icon { width: 28px; justify-content: center; }
+.btn { padding: 0 9px; }
+
+.icon:hover,
+.btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+.icon:focus-visible,
+.btn:focus-visible { outline: 2px solid #a996ff; outline-offset: 1px; }
+
+.count {
+  padding: 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 3px;
+  background: rgba(255, 255, 255, 0.2);
+}

@@ -1,4 +1,4 @@
-import { Pin } from 'lucide-react'
+import { Pin, Play } from 'lucide-react'
 import type { DragEvent, MouseEvent, ReactNode, Ref } from 'react'
 import type { DeckStore } from '../storage/deckStore'
 import { Chip } from '../ui'
@@ -13,7 +13,7 @@ import styles from './DeckCard.module.css'
  * A click anywhere opens the editor. `menu` is the ⋯ button shown on hover and keyboard focus.
  */
 export function DeckCard({
-  deck, store, menu, chips, onContextMenu, name, now, ref, draggable, onDragStart, sub, footer, trashed,
+  deck, store, menu, chips, onContextMenu, name, now, ref, draggable, onDragStart, sub, footer, trashed, onPresent,
 }: {
   ref?: Ref<HTMLLIElement>
   deck: HomeDeck
@@ -33,6 +33,8 @@ export function DeckCard({
   footer?: ReactNode
   /** A deck in the Trash: faded preview, and the card doesn't open the deck. */
   trashed?: boolean
+  /** Shows Present over the preview on hover and keyboard focus. */
+  onPresent?(): void
 }) {
   const preview = useDeckPreview(store, deck.id, deck.updatedAt)
   const pinned = deck.entry.pinnedAt !== null
@@ -61,6 +63,14 @@ export function DeckCard({
           </span>
         )}
       </div>
+      {onPresent && !trashed && (
+        <div className={styles.present}>
+          <button type="button" className={styles.presentBtn} aria-label={`Present ${deck.name}`} onClick={onPresent}>
+            <Play size={16} strokeWidth={1.75} aria-hidden />
+            Present
+          </button>
+        </div>
+      )}
       {menu && <div className={styles.more}>{menu}</div>}
     </li>
   )

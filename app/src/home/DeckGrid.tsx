@@ -45,6 +45,7 @@ export function DeckGrid({
             store={store}
             now={now}
             chips={chips?.(d)}
+            onPresent={() => actions.present(d)}
             draggable={renaming !== d.id}
             onDragStart={(e) => startDeckDrag(e, d.id)}
             onContextMenu={(e) => {

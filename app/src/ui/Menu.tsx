@@ -21,6 +21,8 @@ export type MenuItem =
       shortcut?: string
       /** A short note at the end of the row, such as a count. */
       hint?: string
+      /** A line under the label that says what the item does. */
+      description?: string
       danger?: boolean
       /** Shown greyed out; it can be reached with the keyboard but does nothing. */
       disabled?: boolean
@@ -51,12 +53,15 @@ export function Menu({
   align = 'start',
   open: openProp,
   onOpenChange,
+  width,
 }: {
   trigger: ReactElement<TriggerProps>
   items: MenuItem[]
   label: string
   /** Which edge of the trigger the menu prefers to line up with; it switches when that side would be cut off. */
   align?: 'start' | 'end'
+  /** Menu width in pixels, for menus whose items have descriptions. */
+  width?: number
   /** Set to open or close the menu from outside (for example on right-click). */
   open?: boolean
   onOpenChange?(open: boolean): void
@@ -268,7 +273,14 @@ export function Menu({
         onMouseMove={opts.onHover}
       >
         {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden className={styles.icon} />}
-        <span className={styles.label}>{item.label}</span>
+        {item.description ? (
+          <span className={styles.twoLine}>
+            <span className={styles.label}>{item.label}</span>
+            <span className={styles.description}>{item.description}</span>
+          </span>
+        ) : (
+          <span className={styles.label}>{item.label}</span>
+        )}
         {item.shortcut && <kbd className={styles.kbd}>{item.shortcut}</kbd>}
         {item.hint && <span className={styles.kbd}>{item.hint}</span>}
         {item.checked && <Check size={16} strokeWidth={1.75} aria-hidden className={styles.check} />}
@@ -288,7 +300,7 @@ export function Menu({
           role="menu"
           aria-label={label}
           className={`${styles.menu} ${above ? styles.above : styles.below} ${align === 'end' ? styles.end : ''}`}
-          style={shift ? { translate: `${shift}px 0` } : undefined}
+          style={shift || width ? { ...(shift ? { translate: `${shift}px 0` } : {}), ...(width ? { width: `${width}px` } : {}) } : undefined}
           onKeyDown={onMenuKeyDown}
         >
           {items.map((item, i) => {

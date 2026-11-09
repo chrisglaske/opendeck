@@ -6,6 +6,7 @@ import type { Deck } from '../model/types'
 import { createMemoryStore } from '../storage/deckStore'
 import type { DeckStore } from '../storage/deckStore'
 import { ToastHost } from '../ui'
+import { takeShowRequest } from '../present/startRequest'
 import HomePage from './HomePage'
 import { emptyEntry, sanitizeEntry, UNDO_MS } from './library'
 import type { LibraryEntry } from './library'
@@ -50,13 +51,33 @@ const rowsOf = (menu: HTMLElement) => [...menu.querySelectorAll('[role^="menuite
 const toastText = () => screen.queryAllByRole('status').map((s) => s.textContent).join(' | ')
 
 describe('deck menu', () => {
-  it('lists the actions in order, with Present greyed out', async () => {
+  it('lists the actions in order', async () => {
     await setup([{ name: 'Pitch' }])
     const menu = await openMenu('Pitch')
     const rows = rowsOf(menu)
     expect(rows).toEqual(['Open', 'Present', 'Pin to top', 'Rename', 'Duplicate', 'Move to folder', 'Tags…', 'Export .odeck', 'Move to Trash'])
     expect(within(menu).getAllByRole('separator')).toHaveLength(5)
-    expect(within(menu).getByRole('menuitem', { name: 'Present' })).toHaveAttribute('aria-disabled', 'true')
+    expect(within(menu).getByRole('menuitem', { name: 'Present' })).not.toHaveAttribute('aria-disabled')
+  })
+
+  it('Present opens the slides window from the click and hands the show to the editor', async () => {
+    const { ids } = await setup([{ name: 'Pitch' }])
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const menu = await openMenu('Pitch')
+    await userEvent.click(within(menu).getByRole('menuitem', { name: 'Present' }))
+    expect(open).toHaveBeenCalledTimes(1)
+    expect(window.location.hash).toBe(`#/deck/${ids.Pitch}`)
+    expect(takeShowRequest(ids.Pitch)).toBe('blocked')
+    open.mockRestore()
+  })
+
+  it('the card has a Present button', async () => {
+    const { ids } = await setup([{ name: 'Pitch' }])
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    await userEvent.click(within(card('Pitch')).getByRole('button', { name: 'Present Pitch' }))
+    expect(open).toHaveBeenCalledTimes(1)
+    expect(takeShowRequest(ids.Pitch)).toBe('blocked')
+    open.mockRestore()
   })
 
   it('says Unpin for a pinned deck', async () => {

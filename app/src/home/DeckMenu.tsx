@@ -25,7 +25,7 @@ export function DeckMenu({
   const e = deck.entry
   const items: MenuItem[] = [
     { id: 'open', label: 'Open', icon: SquareArrowOutUpRight, onSelect: () => { window.location.hash = deckHref(deck.id) } },
-    { id: 'present', label: 'Present', icon: Play, disabled: true, onSelect: () => {} },
+    { id: 'present', label: 'Present', icon: Play, onSelect: () => actions.present(deck) },
     'separator',
     e.pinnedAt === null
       ? { id: 'pin', label: 'Pin to top', icon: Pin, onSelect: () => actions.togglePin(deck) }

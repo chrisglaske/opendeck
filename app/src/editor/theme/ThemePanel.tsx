@@ -17,6 +17,7 @@ import { KitMenu } from './KitMenu'
 import { ThemeCard } from './ThemeCard'
 import { setPreviewTheme } from './themePreview'
 import styles from './ThemePanel.module.css'
+import { TransitionPicker } from './TransitionPicker'
 
 /** Applies a theme to the whole deck as one undo step, keeping any text being typed. */
 export function applyThemeWithToast(store: EditorStore, theme: Theme) {
@@ -173,6 +174,7 @@ export function ThemePanel({
             </button>
           </div>
         </section>
+        <TransitionPicker />
       </div>
     </aside>
   )

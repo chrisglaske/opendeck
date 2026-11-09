@@ -1,0 +1,72 @@
+.heading {
+  margin: 0 0 8px;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 4px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md, 8px);
+  background: var(--surface);
+  color: var(--muted);
+  font: 600 11.5px var(--font-ui);
+  cursor: pointer;
+}
+
+.option:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.option[aria-checked='true'] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Little pictures of each transition: the old slide (grey) and the new one (accent). */
+.icon {
+  position: relative;
+  width: 34px;
+  height: 20px;
+}
+
+.icon i {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: var(--line-strong);
+}
+
+.none i:last-child { display: none; }
+.fade i:first-child { opacity: 0.35; }
+.fade i:last-child { left: 30%; background: var(--accent); opacity: 0.8; }
+.slide i:first-child { right: 45%; }
+.slide i:last-child { left: 45%; background: var(--accent); }
+.zoom i:first-child { opacity: 0.4; }
+.zoom i:last-child { inset: 22%; background: var(--accent); }
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--faint);
+}

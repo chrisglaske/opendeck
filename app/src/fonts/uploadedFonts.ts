@@ -17,7 +17,7 @@ export type FontImportResult =
 
 // ── Registry of faces usable in this tab ─────────────────────────────────
 
-type Face = { id: string; family: string; weight: string; style: FontStyle; font: FontFace }
+type Face = { id: string; family: string; weight: string; style: FontStyle; data: ArrayBuffer; font: FontFace }
 const registry = new Map<string, Face>()
 const listeners = new Set<() => void>()
 let snapshot: { families: string[]; faces: Record<string, string[]> } = { families: [], faces: {} }
@@ -56,6 +56,14 @@ export function useUploadedFonts(): { families: string[]; faces: Record<string, 
 
 export const uploadedFamilies = (): ReadonlySet<string> => new Set(snapshot.families)
 
+/** An uploaded face's bytes, for drawing it somewhere else: the slides window or a downloaded file. */
+export type FontSource = { family: string; weight: string; style: FontStyle; data: ArrayBuffer }
+
+/** Every uploaded face registered in this tab. */
+export function uploadedFontSources(): FontSource[] {
+  return [...registry.values()].map(({ family, weight, style, data }) => ({ family, weight, style, data }))
+}
+
 /** Forgets every registered face. For tests. */
 export function resetUploadedFonts() {
   for (const f of registry.values()) document.fonts.delete(f.font)
@@ -89,7 +97,7 @@ export async function registerStoredFonts(fonts: readonly unknown[]): Promise<vo
       || !(f.data instanceof ArrayBuffer) || f.data.byteLength > FONT_MAX_BYTES
     ) continue
     const font = await load(f.family, f.data, f.weight, f.style)
-    if (font) addFace({ id: f.id, family: f.family, weight: f.weight, style: f.style }, font)
+    if (font) addFace({ id: f.id, family: f.family, weight: f.weight, style: f.style, data: f.data }, font)
   }
   publish()
 }

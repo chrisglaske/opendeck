@@ -1,4 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
+import { deckHref } from './routes'
+import { beginShow, requestShow } from '../present/startRequest'
 import { saveBlob } from '../editor/download'
 import { SAVE_ERROR_TEXT } from '../editor/SaveStatus'
 import { deckFileName, exportDeckFile } from '../storage/deckFile'
@@ -186,8 +188,17 @@ export function useDeckActions({
     await refresh()
   }
 
+  /**
+   * Presents a deck from Home: the slides window (or full screen) starts from this click,
+   * then the editor opens and runs the show from the first slide.
+   */
+  const present = (deck: HomeDeck) => {
+    requestShow(deck.id, beginShow({ fromStart: true, fromSlideId: null }))
+    window.location.hash = deckHref(deck.id)
+  }
+
   return {
-    restore, deleteDecks,
+    present, restore, deleteDecks,
     togglePin, rename, duplicate, exportDeck, move, moveById, moveToNewFolder, changeTags, moveToTrash,
     newFolder, renameFolder, deleteFolder, editingFolder, setEditingFolder,
   }
