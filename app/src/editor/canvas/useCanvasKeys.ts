@@ -3,6 +3,7 @@ import { moveElement } from '../../model/geometry'
 import { elementCommands } from '../commands'
 import { useEditorStore } from '../EditorContext'
 import { isMac, isTypingTarget } from '../shortcuts'
+import { getEditorMode } from '../mode/editorMode'
 import { enterTextEditing } from './textSession'
 import { slideOf, writeBack } from './useCanvasGestures'
 import { worldItem, worldItems } from './world'
@@ -20,7 +21,7 @@ function selectedText(store: ReturnType<typeof useEditorStore>) {
   const ids = st.selection.ids
   if (st.editingId || ids.length !== 1) return null
   const item = worldItem(slideOf(st), ids[0])
-  return item && item.el.type === 'text' && !item.locked ? item.id : null
+  return item && item.el.type === 'text' && (!item.locked || getEditorMode() === 'simple') ? item.id : null
 }
 
 const ownsKeys = (t: EventTarget | null) => isTypingTarget(t) || (t instanceof Element && t.closest(OWN_KEYS) !== null)

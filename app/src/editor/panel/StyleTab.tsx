@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react'
 import { findElement, updateElements } from '../../model/ops'
 import { radiusPx, resolveColor, themeVars } from '../../model/theme'
 import { detachLogo, logoAssetFor } from '../../model/themeOps'
-import type { ColorRef, FadeDir, IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, TextEl, TextStyleId, ThemeColorToken } from '../../model/types'
+import type { ColorRef, FadeDir, IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, TextEl, ThemeColorToken } from '../../model/types'
 import { Button, IconButton, NumberField, SegmentedControl, Toggle } from '../../ui'
 import { useTextSession } from '../canvas/textSession'
 import { useEditor, useEditorStore } from '../EditorContext'
@@ -11,14 +11,9 @@ import { customColors, themeColorName } from '../pickers/color'
 import { ColorButton } from '../pickers/ColorPicker'
 import { useOpenDeckTheme } from '../theme/themeEditorRequest'
 import { textCommands } from '../textCommands'
+import { TEXT_STYLES } from './textStyles'
 import styles from './Panel.module.css'
 
-const TEXT_STYLES: { id: TextStyleId; name: string }[] = [
-  { id: 'title', name: 'Title' },
-  { id: 'heading', name: 'Heading' },
-  { id: 'body', name: 'Body' },
-  { id: 'caption', name: 'Caption' },
-]
 
 /** The theme colors offered for text, most used first. */
 const TEXT_THEME_COLORS: ThemeColorToken[] = ['text', 'muted', 'accent', 'accent2', 'bg']

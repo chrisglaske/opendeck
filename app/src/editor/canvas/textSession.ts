@@ -3,6 +3,7 @@ import { findElement, deleteElements, updateElements } from '../../model/ops'
 import { allRange, plainText } from '../../model/richtext'
 import type { Marks, TextRange } from '../../model/richtext'
 import type { Paragraph, Slide, TextEl } from '../../model/types'
+import { getEditorMode } from '../mode/editorMode'
 import type { EditorStore } from '../store'
 
 /** Where the caret goes when a text box enters edit mode. */
@@ -79,7 +80,8 @@ export const textCoalesce = (id: string) => `text:${id}`
 export function enterTextEditing(store: EditorStore, id: string, how: TextEntry = { mode: 'end' }) {
   const slide = slideOf(store)
   const el = findElement(slide, id)?.el
-  if (el?.type !== 'text' || el.locked) return
+  // In Simple mode a locked box stays in place but can still be filled in.
+  if (el?.type !== 'text' || (el.locked && getEditorMode() !== 'simple')) return
   // The first click into sample text selects all of it, so typing replaces it in one go;
   // typing on a selected sample box replaces it too.
   entry = { id, entry: !el.sample ? how : how.mode === 'type' ? { ...how, replace: true } : how.mode === 'point' || how.mode === 'end' ? { mode: 'all' } : how }

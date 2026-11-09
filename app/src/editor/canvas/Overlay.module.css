@@ -232,3 +232,14 @@
   right: auto;
   left: 50%;
 }
+
+/* Simple mode: under a hovered locked item, where to unlock it. */
+.lockTip {
+  position: absolute;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: var(--bg);
+  font: 500 12px/1.3 var(--font-ui);
+  white-space: nowrap;
+}

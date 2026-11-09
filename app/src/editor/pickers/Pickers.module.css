@@ -627,3 +627,20 @@
   justify-content: space-between;
   margin-top: 10px;
 }
+
+/* Simple mode: says the current color is custom, with a small chip of it. */
+.customNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.noteChip {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}

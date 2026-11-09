@@ -6,7 +6,6 @@ import {
   AlignVerticalSpaceAround,
   Bold,
   ChevronDown,
-  CopyPlus,
   Crop,
   Ellipsis,
   Group,
@@ -29,7 +28,7 @@ import {
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { bounds, unionRect } from '../../model/geometry'
-import { align, distribute, updateElements } from '../../model/ops'
+import { align, distribute } from '../../model/ops'
 import type { IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, SlideElement, TextEl } from '../../model/types'
 import { LIMITS } from '../../model/sanitize'
 import { Button, IconButton, Menu, NumberField, Popover, SegmentedControl } from '../../ui'
@@ -50,6 +49,9 @@ import { pickImageFile, replaceImage } from '../media'
 import { startCrop, useCropId } from './cropSession'
 import { useLinkRequest, useTextSession } from './textSession'
 import { worldItems } from './world'
+import { DuplicateButton, keepFocus, Sep, useUpdate } from './barParts'
+import { simpleBarFor } from './SimpleBars'
+import { useEditorMode } from '../mode/editorMode'
 import s from './QuickBar.module.css'
 
 /** Gap between the bar and the selection, in screen px. */
@@ -81,6 +83,7 @@ export function QuickBar({ frame, scale, container, hidden, onMore }: Props) {
   const ids = useEditor((st) => st.selection.ids)
   const editingId = useEditor((st) => st.editingId)
   const cropping = useCropId() !== null
+  const { simple } = useEditorMode()
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
   const [tick, setTick] = useState(0)
@@ -91,7 +94,7 @@ export function QuickBar({ frame, scale, container, hidden, onMore }: Props) {
   // While text is edited, only that box's bar shows.
   const editingOther = editingId !== null && single?.id !== editingId
   // Crop mode has its own bar.
-  const content = slide && box && !editingOther && !cropping ? barFor(slide, ids, single, items.length) : null
+  const content = slide && box && !editingOther && !cropping ? (simple ? simpleBarFor : barFor)(slide, ids, single, items.length) : null
 
   // Follow the canvas when it scrolls or resizes.
   useLayoutEffect(() => {
@@ -132,21 +135,25 @@ export function QuickBar({ frame, scale, container, hidden, onMore }: Props) {
       style={{ left: `${pos?.left ?? 0}px`, top: `${pos?.top ?? 0}px`, visibility: pos ? undefined : 'hidden' }}
     >
       {content.body}
-      <IconButton
-        icon={Ellipsis}
-        label="More actions"
-        size="sm"
-        aria-haspopup="menu"
-        onClick={(e) => {
-          const r = e.currentTarget.getBoundingClientRect()
-          onMore(r.left, r.bottom + 4)
-        }}
-      />
+      {!simple && (
+        <IconButton
+          icon={Ellipsis}
+          label="More actions"
+          size="sm"
+          aria-haspopup="menu"
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect()
+            onMore(r.left, r.bottom + 4)
+          }}
+        />
+      )}
     </div>
   )
 }
 
-function barFor(slide: Slide, ids: string[], single: SlideElement | null, count: number): { label: string; body: ReactNode } | null {
+export type BarContent = { label: string; body: ReactNode }
+
+function barFor(slide: Slide, ids: string[], single: SlideElement | null, count: number): BarContent | null {
   if (count > 1) return { label: 'Selection options', body: <MultiBar slide={slide} ids={ids} count={count} /> }
   if (!single) return null
   if (single.type === 'text') return { label: 'Text options', body: <TextBar slideId={slide.id} el={single} /> }
@@ -157,21 +164,6 @@ function barFor(slide: Slide, ids: string[], single: SlideElement | null, count:
   if (single.type === 'icon') return { label: 'Icon options', body: <IconBar slideId={slide.id} el={single} /> }
   if (single.type === 'logo') return { label: 'Logo options', body: <LogoBar slide={slide} el={single} /> }
   return null
-}
-
-function Sep() {
-  return <span className={s.sep} aria-hidden />
-}
-
-function useUpdate<T extends SlideElement>(slideId: string, el: T) {
-  const store = useEditorStore()
-  return (field: string, fn: (e: T) => T) =>
-    store.apply((d) => updateElements(d, slideId, [el.id], (e) => fn(e as T)), { coalesce: `${field}:${el.id}` })
-}
-
-function DuplicateButton() {
-  const store = useEditorStore()
-  return <IconButton icon={CopyPlus} label="Duplicate" size="sm" onClick={() => elementCommands(store).duplicate()} />
 }
 
 function ShapeBar({ slideId, el }: { slideId: string; el: ShapeEl }) {
@@ -271,9 +263,6 @@ function LineBar({ slideId, el }: { slideId: string; el: LineEl }) {
 
 const ALIGN_ICONS = { left: AlignLeft, center: AlignCenter, right: AlignRight }
 const ALIGN_NAMES = { left: 'left', center: 'center', right: 'right' }
-
-/** Keeps focus (and the text selection) in the text box when a bar button is pressed. */
-const keepFocus = { onMouseDown: (e: { preventDefault(): void }) => e.preventDefault() }
 
 function TextBar({ slideId, el }: { slideId: string; el: TextEl }) {
   const store = useEditorStore()

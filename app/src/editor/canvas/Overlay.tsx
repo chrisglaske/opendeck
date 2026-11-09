@@ -5,6 +5,7 @@ import { bounds, unionRect } from '../../model/geometry'
 import type { Handle } from '../../model/geometry'
 import type { LineEl, SlideElement } from '../../model/types'
 import { useEditor } from '../EditorContext'
+import { useEditorMode } from '../mode/editorMode'
 import { useCropId } from './cropSession'
 import type { Visuals } from './useCanvasGestures'
 import { worldItem, worldItems } from './world'
@@ -40,6 +41,8 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
   const editing = items.length === 1 && items[0].id === editingId
   const single = items.length === 1 ? items[0] : null
   const showHandles = !locked && !editing
+  // Simple mode has no rotating and no position numbers.
+  const { simple } = useEditorMode()
 
   return (
     <div className={s.overlay} aria-hidden="true">
@@ -48,6 +51,15 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
           {hover.locked && <LockBadge />}
         </Outline>
       )}
+      {/* Drawn outside the faded hover outline so it stays fully readable. */}
+      {hover && hover.locked && simple && (() => {
+        const b = bounds(hover.el)
+        return (
+          <span className={s.lockTip} style={{ left: px(b.x), top: `${(b.y + b.h) * scale + 6}px` }}>
+            Locked. Unlock it in Advanced.
+          </span>
+        )
+      })()}
 
       {items.length > 1 && items.map((i) => <Outline key={i.id} el={i.el} scale={scale} className={s.member} kind="member" />)}
 
@@ -79,7 +91,7 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
         >
           {showHandles &&
             HANDLES.map((h) => <div key={h} className={s.handle} data-handle={h} onPointerDown={(e) => onResize(e, h)} />)}
-          {showHandles && <div className={s.rotate} data-handle="rotate" onPointerDown={onRotate} />}
+          {showHandles && !simple && <div className={s.rotate} data-handle="rotate" onPointerDown={onRotate} />}
           {locked && <LockBadge />}
         </SelectionBox>
       )}
@@ -117,7 +129,7 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
           style={{ left: px(visuals.marquee.x), top: px(visuals.marquee.y), width: px(visuals.marquee.w), height: px(visuals.marquee.h) }}
         />
       )}
-      {visuals.readout && (
+      {visuals.readout && !simple && (
         <div className={s.readout} data-readout="" style={{ left: px(visuals.readout.x), top: px(visuals.readout.y) }}>
           {visuals.readout.text}
         </div>

@@ -3,6 +3,7 @@ import type { ReorderDir } from '../model/ops'
 import type { Slide } from '../model/types'
 import type { EditorStore } from './store'
 import { worldItems } from './canvas/world'
+import { getEditorMode } from './mode/editorMode'
 
 function current(store: EditorStore) {
   const st = store.getState()
@@ -22,11 +23,21 @@ export function selectionInfo(slide: Slide, ids: string[]) {
   }
 }
 
+/**
+ * The selection that may be duplicated, deleted or reordered. In Simple mode a
+ * locked item stays where it is, so it is left out.
+ */
+function movable(store: EditorStore) {
+  const c = current(store)
+  if (getEditorMode() !== 'simple') return c
+  return { ...c, ids: worldItems(c.slide, c.ids).filter((i) => !i.locked).map((i) => i.id) }
+}
+
 /** Element commands on the current selection. Each is one undo step and keeps a sensible selection. */
 export function elementCommands(store: EditorStore) {
   return {
     duplicate() {
-      const { slideId, ids } = current(store)
+      const { slideId, ids } = movable(store)
       if (!ids.length) return
       const r = duplicateElements(store.getState().deck, slideId, ids)
       store.apply(() => r.deck, { selection: { slideId, ids: r.ids } })
@@ -52,7 +63,7 @@ export function elementCommands(store: EditorStore) {
       store.apply(() => deck, { selection: { slideId, ids: [...rest, ...freed] } })
     },
     reorder(dir: ReorderDir) {
-      const { slideId, ids } = current(store)
+      const { slideId, ids } = movable(store)
       if (ids.length) store.apply((d) => reorder(d, slideId, ids, dir))
     },
     /** Locks the selection, or unlocks it when everything in it is already locked. */
@@ -63,7 +74,7 @@ export function elementCommands(store: EditorStore) {
       store.apply((d) => updateElements(d, slideId, ids, (e) => (e.locked === lock ? e : { ...e, locked: lock })))
     },
     remove() {
-      const { slideId, ids } = current(store)
+      const { slideId, ids } = movable(store)
       if (ids.length) store.apply((d) => deleteElements(d, slideId, ids), { selection: { slideId, ids: [] } })
     },
   }

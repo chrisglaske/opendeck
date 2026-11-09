@@ -39,10 +39,14 @@ export type ColorPickerProps = {
   noneLabel?: string
   /** Opens with the mixer showing. */
   startMixing?: boolean
+  /** Simple mode: theme colors only, no custom colors or mixer. */
+  themeOnly?: boolean
+  /** With `themeOnly`, shown under the swatches when the current color is custom. */
+  customNote?: string
 }
 
 /** Theme colors first (they follow the theme), then this deck's custom colors and a mixer. */
-export function ColorPicker({ value, onChange, allowNone = false, noneLabel = 'None', startMixing = false }: ColorPickerProps) {
+export function ColorPicker({ value, onChange, allowNone = false, noneLabel = 'None', startMixing = false, themeOnly = false, customNote }: ColorPickerProps) {
   const deck = useEditor((st) => st.deck)
   const theme = deck.theme
   const customs = customColors(deck)
@@ -59,7 +63,7 @@ export function ColorPicker({ value, onChange, allowNone = false, noneLabel = 'N
   return (
     <div className={s.picker} style={themeVars(theme)}>
       <div className={s.ph}>
-        Theme colors <em>Follow the theme</em>
+        Theme colors {!themeOnly && <em>Follow the theme</em>}
       </div>
       <div className={s.swatches}>
         {allowNone && (
@@ -91,41 +95,50 @@ export function ColorPicker({ value, onChange, allowNone = false, noneLabel = 'N
           )
         })}
       </div>
+      {themeOnly && current && customNote && (
+        <p className={s.customNote}>
+          {customNote}
+          <span className={s.noteChip} style={{ backgroundColor: current }} aria-hidden />
+        </p>
+      )}
+      {!themeOnly && (
+        <>
+          <div className={`${s.ph} ${s.gap}`}>
+            Custom <em>This deck</em>
+          </div>
+          <div className={s.swatches}>
+            {shown.map((hex) => (
+              <button
+                key={hex}
+                type="button"
+                className={s.sw}
+                aria-label={hex}
+                title={hex}
+                aria-pressed={current === hex}
+                data-autofocus={current === hex ? '' : undefined}
+                style={{ backgroundColor: hex }}
+                onClick={() => {
+                  setHsv(hexToHsv(hex))
+                  onChange({ hex })
+                }}
+              />
+            ))}
+            <button
+              type="button"
+              className={`${s.sw} ${s.add}`}
+              aria-label="Mix a custom color"
+              title="Mix a custom color"
+              aria-expanded={mixing}
+              onClick={() => setMixing(true)}
+            >
+              <Plus size={12} strokeWidth={2} aria-hidden />
+            </button>
+          </div>
+          {shown.length === 0 && !mixing && <p className={s.hint}>No custom colors yet. Press + to mix one.</p>}
 
-      <div className={`${s.ph} ${s.gap}`}>
-        Custom <em>This deck</em>
-      </div>
-      <div className={s.swatches}>
-        {shown.map((hex) => (
-          <button
-            key={hex}
-            type="button"
-            className={s.sw}
-            aria-label={hex}
-            title={hex}
-            aria-pressed={current === hex}
-            data-autofocus={current === hex ? '' : undefined}
-            style={{ backgroundColor: hex }}
-            onClick={() => {
-              setHsv(hexToHsv(hex))
-              onChange({ hex })
-            }}
-          />
-        ))}
-        <button
-          type="button"
-          className={`${s.sw} ${s.add}`}
-          aria-label="Mix a custom color"
-          title="Mix a custom color"
-          aria-expanded={mixing}
-          onClick={() => setMixing(true)}
-        >
-          <Plus size={12} strokeWidth={2} aria-hidden />
-        </button>
-      </div>
-      {shown.length === 0 && !mixing && <p className={s.hint}>No custom colors yet. Press + to mix one.</p>}
-
-      {mixing && <Mixer hsv={hsv} onPick={pickHsv} />}
+          {mixing && <Mixer hsv={hsv} onPick={pickHsv} />}
+        </>
+      )}
     </div>
   )
 }
@@ -305,6 +318,8 @@ export function ColorButton({
   noneLabel,
   variant = 'dot',
   onClosed,
+  themeOnly,
+  customNote,
 }: Omit<ColorPickerProps, 'startMixing'> & {
   /** What the color is for, e.g. "Text color"; the current color is added to the name. */
   label: string
@@ -350,7 +365,15 @@ export function ColorButton({
       </button>
       {open && (
         <Popover anchor={anchor} label={label} onClose={close} className={s.popover}>
-          <ColorPicker value={value} onChange={onChange} allowNone={allowNone} noneLabel={noneLabel} startMixing={variant === 'add'} />
+          <ColorPicker
+            value={value}
+            onChange={onChange}
+            allowNone={allowNone}
+            noneLabel={noneLabel}
+            startMixing={variant === 'add'}
+            themeOnly={themeOnly}
+            customNote={customNote}
+          />
         </Popover>
       )}
     </>

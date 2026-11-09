@@ -72,3 +72,11 @@
   font-size: var(--fs-overline);
   font-weight: 600;
 }
+
+/* Simple mode's text style menu button: the style name and a chevron. */
+.styleButton {
+  height: 28px;
+  gap: 4px;
+  padding: 0 8px;
+  font-weight: 500;
+}
