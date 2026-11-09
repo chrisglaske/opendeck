@@ -1,3 +1,4 @@
+import { settleAside } from '../model/aside'
 import type { Deck, Selection } from '../model/types'
 
 export type EditorState = { deck: Deck; selection: Selection; editingId: string | null; canUndo: boolean; canRedo: boolean }
@@ -72,7 +73,7 @@ export function createEditorStore(initial: Deck, opts: { historyLimit?: number }
       // A change that arrives mid-drag (a finished image import, a key) ends the drag first;
       // otherwise the drag's next preview, built from its start, would drop the change.
       if (gesture) this.cancel()
-      const next = fn(state.deck)
+      const next = settleAside(fn(state.deck))
       if (next === state.deck) return
       const now = Date.now()
       const sameKey = o.coalesce !== undefined && lastCoalesce?.key === o.coalesce
@@ -94,6 +95,8 @@ export function createEditorStore(initial: Deck, opts: { historyLimit?: number }
       gesture = null
       if (!start) return
       lastCoalesce = null
+      const settled = settleAside(state.deck)
+      if (settled !== state.deck) state = { ...state, deck: settled }
       if (state.deck === start.deck) {
         if (o.selection) set({ selection: o.selection }, false)
         return

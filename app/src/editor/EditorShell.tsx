@@ -3,7 +3,7 @@ import type { Autosaver } from '../storage/autosave'
 import { useEditorStore } from './EditorContext'
 import { Panel } from './panel/Panel'
 import { Rail } from './Rail'
-import { fitScale, Stage, stageWidth } from './Stage'
+import { fitScale, Stage, stageSize } from './Stage'
 import type { BrandKit } from '../model/brandKit'
 import type { Theme } from '../model/theme'
 import { BrandKitDialog } from './theme/BrandKitDialog'
@@ -90,7 +90,8 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
     const el = document.querySelector<HTMLElement>('[data-stage-scroller]')
     const st = store.getState()
     const slide = st.deck.slides.find((x) => x.id === st.selection.slideId)
-    return el ? fitScale(el.clientWidth, el.clientHeight, stageWidth(slide)) : 1
+    const area = stageSize(slide)
+    return el ? fitScale(el.clientWidth, el.clientHeight, area.w, area.h) : 1
   }
 
   // While text is being edited, the text editor handles its own undo.

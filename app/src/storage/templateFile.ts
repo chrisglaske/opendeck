@@ -65,11 +65,17 @@ export async function importTemplateFile(
   const entries = isObj(raw) && Array.isArray(raw.assets) ? raw.assets.slice(0, MAX_TEMPLATE_ASSETS) : []
   // Each picture is imported once, however many times the template uses it.
   const imported = new Map<string, Promise<string | null>>()
+  let picturesNotSaved: SaveErrorReason | undefined
   const bring = (oldId: string) => {
     let p = imported.get(oldId)
     if (!p) {
       const entry = entries.find((a) => isObj(a) && a.id === oldId)
-      p = entry ? importImageEntry(store, entry) : Promise.resolve(null)
+      p = entry
+        ? importImageEntry(store, entry).then((r) => {
+            picturesNotSaved ??= r?.notSaved
+            return r?.id ?? null
+          })
+        : Promise.resolve(null)
       imported.set(oldId, p)
     }
     return p
@@ -96,6 +102,8 @@ export async function importTemplateFile(
   }
 
   const now = Date.now()
-  const { template, notSaved } = await saveTemplate(store, { ...t, id: newId(), group: 'mine', order: 0, createdAt: now, updatedAt: now })
-  return notSaved ? { ok: true, template, notSaved } : { ok: true, template }
+  const saved = await saveTemplate(store, { ...t, id: newId(), group: 'mine', order: 0, createdAt: now, updatedAt: now })
+  // A template whose pictures couldn't be stored would come back without them after a reload.
+  const notSaved = saved.notSaved ?? picturesNotSaved
+  return notSaved ? { ok: true, template: saved.template, notSaved } : { ok: true, template: saved.template }
 }

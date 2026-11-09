@@ -2,6 +2,7 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createDeck } from '../../model/factory'
+import { updateElements } from '../../model/ops'
 import { plainText } from '../../model/richtext'
 import type { Deck, Slide, TextEl } from '../../model/types'
 import { createAutosaver } from '../../storage/autosave'
@@ -106,7 +107,31 @@ describe('Change layout', () => {
     const t = screen.getByText('Switched to Section').parentElement!
     await userEvent.click(within(t).getByRole('button', { name: 'Undo' }))
     expect(store.getState().deck.name).toBe('Renamed')
-    expect(store.getState().deck.slides[0]).toEqual(typed)
+    const back = store.getState().deck.slides[0]
+    expect(back.layout).toBe('builtin:kpis')
+    expect(plainText((back.elements.find((e) => e.role === 'title') as TextEl).paragraphs)).toBe('Mine')
+  })
+
+  it('the toast Undo keeps what was typed after the switch', async () => {
+    const typed = kpiSlide({ title: 'Mine' })
+    const { store } = setup((d) => {
+      d.slides = [typed]
+    })
+    await openChange(/KPI grid/)
+    await userEvent.click(within(panel()).getByRole('button', { name: 'Section' }))
+    const slideId = store.getState().deck.slides[0].id
+    const title = store.getState().deck.slides[0].elements.find((e) => e.role === 'title')!
+    act(() =>
+      store.apply((d) =>
+        updateElements(d, slideId, [title.id], (e) => ({ ...(e as TextEl), sample: undefined, paragraphs: [{ runs: [{ text: 'Typed later' }], align: 'left', list: 'none' }] })),
+      ),
+    )
+    const t = screen.getByText('Switched to Section').parentElement!
+    await userEvent.click(within(t).getByRole('button', { name: 'Undo' }))
+    const back = store.getState().deck.slides[0]
+    expect(back.layout).toBe('builtin:kpis')
+    const backTitle = back.elements.find((e) => e.role === 'title') as TextEl
+    expect(backTitle.paragraphs[0].runs[0].text).toBe('Typed later')
   })
 
   it('commits text being edited before switching', () => {

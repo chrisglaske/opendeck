@@ -2,11 +2,9 @@ import { useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import { bounds, moveElement, resizeBox, rotateAround, scaleInto, unionRect, MIN_SIZE } from '../../model/geometry'
 import type { Handle, RotatedRect } from '../../model/geometry'
-import { centerOnSlide } from '../../model/aside'
 import { findElement, updateElements } from '../../model/ops'
 import { snapMove, snapResize } from '../../model/snap'
 import type { GapMark, Guide } from '../../model/snap'
-import { SLIDE_H, SLIDE_W } from '../../model/types'
 import type { LineEl, Point, Rect, Slide, SlideElement } from '../../model/types'
 import { useEditorStore } from '../EditorContext'
 import { isMac } from '../shortcuts'
@@ -153,12 +151,7 @@ export function useCanvasGestures(frame: HTMLElement | null, scale: number, toSl
       },
       end() {
         if (began) {
-          // A parked element dropped onto the slide becomes an ordinary element, in the same step.
-          const landed = [...moved.values()].filter((el) => el.aside && centerOnSlide(el, SLIDE_W, SLIDE_H))
-          if (landed.length) {
-            for (const el of landed) moved.set(el.id, (({ aside: _a, ...rest }) => rest as SlideElement)(el))
-            store.preview(writeBack(slide.id, moved))
-          }
+          // A parked element dropped onto the slide becomes an ordinary element as the move commits.
           store.commit()
         } else if (clickTarget && ids.length > 1) store.select({ slideId: slide.id, ids: [clickTarget] })
         finish()

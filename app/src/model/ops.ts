@@ -200,7 +200,9 @@ export function duplicateElements(d: Deck, slideId: string, ids: string[], offse
     if (!list.some((e) => ids.includes(e.id))) return list
     return list.flatMap((e) => {
       if (!ids.includes(e.id)) return [e]
-      const copy = moveElement(asOwnElement(cloneEl(e)), offset, offset)
+      const own = moveElement(asOwnElement(cloneEl(e)), offset, offset)
+      // A copy of a parked item stays parked beside the slide, where it is visible.
+      const copy = e.aside ? { ...own, aside: true as const } : own
       newIds.push(copy.id)
       return [e, copy]
     })

@@ -5,7 +5,7 @@ import type { ImageEl, TextEl } from '../model/types'
 import { templateFromSlide } from '../templates/fromSlide'
 import { TEMPLATE_FORMAT, TEMPLATE_VERSION } from '../templates/templateData'
 import type { Template } from '../templates/types'
-import { createMemoryStore } from './deckStore'
+import { createMemoryStore, keepUnsaved } from './deckStore'
 import { exportTemplateFile, importTemplateFile, TEMPLATE_MAX_BYTES } from './templateFile'
 import { myTemplate, resetMyTemplates, saveTemplate } from './templates'
 
@@ -137,5 +137,15 @@ describe('template files', () => {
     store.putTemplate = () => Promise.reject(new DOMException('full', 'QuotaExceededError'))
     const r = await importTemplateFile(store, new File([blob], 'x.odtemplate'))
     expect(r.ok && r.notSaved).toBe('quota')
+  })
+
+  it('says so when a picture could not be saved, even if the template was', async () => {
+    const blob = await exportTemplateFile(await sourceStore(), storyTemplate())
+    const base = createMemoryStore()
+    const store = keepUnsaved({ ...base, putAsset: () => Promise.reject(new DOMException('full', 'QuotaExceededError')) })
+    const r = await importTemplateFile(store, new File([blob], 'x.odtemplate'))
+    if (!r.ok) throw new Error(r.reason)
+    expect(images(r.template)[0].assetId).not.toBe('')
+    expect(r.notSaved).toBe('quota')
   })
 })

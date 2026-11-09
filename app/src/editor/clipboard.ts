@@ -1,3 +1,4 @@
+import { bringOnSlide } from '../model/aside'
 import { useEffect } from 'react'
 import { createText } from '../model/factory'
 import { moveElement } from '../model/geometry'
@@ -115,7 +116,7 @@ export function pasteInto(store: EditorStore, data: DataTransfer): boolean {
   let els: SlideElement[]
   if (fromClip) {
     const { dx, dy } = pastePlacement(fromClip, slide.elements)
-    els = fromClip.map((e) => moveElement(e, dx, dy))
+    els = bringOnSlide(fromClip.map((e) => moveElement(e, dx, dy)))
   } else {
     const text = data.getData('text/plain')
     // Image files are handled before this (see useClipboard); anything else without text is ignored.

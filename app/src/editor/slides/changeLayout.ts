@@ -1,4 +1,6 @@
 import { knownImageSize } from '../../storage/assets'
+import { myTemplate } from '../../storage/templates'
+import { templateByRef } from '../../templates/builtins'
 import { switchLayout } from '../../templates/switchLayout'
 import type { Template } from '../../templates/types'
 import type { Deck, Slide } from '../../model/types'
@@ -24,11 +26,14 @@ export function changeLayout(store: EditorStore, t: Template) {
   const { slide, kept } = slideInLayout(before, t)
   store.apply((d) => replaceSlide(d, slide), { selection: { slideId: slide.id, ids: [] } })
   const after = store.getState().deck
-  // The toast's Undo takes back this switch only: when something else was done since,
-  // the slide as it was comes back as a new step and that later work stays.
+  // The toast's Undo takes back this switch only. When something was done since, the slide is
+  // switched back to its old layout as a new step, so anything typed meanwhile moves along with it.
+  const previous = templateByRef(before.layout, myTemplate)
   const undo = () => {
     if (store.getState().deck === after) return store.undo()
-    if (store.getState().deck.slides.some((s) => s.id === before.id)) store.apply((d) => replaceSlide(d, before))
+    const now = store.getState().deck.slides.find((s) => s.id === before.id)
+    if (!now) return
+    store.apply((d) => replaceSlide(d, previous ? slideInLayout(now, previous).slide : before))
   }
   const note = kept === 0 ? '' : kept === 1 ? ' · 1 item kept beside the slide' : ` · ${kept} items kept beside the slide`
   toast(`Switched to ${t.name}${note}`, { actionLabel: 'Undo', onAction: undo })

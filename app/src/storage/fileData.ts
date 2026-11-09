@@ -1,6 +1,8 @@
 /** Helpers shared by the files OpenDeck exports and imports (brand kits, templates). */
 import { newId } from '../model/ids'
 import { compressImage } from './assets'
+import { errorReason } from './autosave'
+import type { SaveErrorReason } from './autosave'
 import type { DeckStore } from './deckStore'
 
 /** Base64, in chunks so large files never hit argument-count limits. */
@@ -47,8 +49,9 @@ export async function exportImageEntry(store: DeckStore, id: string): Promise<Fi
 /**
  * Checks, compresses and stores one picture from a file under a new id, so nothing stored is
  * replaced. Null when it isn't a usable image (checked by its bytes, whatever it claims to be).
+ * `notSaved` says why a picture that works in this tab couldn't be written to storage.
  */
-export async function importImageEntry(store: DeckStore, raw: unknown): Promise<string | null> {
+export async function importImageEntry(store: DeckStore, raw: unknown): Promise<{ id: string; notSaved?: SaveErrorReason } | null> {
   if (!isObj(raw) || typeof raw.data !== 'string') return null
   const bytes = fromBase64(raw.data)
   const type = bytes && sniffImageType(bytes)
@@ -56,8 +59,12 @@ export async function importImageEntry(store: DeckStore, raw: unknown): Promise<
   try {
     const img = await compressImage(new Blob([bytes as BlobPart], { type }))
     const id = newId()
-    await store.putAsset({ id, blob: img.blob, type: img.type, width: img.width, height: img.height }).catch(() => {})
-    return (await store.getAsset(id)) ? id : null
+    let notSaved: SaveErrorReason | undefined
+    await store.putAsset({ id, blob: img.blob, type: img.type, width: img.width, height: img.height }).catch((e) => {
+      notSaved = errorReason(e)
+    })
+    if (!(await store.getAsset(id))) return null
+    return notSaved ? { id, notSaved } : { id }
   } catch {
     return null
   }

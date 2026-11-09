@@ -58,7 +58,7 @@ export async function importKitFile(
   for (const slot of ['main', 'dark'] as const) {
     const oldId = theme.logo[slot]
     const entry = oldId ? files.find((a) => isObj(a) && a.id === oldId) : undefined
-    const id = entry ? await importImageEntry(store, entry) : null
+    const id = entry ? (await importImageEntry(store, entry))?.id : undefined
     if (id) logo[slot] = id
   }
   theme.logo = logo

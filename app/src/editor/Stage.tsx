@@ -1,7 +1,7 @@
 import { Eye, PanelRightOpen } from 'lucide-react'
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { DragEvent, MouseEvent, ReactNode, RefObject } from 'react'
-import { ASIDE_W, ASIDE_X } from '../model/aside'
+import { ASIDE_GAP, ASIDE_W, ASIDE_X } from '../model/aside'
 import { SLIDE_H, SLIDE_W } from '../model/types'
 import type { Point, Slide, TextEl } from '../model/types'
 import { SlideView } from '../render/SlideView'
@@ -58,15 +58,21 @@ export const useStageScale = () => useStage().scale
  * The scale at which the whole slide fits a viewport of the given size. `width` is the
  * area to fit in slide units: wider than the slide when elements are parked beside it.
  */
-export function fitScale(w: number, h: number, width = SLIDE_W): number {
+export function fitScale(w: number, h: number, width = SLIDE_W, height = SLIDE_H): number {
   const sw = (w - STAGE_PADDING.left - STAGE_PADDING.right) / width
-  const sh = (h - STAGE_PADDING.top - STAGE_PADDING.bottom) / SLIDE_H
+  const sh = (h - STAGE_PADDING.top - STAGE_PADDING.bottom) / height
   return Math.max(MIN_SCALE, Math.min(sw, sh))
 }
 
-/** The area the canvas shows, in slide units: wider when elements are parked beside the slide, so they're visible at Fit. */
-export function stageWidth(slide: Slide | undefined): number {
-  return slide?.elements.some((e) => e.aside) ? ASIDE_X + ASIDE_W : SLIDE_W
+/**
+ * The area the canvas shows, in slide units: wider (and taller, when they reach below the slide)
+ * when elements are parked beside it, so they're all visible at Fit.
+ */
+export function stageSize(slide: Slide | undefined): { w: number; h: number } {
+  const parked = slide?.elements.filter((e) => e.aside) ?? []
+  if (parked.length === 0) return { w: SLIDE_W, h: SLIDE_H }
+  const low = Math.max(...parked.map((e) => { const b = bounds(e); return b.y + b.h }))
+  return { w: ASIDE_X + ASIDE_W, h: Math.max(SLIDE_H, Math.ceil(low + ASIDE_GAP)) }
 }
 
 function useElementSize(ref: RefObject<HTMLElement | null>) {
@@ -108,8 +114,9 @@ export function Stage({
   // While a layout card is hovered in Change layout, the canvas shows the slide in that layout.
   const layoutPreview = useLayoutPreview()
   const shownLayout = layoutPreview && slide && layoutPreview.slideId === slide.id ? layoutPreview : null
-  const width = stageWidth(shownLayout?.slide ?? slide)
-  const fit = fitScale(size.w, size.h, width)
+  const area = stageSize(shownLayout?.slide ?? slide)
+  const width = area.w
+  const fit = fitScale(size.w, size.h, area.w, area.h)
   const scale = zoom === 'fit' ? fit : zoom / 100
 
   const toSlidePoint = useCallback(
@@ -204,7 +211,7 @@ export function Stage({
       <main ref={setStageEl} className={styles.stage} aria-label="Slide canvas">
         <div ref={scrollerRef} className={styles.scroller} data-stage-scroller="">
           <div className={styles.content} {...canvas.canvasHandlers} onContextMenu={onContextMenu} onDragOver={onDragOver} onDrop={onDrop}>
-            <div className={styles.area} style={{ width: `${width * scale}px`, height: `${SLIDE_H * scale}px` }}>
+            <div className={styles.area} style={{ width: `${width * scale}px`, height: `${area.h * scale}px` }}>
             <div
               ref={setFrame}
               data-slide-frame=""
