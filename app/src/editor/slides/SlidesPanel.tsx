@@ -1,17 +1,23 @@
-import { BookmarkPlus, LayoutTemplate, Replace, Search, X } from 'lucide-react'
+import { BookmarkPlus, LayoutTemplate, Replace, Search, Upload, X } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
+import { getDeckStore } from '../../storage/appStore'
+import { importTemplateFile } from '../../storage/templateFile'
+import type { TemplateImportError } from '../../storage/templateFile'
+import { useMyTemplates } from '../../storage/templates'
 import { BUILTIN_TEMPLATES } from '../../templates/builtins'
 import { addSlideFromTemplate } from '../../templates/instantiate'
 import { matchesQuery } from '../../templates/search'
 import { GROUPS, groupLabel, layoutRef } from '../../templates/types'
 import type { Template, TemplateGroup } from '../../templates/types'
-import { IconButton, TextField } from '../../ui'
+import { IconButton, TextField, toast } from '../../ui'
 import { exitTextEditing } from '../canvas/textSession'
 import { useEditor, useEditorStore } from '../EditorContext'
+import { SAVE_ERROR_TEXT } from '../SaveStatus'
 import { changeLayout, slideInLayout } from './changeLayout'
 import { setLayoutPreview } from './layoutPreview'
 import { BlankCard, TemplateCard } from './TemplateCard'
+import { TemplateMenu } from './TemplateMenu'
 import styles from './SlidesPanel.module.css'
 
 type ChipId = 'all' | 'mine' | TemplateGroup
@@ -19,7 +25,32 @@ type Item = { key: string; template: Template | null }
 type Section = { id: 'blank' | 'mine' | TemplateGroup; heading?: string; items: Item[] }
 
 const BLANK: Item = { key: 'blank', template: null }
-const EMPTY: readonly Template[] = []
+const IMPORT_ERRORS: Record<TemplateImportError, string> = {
+  'not-a-template': "That file isn't a template OpenDeck can use",
+  'newer-version': 'That template was made by a newer version of OpenDeck',
+  'too-large': 'That file is over 30 MB',
+}
+
+/** Imports template files one after another, then sums up in one toast. */
+async function importTemplates(files: File[]) {
+  const store = await getDeckStore()
+  const added: string[] = []
+  const failed: TemplateImportError[] = []
+  let notSaved: keyof typeof SAVE_ERROR_TEXT | undefined
+  for (const f of files) {
+    const r = await importTemplateFile(store, f)
+    if (!r.ok) failed.push(r.reason)
+    else {
+      added.push(r.template.name)
+      notSaved ??= r.notSaved
+    }
+  }
+  if (added.length === 0) return toast(IMPORT_ERRORS[failed[0]])
+  if (notSaved) return toast(`Template kept for this tab, but not saved. ${SAVE_ERROR_TEXT[notSaved]}`, { durationMs: 8000 })
+  const what = added.length === 1 ? `Added template ${added[0]}` : `Added ${added.length} templates`
+  const skipped = failed.length === 0 ? '' : ` · ${failed.length} ${failed.length === 1 ? 'file' : 'files'} couldn't be used`
+  toast(what + skipped)
+}
 
 const chunk = <T,>(xs: T[], n: number): T[][] => Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n))
 
@@ -28,15 +59,8 @@ const chunk = <T,>(xs: T[], n: number): T[][] => Array.from({ length: Math.ceil(
  * panel stays open; in change mode (layout switching) the current layout is marked.
  * The cards form one keyboard grid across all sections, two to a row.
  */
-export function SlidesPanel({
-  mode,
-  onClose,
-  mine = EMPTY,
-}: {
-  mode: 'add' | 'change'
-  onClose(): void
-  mine?: readonly Template[]
-}) {
+export function SlidesPanel({ mode, onClose }: { mode: 'add' | 'change'; onClose(): void }) {
+  const mine = useMyTemplates()
   const store = useEditorStore()
   const theme = useEditor((s) => s.deck.theme)
   const slide = useEditor((s) => s.deck.slides.find((x) => x.id === s.selection.slideId))
@@ -48,6 +72,7 @@ export function SlidesPanel({
   const bodyRef = useRef<HTMLDivElement>(null)
   const sectionRefs = useRef(new Map<string, HTMLElement>())
   const cardRefs = useRef(new Map<string, HTMLButtonElement>())
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const sections = useMemo<Section[]>(() => {
     const hit = (t: Template) => matchesQuery({ name: t.name, keywords: t.keywords, groupLabel: groupLabel(t.group) }, query)
@@ -158,7 +183,15 @@ export function SlidesPanel({
       onPreview: (on: boolean) => preview(on ? it.template : null),
     }
     return it.template ? (
-      <TemplateCard key={it.key} {...common} template={it.template} theme={theme} mode={mode} current={mode === 'change' && currentLayout === it.key} />
+      <TemplateCard
+        key={it.key}
+        {...common}
+        template={it.template}
+        theme={theme}
+        mode={mode}
+        current={mode === 'change' && currentLayout === it.key}
+        more={it.template.group === 'mine' ? <TemplateMenu template={it.template} /> : undefined}
+      />
     ) : (
       <BlankCard key={it.key} {...common} />
     )
@@ -205,7 +238,17 @@ export function SlidesPanel({
               }}
               className={styles.section}
             >
-              {s.heading && (
+              {s.heading && s.id === 'mine' ? (
+                <div className={styles.headRow}>
+                  <h3 id={headingId} className={styles.heading}>
+                    {s.heading}
+                  </h3>
+                  <button type="button" className={styles.link} onClick={() => fileRef.current?.click()}>
+                    <Upload size={12} strokeWidth={2} aria-hidden />
+                    Import
+                  </button>
+                </div>
+              ) : s.heading && (
                 <h3 id={headingId} className={styles.heading}>
                   {s.heading}
                 </h3>
@@ -233,6 +276,19 @@ export function SlidesPanel({
           )
         })}
         {flat.length === 0 && <p className={styles.hint}>No slides match “{query.trim()}”.</p>}
+        <input
+          ref={fileRef}
+          type="file"
+          hidden
+          multiple
+          aria-label="Template files"
+          accept=".odtemplate,application/json"
+          onChange={(e) => {
+            const files = Array.from(e.target.files ?? [])
+            e.target.value = ''
+            if (files.length) void importTemplates(files)
+          }}
+        />
       </div>
     </aside>
   )

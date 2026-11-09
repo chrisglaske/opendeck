@@ -19,3 +19,9 @@ export function kitFileName(name: string): string {
   const safe = name.replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim()
   return `${safe.replace(/^\.+$/, '') || 'brand-kit'}.odtheme`
 }
+
+/** A safe file name for a template file, from its name. */
+export function templateFileName(name: string): string {
+  const safe = name.replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim()
+  return `${safe.replace(/^\.+$/, '') || 'template'}.odtemplate`
+}

@@ -5,7 +5,8 @@ import { ASIDE_W, ASIDE_X } from '../model/aside'
 import { SLIDE_H, SLIDE_W } from '../model/types'
 import type { Point, Slide, TextEl } from '../model/types'
 import { SlideView } from '../render/SlideView'
-import { IconButton } from '../ui'
+import { ContextMenu, IconButton } from '../ui'
+import { deleteSlides, duplicateSlides, updateSlide } from '../model/ops'
 import { bounds, unionRect } from '../model/geometry'
 import { ElementMenu } from './canvas/ContextMenu'
 import { CropMode } from './canvas/CropMode'
@@ -22,6 +23,8 @@ import { AsideLayer } from './AsideLayer'
 import { Dock } from './Dock'
 import { useEditor, useEditorStore } from './EditorContext'
 import { useLayoutPreview } from './slides/layoutPreview'
+import { slideMenuItems } from './slides/slideMenu'
+import { useSlidesPanel } from './slides/slidesPanelState'
 import { useDisplayTheme, usePreviewTheme } from './theme/themePreview'
 import pillStyles from './theme/ThemePanel.module.css'
 import { ZoomControl } from './ZoomControl'
@@ -122,6 +125,8 @@ export function Stage({
   const store = useEditorStore()
   const [stageEl, setStageEl] = useState<HTMLElement | null>(null)
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
+  const [slideMenu, setSlideMenu] = useState<{ x: number; y: number } | null>(null)
+  const slidesPanel = useSlidesPanel()
   useClipboard()
   useEffect(() => watchTextEditing(store), [store])
 
@@ -139,8 +144,27 @@ export function Stage({
     // Inside the text being edited, the browser's menu (spelling, copy) is more useful.
     if ((e.target as HTMLElement).closest('[data-text-editor]')) return
     e.preventDefault()
-    if (canvas.selectAt(e.clientX, e.clientY)) setMenu({ x: e.clientX, y: e.clientY })
+    if (canvas.selectAt(e.clientX, e.clientY)) return setMenu({ x: e.clientX, y: e.clientY })
+    // An empty part of the slide opens the slide's own menu, the same one as in the rail.
+    const p = toSlidePoint(e.clientX, e.clientY)
+    if (slide && p.x >= 0 && p.y >= 0 && p.x <= SLIDE_W && p.y <= SLIDE_H) setSlideMenu({ x: e.clientX, y: e.clientY })
   }
+
+  const slideMenuFor = (s: Slide) =>
+    slideMenuItems({
+      ids: [s.id],
+      slides: [s],
+      onDuplicate: () => {
+        const r = duplicateSlides(store.getState().deck, [s.id])
+        if (r.slideIds.length) store.apply(() => r.deck, { selection: { slideId: r.slideIds[0], ids: [] } })
+      },
+      onSetHidden: (hidden) => store.apply((d) => updateSlide(d, s.id, { hidden })),
+      onSaveTemplate: () => slidesPanel.saveAsTemplate(s.id),
+      onDelete: () => {
+        const r = deleteSlides(store.getState().deck, [s.id])
+        store.apply(() => r.deck, { selection: { slideId: r.nextSlideId, ids: [] } })
+      },
+    })
 
   // Image files dropped on the canvas land where they are dropped; one dropped on a picture replaces it.
   const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer.types).includes('Files')
@@ -183,6 +207,7 @@ export function Stage({
             <div className={styles.area} style={{ width: `${width * scale}px`, height: `${SLIDE_H * scale}px` }}>
             <div
               ref={setFrame}
+              data-slide-frame=""
               className={styles.frame}
               style={{ width: `${SLIDE_W * scale}px`, height: `${SLIDE_H * scale}px` }}
               onClickCapture={stopLinks}
@@ -220,8 +245,11 @@ export function Stage({
             </div>
           </div>
         </div>
-        <QuickBar frame={frame} scale={scale} container={stageEl} hidden={canvas.busy || menu !== null} onMore={(x, y) => setMenu({ x, y })} />
+        <QuickBar frame={frame} scale={scale} container={stageEl} hidden={canvas.busy || menu !== null || slideMenu !== null} onMore={(x, y) => setMenu({ x, y })} />
         {menu && <ElementMenu x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
+        {slideMenu && slide && (
+          <ContextMenu x={slideMenu.x} y={slideMenu.y} label="Slide actions" items={slideMenuFor(slide)} onClose={() => setSlideMenu(null)} />
+        )}
         <Dock />
         {(shownLayout || previewing) && (
           <div className={pillStyles.pill} data-preview-pill="" role="status">

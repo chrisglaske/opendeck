@@ -1,4 +1,4 @@
-import { CopyPlus, Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
+import { EyeOff, Plus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, MouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import { deleteSlides, duplicateSlides, moveSlides, updateSlide } from '../model/ops'
@@ -8,9 +8,9 @@ import type { Deck, Slide } from '../model/types'
 import { SlideView } from '../render/SlideView'
 import { useDisplayTheme } from './theme/themePreview'
 import { Button, ContextMenu } from '../ui'
-import type { MenuItem } from '../ui'
 import { useEditor, useEditorStore } from './EditorContext'
-import { isMac, shortcutLabel } from './shortcuts'
+import { isMac } from './shortcuts'
+import { slideMenuItems } from './slides/slideMenu'
 import { useSlidesPanel } from './slides/slidesPanelState'
 import styles from './Rail.module.css'
 
@@ -107,19 +107,15 @@ export function Rail() {
     setMenu({ x, y, ids, returnTo })
   }
 
-  const menuItems = (ids: string[]): MenuItem[] => {
-    const n = ids.length
-    const allHidden = ids.every((id) => slides.find((s) => s.id === id)?.hidden)
-    const many = (one: string, several: string) => (n > 1 ? several.replace('#', String(n)) : one)
-    return [
-      { id: 'dup', label: many('Duplicate', 'Duplicate # slides'), icon: CopyPlus, shortcut: shortcutLabel('mod+d'), onSelect: () => duplicate(ids) },
-      allHidden
-        ? { id: 'show', label: many('Show slide', 'Show # slides'), icon: Eye, onSelect: () => setHidden(ids, false) }
-        : { id: 'hide', label: many('Hide slide', 'Hide # slides'), icon: EyeOff, onSelect: () => setHidden(ids, true) },
-      'separator',
-      { id: 'delete', label: many('Delete', 'Delete # slides'), icon: Trash2, shortcut: '⌫', danger: true, onSelect: () => remove(ids) },
-    ]
-  }
+  const menuItems = (ids: string[]) =>
+    slideMenuItems({
+      ids,
+      slides,
+      onDuplicate: () => duplicate(ids),
+      onSetHidden: (hidden) => setHidden(ids, hidden),
+      onSaveTemplate: () => slidesPanel.saveAsTemplate(ids[0]),
+      onDelete: () => remove(ids),
+    })
 
   const onKeyDown = (e: KeyboardEvent, slide: Slide, index: number) => {
     const ids = selected.includes(slide.id) ? selected : [slide.id]

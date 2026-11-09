@@ -1,6 +1,6 @@
 import { Check, Plus } from 'lucide-react'
 import { memo, useMemo } from 'react'
-import type { KeyboardEvent, Ref } from 'react'
+import type { KeyboardEvent, ReactNode, Ref } from 'react'
 import type { Theme } from '../../model/theme'
 import { SLIDE_W } from '../../model/types'
 import type { Slide } from '../../model/types'
@@ -27,8 +27,9 @@ export const TemplateCard = memo(function TemplateCard({
   theme,
   mode,
   current = false,
+  more,
   ...card
-}: CardProps & { template: Template; theme: Theme; mode: 'add' | 'change'; current?: boolean }) {
+}: CardProps & { template: Template; theme: Theme; mode: 'add' | 'change'; current?: boolean; more?: ReactNode }) {
   const slide = useMemo<Slide>(
     () => ({ id: template.id, ...template.slide, notes: '', hidden: false }),
     [template],
@@ -64,6 +65,7 @@ export const TemplateCard = memo(function TemplateCard({
           <span className={styles.label}>{template.name}</span>
         </span>
       </button>
+      {more}
     </div>
   )
 })

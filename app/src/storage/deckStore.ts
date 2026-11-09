@@ -2,6 +2,7 @@ import type { FontFormat, FontStyle } from '../fonts/fontFile'
 import type { BrandKit } from '../model/brandKit'
 import { sanitizeDeck } from '../model/sanitize'
 import type { Deck } from '../model/types'
+import type { Template } from '../templates/types'
 
 export type DeckSummary = { id: string; name: string; updatedAt: number; slideCount: number }
 export type StoredAsset = { id: string; blob: Blob; type: string; width: number; height: number }
@@ -26,6 +27,10 @@ export interface DeckStore {
   listKits(): Promise<unknown[]>
   putKit(k: BrandKit): Promise<void>
   deleteKit(id: string): Promise<void>
+  /** Raw stored data: callers must sanitize each (see `loadTemplates`). */
+  listTemplates(): Promise<unknown[]>
+  putTemplate(t: Template): Promise<void>
+  deleteTemplate(id: string): Promise<void>
   /** True when this deck lives only in this tab because writing it failed. */
   isUnsaved?(id: string): boolean
 }
@@ -65,6 +70,7 @@ export function createMemoryStore(): DeckStore {
   const assets = new Map<string, StoredAsset>()
   const fonts = new Map<string, StoredFont>()
   const kits = new Map<string, BrandKit>()
+  const templates = new Map<string, Template>()
   return {
     async listDecks() {
       return [...decks.values()].map(summarize).filter((s): s is DeckSummary => s !== null).sort(newestFirst)
@@ -100,8 +106,20 @@ export function createMemoryStore(): DeckStore {
     async deleteKit(id) {
       kits.delete(id)
     },
+    async listTemplates() {
+      return [...templates.values()].map((t) => structuredClone(t))
+    },
+    async putTemplate(t) {
+      templates.set(t.id, structuredClone(t))
+    },
+    async deleteTemplate(id) {
+      templates.delete(id)
+    },
   }
 }
+
+/** The `id` of a raw stored record, if it has a string one. */
+const idOf = (raw: unknown): string => (typeof raw === 'object' && raw !== null && typeof (raw as { id?: unknown }).id === 'string' ? (raw as { id: string }).id : '')
 
 /**
  * Wraps a store so a write that fails (storage full or blocked) still leaves the
@@ -113,6 +131,7 @@ export function keepUnsaved(store: DeckStore): DeckStore {
   const assets = new Map<string, StoredAsset>()
   const fonts = new Map<string, StoredFont>()
   const kits = new Map<string, BrandKit>()
+  const templates = new Map<string, Template>()
   return {
     async listDecks() {
       const saved = await store.listDecks().catch(() => [])
@@ -182,6 +201,23 @@ export function keepUnsaved(store: DeckStore): DeckStore {
       kits.delete(id)
       await store.deleteKit(id)
     },
+    async listTemplates() {
+      const saved = await store.listTemplates().catch(() => [])
+      return [...[...templates.values()].map((t) => structuredClone(t)), ...saved.filter((t) => !templates.has(idOf(t)))]
+    },
+    async putTemplate(t) {
+      try {
+        await store.putTemplate(t)
+        templates.delete(t.id)
+      } catch (e) {
+        templates.set(t.id, structuredClone(t))
+        throw e
+      }
+    },
+    async deleteTemplate(id) {
+      templates.delete(id)
+      await store.deleteTemplate(id)
+    },
     isUnsaved: (id) => decks.has(id),
   }
 }
@@ -205,6 +241,9 @@ export function createSessionOnlyStore(): DeckStore {
       throw notSaved()
     },
     async putKit() {
+      throw notSaved()
+    },
+    async putTemplate() {
       throw notSaved()
     },
   })

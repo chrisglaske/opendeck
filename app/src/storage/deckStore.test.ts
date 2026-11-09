@@ -147,3 +147,34 @@ describe('fonts', () => {
     expect((await s.listFonts()).map((f) => f.id)).toEqual(['f1'])
   })
 })
+
+describe('templates', () => {
+  const tpl = (id: string, name = 'Mine') => ({
+    id, name, group: 'mine' as const, keywords: [], order: 0,
+    slide: { background: { color: { theme: 'bg' as const } }, elements: [] }, createdAt: 1, updatedAt: 1,
+  })
+  it('memory and session-only stores keep templates', async () => {
+    const m = createMemoryStore()
+    await m.putTemplate(tpl('t1'))
+    await m.putTemplate(tpl('t2'))
+    await m.deleteTemplate('t2')
+    expect(((await m.listTemplates()) as { id: string }[]).map((t) => t.id)).toEqual(['t1'])
+
+    const s = createSessionOnlyStore()
+    await expect(s.putTemplate(tpl('t1'))).rejects.toMatchObject({ name: 'InvalidStateError' })
+    expect(((await s.listTemplates()) as { id: string }[]).map((t) => t.id)).toEqual(['t1'])
+    await s.deleteTemplate('t1')
+    expect(await s.listTemplates()).toEqual([])
+  })
+  it('keepUnsaved prefers the kept copy and drops it once a write succeeds', async () => {
+    const base = createMemoryStore()
+    await base.putTemplate(tpl('t1', 'Old'))
+    let fail = true
+    const s = keepUnsaved({ ...base, async putTemplate(t) { if (fail) throw new DOMException('full', 'QuotaExceededError'); return base.putTemplate(t) } })
+    await expect(s.putTemplate(tpl('t1', 'New'))).rejects.toThrow('full')
+    expect(((await s.listTemplates()) as { name: string }[]).map((t) => t.name)).toEqual(['New'])
+    fail = false
+    await s.putTemplate(tpl('t1', 'Newer'))
+    expect(((await s.listTemplates()) as { name: string }[]).map((t) => t.name)).toEqual(['Newer'])
+  })
+})

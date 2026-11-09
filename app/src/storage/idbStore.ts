@@ -2,8 +2,8 @@ import { newestFirst, summarize } from './deckStore'
 import type { DeckStore, DeckSummary, StoredAsset, StoredFont } from './deckStore'
 
 const DB_NAME = 'opendeck-v2'
-/** 1: decks, assets. 2: adds fonts and brand kits. */
-const DB_VERSION = 2
+/** 1: decks, assets. 2: adds fonts and brand kits. 3: adds saved templates. */
+const DB_VERSION = 3
 
 function req<T>(r: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -34,6 +34,7 @@ function openDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains('assets')) db.createObjectStore('assets', { keyPath: 'id' })
       if (!db.objectStoreNames.contains('fonts')) db.createObjectStore('fonts', { keyPath: 'id' })
       if (!db.objectStoreNames.contains('kits')) db.createObjectStore('kits', { keyPath: 'id' })
+      if (!db.objectStoreNames.contains('templates')) db.createObjectStore('templates', { keyPath: 'id' })
     }
     r.onsuccess = () => {
       // A newer version opened in another tab: let it upgrade instead of blocking it.
@@ -48,7 +49,7 @@ function openDb(): Promise<IDBDatabase> {
 export async function openIdbStore(): Promise<DeckStore> {
   const db = await openDb()
 
-  async function write(store: 'decks' | 'assets' | 'fonts' | 'kits', value: unknown): Promise<void> {
+  async function write(store: 'decks' | 'assets' | 'fonts' | 'kits' | 'templates', value: unknown): Promise<void> {
     const tx = db.transaction(store, 'readwrite')
     tx.objectStore(store).put(value)
     // Commit right away instead of when the event loop idles: a save started while the page
@@ -87,6 +88,15 @@ export async function openIdbStore(): Promise<DeckStore> {
     async deleteKit(id) {
       const tx = db.transaction('kits', 'readwrite')
       tx.objectStore('kits').delete(id)
+      await done(tx)
+    },
+    async listTemplates() {
+      return (await req(db.transaction('templates').objectStore('templates').getAll())) as unknown[]
+    },
+    putTemplate: (t) => write('templates', t),
+    async deleteTemplate(id) {
+      const tx = db.transaction('templates', 'readwrite')
+      tx.objectStore('templates').delete(id)
       await done(tx)
     },
   }

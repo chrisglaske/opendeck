@@ -90,6 +90,42 @@
   color: var(--faint);
 }
 
+.headRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 8px;
+}
+
+.headRow .heading {
+  margin: 0;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .grid {
   display: flex;
   flex-direction: column;
@@ -104,8 +140,81 @@
 }
 
 .cell {
+  position: relative;
   display: flex;
   min-width: 0;
+}
+
+/* Saved templates: a "…" menu sits at the end of the name row. */
+.moreWrap {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+}
+
+.cell:has(.moreWrap) .name {
+  padding-right: 22px;
+}
+
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+}
+
+.more:hover {
+  background: var(--subtle);
+  color: var(--ink);
+}
+
+.more:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.confirm {
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.confirmTitle {
+  display: block;
+  font-size: var(--fs-ui);
+  color: var(--ink);
+}
+
+.confirmText {
+  margin: 6px 0 12px;
+  font-size: var(--fs-caption);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.confirmRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dialogPreview {
+  overflow: hidden;
+  width: 326px;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  outline: 1px solid var(--line);
 }
 
 .card {

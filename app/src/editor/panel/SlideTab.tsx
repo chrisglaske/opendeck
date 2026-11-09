@@ -8,9 +8,9 @@ import { SLIDE_W } from '../../model/types'
 import { SlideView } from '../../render/SlideView'
 import { templateByRef } from '../../templates/builtins'
 import { groupLabel } from '../../templates/types'
-import type { Template } from '../../templates/types'
 import { useSlidesPanel } from '../slides/slidesPanelState'
 import { useAssetUrl } from '../../storage/assets'
+import { myTemplate, useMyTemplates } from '../../storage/templates'
 import { Button, Toggle } from '../../ui'
 import { useEditor, useEditorStore } from '../EditorContext'
 import { pickImageFile, setBackgroundImage } from '../media'
@@ -99,13 +99,12 @@ export function SlideTab({ slide }: { slide: Slide }) {
 }
 
 const MINI_W = 64
-/** The person's own templates, until they can be looked up here. */
-const noTemplate = (): Template | undefined => undefined
-
 /** The slide's layout and a way to change it. A slide with no layout (or a removed one) shows "No layout". */
 function LayoutField({ layout, theme }: { layout?: string; theme: Theme }) {
   const { changeLayout } = useSlidesPanel()
-  const t = templateByRef(layout, noTemplate)
+  // Re-reads when the person's templates change (renamed or deleted).
+  useMyTemplates()
+  const t = templateByRef(layout, myTemplate)
   const mini = useMemo(() => (t ? { id: t.id, ...t.slide, notes: '', hidden: false } : null), [t])
   return (
     <section>

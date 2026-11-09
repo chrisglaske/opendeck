@@ -9,6 +9,7 @@ import type { Theme } from '../model/theme'
 import { BrandKitDialog } from './theme/BrandKitDialog'
 import { ThemePanel } from './theme/ThemePanel'
 import { OpenDeckThemeContext } from './theme/themeEditorRequest'
+import { SaveTemplateDialog } from './slides/SaveTemplateDialog'
 import { SlidesPanel } from './slides/SlidesPanel'
 import { SlidesPanelContext } from './slides/slidesPanelState'
 import { TopBar } from './TopBar'
@@ -43,6 +44,7 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   const [zoom, setZoom] = useState<Zoom>('fit')
   const [panelView, setPanelView] = useState<'auto' | 'theme' | 'slides' | 'layout'>('auto')
   const [themeEditor, setThemeEditor] = useState<{ mode: 'new' | 'edit' | 'deck'; start: Theme; kit?: BrandKit } | null>(null)
+  const [savingSlide, setSavingSlide] = useState<string | null>(null)
   const deckTheme = () => store.getState().deck.theme
   const openDeckTheme = () => setThemeEditor({ mode: 'deck', start: deckTheme() })
 
@@ -72,6 +74,7 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
         if (panelHidden) togglePanel(false)
       },
       changeLayout: () => setPanelView('layout'),
+      saveAsTemplate: setSavingSlide,
     }),
     // togglePanel only sets state and writes storage, so it needn't be a dependency.
     [slidesOpen, panelHidden],
@@ -121,6 +124,7 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
           ) : (
             <Panel onHide={() => togglePanel(true)} />
           ))}
+        {savingSlide && <SaveTemplateDialog slideId={savingSlide} onClose={() => setSavingSlide(null)} />}
         {themeEditor && <BrandKitDialog {...themeEditor} onClose={() => setThemeEditor(null)} />}
       </div>
       </SlidesPanelContext.Provider>
