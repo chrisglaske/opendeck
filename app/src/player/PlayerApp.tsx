@@ -11,6 +11,7 @@ import { SpeakerView } from '../present/SpeakerView'
 import s from './PlayerApp.module.css'
 
 const JUMPS = new Set<ShowAction['kind']>(['first', 'last', 'goto', 'enter'])
+const HINT_MS = 4000
 const fullscreen = () => { void document.documentElement.requestFullscreen?.()?.catch(() => {}) }
 
 type Popup = { win: Window; mount: HTMLElement }
@@ -41,13 +42,31 @@ function Player({ deck, first }: { deck: Deck; first: ShowState }) {
     rawDispatch(a)
   }, [])
 
-  const openSpeaker = useCallback(() => {
+  const [againHint, setAgainHint] = useState(false)
+  useEffect(() => {
+    if (!againHint) return
+    const t = setTimeout(() => setAgainHint(false), HINT_MS)
+    return () => clearTimeout(t)
+  }, [againHint])
+
+  const openSpeaker = useCallback((afterFullscreen = false) => {
     if (popupRef.current) { popupRef.current.win.focus(); return }
+    // Safari opens a new window inside the full-screen space, on top of the slides. Leave
+    // full screen first and open once it's done, so the speaker window is a normal window
+    // that can sit beside the slides or on another screen.
+    if (document.fullscreenElement && document.exitFullscreen) {
+      void document.exitFullscreen().catch(() => {}).then(() => openSpeakerRef.current(true))
+      return
+    }
     const win = openSlidesWindow()
-    if (!win) return
+    // By then Safari no longer counts the key press and blocks the window; a second press works.
+    if (!win) { if (afterFullscreen) setAgainHint(true); return }
+    setAgainHint(false)
     // The file's fonts live in its own stylesheet, which preparePopup copies over.
     setPopup({ win, mount: preparePopup(win, `Speaker view · ${deck.name}`, []) })
   }, [deck.name])
+  const openSpeakerRef = useRef(openSpeaker)
+  openSpeakerRef.current = openSpeaker
 
   useEffect(() => {
     if (!popup) return
@@ -67,7 +86,7 @@ function Player({ deck, first }: { deck: Deck; first: ShowState }) {
         // Only this window holds the slides.
         if ((e.currentTarget as Window).document !== document) return
         fullscreen()
-      } else if (intent === 'speaker') openSpeaker()
+      } else if (intent === 'speaker') openSpeaker(false)
       else dispatch({ kind: intent } as ShowAction)
       e.preventDefault()
     }
@@ -91,10 +110,13 @@ function Player({ deck, first }: { deck: Deck; first: ShowState }) {
             onBack={() => dispatch({ kind: 'back' })}
             onNext={() => dispatch({ kind: 'next' })}
             onFullscreen={fullscreen}
-            onSpeaker={openSpeaker}
+            onSpeaker={() => openSpeaker()}
           />
         }
       />
+      <p role="status" className={s.hint} data-visible={againHint}>
+        {againHint ? 'Press S again to open speaker view' : ''}
+      </p>
       {popup
         ? createPortal(
             <SpeakerView deck={deck} show={show} dispatch={dispatch} onEnd={() => popup.win.close()} file />,

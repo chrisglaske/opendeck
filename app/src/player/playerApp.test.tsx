@@ -67,6 +67,52 @@ describe('PlayerApp', () => {
     expect(shown()).toBe('b')
   })
 
+  it('S in full screen leaves full screen first, and opens speaker view once that is done', async () => {
+    const calls: string[] = []
+    let full = true
+    let done = () => {}
+    Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => (full ? document.documentElement : null) })
+    document.exitFullscreen = vi.fn(() => { calls.push('exit'); return new Promise<void>((r) => { done = () => { full = false; r() } }) })
+    vi.mocked(window.open).mockImplementation(() => { calls.push('open'); return win })
+    try {
+      render(<PlayerApp deck={deck()} />)
+      key(window, 's')
+      // Safari would still put the window inside the full-screen space at this point.
+      expect(calls).toEqual(['exit'])
+      await act(async () => { done() })
+      expect(calls).toEqual(['exit', 'open'])
+      expect(win.document.title).toBe('Speaker view · Q3 Board update')
+    } finally {
+      delete (document as { fullscreenElement?: unknown }).fullscreenElement
+    }
+  })
+
+  it('when the browser blocks that late window (Safari), it says to press S again', async () => {
+    let full = true
+    Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => (full ? document.documentElement : null) })
+    document.exitFullscreen = vi.fn(() => { full = false; return Promise.resolve() })
+    vi.mocked(window.open).mockImplementationOnce(() => null)
+    try {
+      render(<PlayerApp deck={deck()} />)
+      expect(screen.getByRole('status')).toHaveTextContent('')
+      await act(async () => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 's' })) })
+      expect(screen.getByRole('status')).toHaveTextContent('Press S again to open speaker view')
+      key(window, 's')
+      expect(win.document.title).toBe('Speaker view · Q3 Board update')
+      expect(screen.getByRole('status')).toHaveTextContent('')
+    } finally {
+      delete (document as { fullscreenElement?: unknown }).fullscreenElement
+    }
+  })
+
+  it('S out of full screen just opens speaker view', () => {
+    document.exitFullscreen = vi.fn(() => Promise.resolve())
+    render(<PlayerApp deck={deck()} />)
+    key(window, 's')
+    expect(window.open).toHaveBeenCalled()
+    expect(document.exitFullscreen).not.toHaveBeenCalled()
+  })
+
   it('a number and Enter jump to that slide', () => {
     render(<PlayerApp deck={deck()} />)
     key(window, '2')
