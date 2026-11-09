@@ -131,6 +131,24 @@ export function ColorPicker({ value, onChange, allowNone = false, noneLabel = 'N
 }
 
 /** Shade square, hue bar and hex field. */
+/**
+ * The color area, hue bar and hex field on their own, for editing one hex value
+ * (the brand kit colors). Keeps the hue while the color is gray.
+ */
+export function ColorMixer({ hex, onChange }: { hex: string; onChange(hex: string): void }) {
+  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(hex))
+  const shown = hsvToHex(hsv) === hex.toUpperCase() ? hsv : hexToHsv(hex)
+  return (
+    <Mixer
+      hsv={shown}
+      onPick={(next) => {
+        setHsv(next)
+        onChange(hsvToHex(next))
+      }}
+    />
+  )
+}
+
 function Mixer({ hsv, onPick }: { hsv: Hsv; onPick(c: Hsv): void }) {
   const hex = hsvToHex(hsv)
   const [draft, setDraft] = useState<string | null>(null)

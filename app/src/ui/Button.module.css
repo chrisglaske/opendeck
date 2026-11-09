@@ -52,6 +52,12 @@
   color: var(--ink);
 }
 
+.ghost[aria-pressed='true'],
+.ghost[aria-pressed='true']:hover:not(:disabled) {
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+
 .danger {
   background: var(--danger-tint);
   color: var(--danger);

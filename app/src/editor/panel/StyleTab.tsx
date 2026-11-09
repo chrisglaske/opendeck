@@ -58,7 +58,7 @@ function TextStyle({ slideId, el }: { slideId: string; el: TextEl }) {
                 key={s.id}
                 type="button"
                 className={styles.styleRow}
-                aria-pressed={el.style === s.id && el.size === undefined && el.font === undefined}
+                aria-pressed={el.style === s.id && el.size === undefined && el.font === undefined && el.fontFamily === undefined}
                 onClick={() => cmd.setStyle(s.id)}
               >
                 <span className={styles[`preview_${s.id}`]} style={{ fontFamily: `var(--t-font-${ts.font})`, fontWeight: ts.weight }}>

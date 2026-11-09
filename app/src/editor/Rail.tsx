@@ -6,6 +6,7 @@ import type { Theme } from '../model/theme'
 import { SLIDE_W } from '../model/types'
 import type { Deck, Slide } from '../model/types'
 import { SlideView } from '../render/SlideView'
+import { useDisplayTheme } from './theme/themePreview'
 import { Button, ContextMenu } from '../ui'
 import type { MenuItem } from '../ui'
 import { useEditor, useEditorStore } from './EditorContext'
@@ -26,7 +27,7 @@ const ordered = (deck: Deck, ids: string[]) => deck.slides.filter((s) => ids.inc
 export function Rail() {
   const store = useEditorStore()
   const slides = useEditor((s) => s.deck.slides)
-  const theme = useEditor((s) => s.deck.theme)
+  const theme = useDisplayTheme()
   const current = useEditor((s) => s.selection.slideId)
   const [picked, setPicked] = useState<string[]>([current])
   const anchor = useRef(current)

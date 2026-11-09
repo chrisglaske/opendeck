@@ -24,7 +24,7 @@ export const imageFiles = (files: FileList | File[] | null | undefined): File[] 
   Array.from(files ?? []).filter((f) => f.type.startsWith('image/'))
 
 /** Stores an image, telling the person what went wrong when it can't be used. */
-async function save(file: Blob) {
+export async function saveImageFile(file: Blob) {
   toast('Adding image…', { durationMs: 2000 })
   try {
     const r = await importImage(await getDeckStore(), file)
@@ -42,7 +42,7 @@ export async function addImages(editor: EditorStore, files: File[], at?: Point) 
   const slideId = editor.getState().selection.slideId
   const els: ImageEl[] = []
   for (const [i, f] of files.entries()) {
-    const r = await save(f)
+    const r = await saveImageFile(f)
     if (!r) continue
     const el = createImage(r.assetId, { w: r.width, h: r.height })
     if (at) {
@@ -57,7 +57,7 @@ export async function addImages(editor: EditorStore, files: File[], at?: Point) 
 
 /** Swaps the picture in an image box; the box stays and the crop starts over. */
 export async function replaceImage(editor: EditorStore, slideId: string, id: string, file: File) {
-  const r = await save(file)
+  const r = await saveImageFile(file)
   if (!r) return
   editor.apply((d) =>
     updateElements(d, slideId, [id], (e) => (e.type === 'image' ? { ...e, assetId: r.assetId, crop: { x: 0, y: 0, w: 1, h: 1 } } : e)),
@@ -65,7 +65,7 @@ export async function replaceImage(editor: EditorStore, slideId: string, id: str
 }
 
 export async function setBackgroundImage(editor: EditorStore, slideId: string, file: File) {
-  const r = await save(file)
+  const r = await saveImageFile(file)
   if (!r) return
   editor.apply((d) => {
     const slide = d.slides.find((s) => s.id === slideId)

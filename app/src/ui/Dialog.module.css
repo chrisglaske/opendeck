@@ -38,3 +38,68 @@
   gap: 8px;
   margin-top: 16px;
 }
+
+.large {
+  width: min(1180px, calc(100vw - 48px));
+  max-width: none;
+  height: min(860px, calc(100vh - 48px));
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+
+.large::backdrop {
+  background: rgba(20, 20, 22, 0.4);
+}
+
+.largeBox {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.largeHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 14px 16px 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.largeTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.largeHint {
+  font-size: var(--fs-caption);
+  color: var(--faint);
+}
+
+.largeSpacer {
+  flex: 1;
+}
+
+.largeBody {
+  flex: 1;
+  min-height: 0;
+}
+
+.largeFoot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 12px 16px 12px 20px;
+  border-top: 1px solid var(--line);
+}

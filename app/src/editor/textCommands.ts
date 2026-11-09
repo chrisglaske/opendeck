@@ -35,7 +35,8 @@ export function textCommands(store: EditorStore, slideId: string, el: TextEl, th
   return {
     marks,
     font,
-    fontName: theme.fonts[font],
+    /** The family the box shows: a hand-set one, or its theme role's. */
+    fontName: el.fontFamily ?? theme.fonts[font],
     size: marks.size ?? el.size ?? style.size,
     color: marks.color ?? el.color ?? ({ theme: 'text' } as ColorRef),
     align: firstP?.align ?? 'left',
@@ -57,8 +58,17 @@ export function textCommands(store: EditorStore, slideId: string, el: TextEl, th
       if (editing) editing.mark({ size })
       else update('size', (e) => ({ ...e, size, paragraphs: allMarks(e.paragraphs, { size: undefined }) }))
     },
-    setFont(f: FontRef) {
-      update('font', (e) => (f === style.font ? omit(e, 'font') : { ...e, font: f }))
+    /**
+     * Sets the box's font. The theme's heading or body font is stored as that role, so it
+     * follows the theme; any other family is kept as set when the theme changes.
+     */
+    setFontFamily(family: string) {
+      const role: FontRef | null = family === theme.fonts[style.font] ? style.font : family === theme.fonts.heading ? 'heading' : family === theme.fonts.body ? 'body' : null
+      update('font', (e) => {
+        const rest = omit(e, 'font', 'fontFamily')
+        if (!role) return { ...rest, fontFamily: family }
+        return role === style.font ? rest : { ...rest, font: role }
+      })
     },
     cycleAlign() {
       const next = ALIGN_ORDER[(ALIGN_ORDER.indexOf(firstP?.align ?? 'left') + 1) % ALIGN_ORDER.length]
@@ -79,7 +89,7 @@ export function textCommands(store: EditorStore, slideId: string, el: TextEl, th
     },
     /** A theme text style; the box drops its own size and font so it follows the style. */
     setStyle(id: TextStyleId) {
-      update('style', (e) => ({ ...omit(e, 'size', 'font'), style: id, paragraphs: allMarks(e.paragraphs, { size: undefined }) }))
+      update('style', (e) => ({ ...omit(e, 'size', 'font', 'fontFamily'), style: id, paragraphs: allMarks(e.paragraphs, { size: undefined }) }))
     },
     setLineHeight(lineHeight: number) {
       update('lineHeight', (e) => ({ ...e, lineHeight }))

@@ -1,4 +1,6 @@
+import { X } from 'lucide-react'
 import { useId, useLayoutEffect, useRef, type ReactNode } from 'react'
+import { IconButton } from './IconButton'
 import styles from './Dialog.module.css'
 
 export function Dialog({
@@ -31,9 +33,32 @@ function OpenDialog({
   children,
   actions,
 }: Omit<Parameters<typeof Dialog>[0], 'open'>) {
-  const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const descId = useId()
+  return (
+    <ModalShell onClose={onClose} className={styles.dialog} titleId={titleId} descId={description ? descId : undefined}>
+      <DialogBox titleId={titleId} descId={descId} title={title} description={description} actions={actions}>
+        {children}
+      </DialogBox>
+    </ModalShell>
+  )
+}
+
+/** The native modal: Esc and a backdrop click close it, and focus returns to the opener. */
+function ModalShell({
+  onClose,
+  className,
+  titleId,
+  descId,
+  children,
+}: {
+  onClose(): void
+  className: string
+  titleId: string
+  descId?: string
+  children: ReactNode
+}) {
+  const ref = useRef<HTMLDialogElement>(null)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
   const closingRef = useRef(false)
@@ -53,9 +78,9 @@ function OpenDialog({
   return (
     <dialog
       ref={ref}
-      className={styles.dialog}
+      className={className}
       aria-labelledby={titleId}
-      aria-describedby={description ? descId : undefined}
+      aria-describedby={descId}
       onCancel={(e) => {
         e.preventDefault()
         onCloseRef.current()
@@ -74,10 +99,49 @@ function OpenDialog({
         pressedBackdrop.current = false
       }}
     >
-      <DialogBox titleId={titleId} descId={descId} title={title} description={description} actions={actions}>
-        {children}
-      </DialogBox>
+      {children}
     </dialog>
+  )
+}
+
+/**
+ * A large modal for editors: a header with the title, a hint and a close button,
+ * a body that fills the space, and a footer row.
+ */
+export function LargeDialog({
+  onClose,
+  title,
+  hint,
+  children,
+  footer,
+}: {
+  onClose(): void
+  title: string
+  hint?: string
+  children: ReactNode
+  footer: ReactNode
+}) {
+  const titleId = useId()
+  const hintId = useId()
+  return (
+    <ModalShell onClose={onClose} className={styles.large} titleId={titleId} descId={hint ? hintId : undefined}>
+      <div className={styles.largeBox}>
+        <div className={styles.largeHead}>
+          <h3 id={titleId} className={styles.largeTitle}>
+            {title}
+          </h3>
+          {hint && (
+            <span id={hintId} className={styles.largeHint}>
+              {hint}
+            </span>
+          )}
+          <span className={styles.largeSpacer} />
+          <IconButton icon={X} label="Close" size="sm" onClick={onClose} />
+        </div>
+        <div className={styles.largeBody}>{children}</div>
+        <div className={styles.largeFoot}>{footer}</div>
+      </div>
+    </ModalShell>
   )
 }
 

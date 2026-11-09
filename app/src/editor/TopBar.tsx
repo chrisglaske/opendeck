@@ -1,9 +1,9 @@
-import { Moon, Redo2, Sun, Undo2 } from 'lucide-react'
+import { Moon, Palette, Redo2, Sun, Undo2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { renameDeck } from '../model/ops'
 import type { Autosaver } from '../storage/autosave'
 import { useColorMode } from '../theme/useColorMode'
-import { IconButton, Logo } from '../ui'
+import { Button, IconButton, Logo } from '../ui'
 import { useEditor, useEditorStore } from './EditorContext'
 import { SaveStatus } from './SaveStatus'
 import { shortcutLabel } from './shortcuts'
@@ -64,7 +64,7 @@ function ModeToggle() {
   )
 }
 
-export function TopBar({ autosaver }: { autosaver: Autosaver }) {
+export function TopBar({ autosaver, themeOpen, onToggleTheme }: { autosaver: Autosaver; themeOpen: boolean; onToggleTheme(): void }) {
   const store = useEditorStore()
   const canUndo = useEditor((s) => s.canUndo)
   const canRedo = useEditor((s) => s.canRedo)
@@ -79,6 +79,9 @@ export function TopBar({ autosaver }: { autosaver: Autosaver }) {
       <IconButton icon={Undo2} label="Undo" shortcut={shortcutLabel('mod+z')} disabled={!canUndo} onClick={() => store.undo()} />
       <IconButton icon={Redo2} label="Redo" shortcut={shortcutLabel('shift+mod+z')} disabled={!canRedo} onClick={() => store.redo()} />
       <span className={styles.spacer} />
+      <Button variant="ghost" icon={Palette} aria-pressed={themeOpen} onClick={onToggleTheme}>
+        Theme
+      </Button>
       <ModeToggle />
     </header>
   )

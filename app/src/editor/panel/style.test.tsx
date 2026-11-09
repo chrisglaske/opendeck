@@ -30,13 +30,19 @@ const bar = (name: string) => within(screen.getByRole('toolbar', { name }))
 
 describe('Style tab', () => {
   it('sets a text style and drops the box size and font overrides', async () => {
-    const t: TextEl = { ...createText('body'), size: 90, font: 'heading' }
+    const t: TextEl = { ...createText('body'), size: 90, font: 'heading', fontFamily: 'Lora' }
     const s = setup([t])
     await userEvent.click(panel().getByRole('button', { name: /^Title/ }))
     expect(first<TextEl>(s)).toMatchObject({ style: 'title' })
     expect(first<TextEl>(s).size).toBeUndefined()
     expect(first<TextEl>(s).font).toBeUndefined()
+    expect(first<TextEl>(s).fontFamily).toBeUndefined()
     expect(panel().getByRole('button', { name: /^Title/ })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('does not mark a style as chosen while the box has a hand-set font', () => {
+    setup([{ ...createText('body'), fontFamily: 'Lora' }])
+    expect(panel().getByRole('button', { name: /^Body/ })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('colors a whole selected text box with a theme color', async () => {

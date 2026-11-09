@@ -50,7 +50,7 @@ describe('EditorShell', () => {
 
   it('leaves out features from later stages', () => {
     setup()
-    for (const name of [/theme/i, /share/i, /present/i, /layouts?/i]) {
+    for (const name of [/share/i, /present/i, /layouts?/i]) {
       expect(screen.queryByRole('button', { name })).toBeNull()
     }
     expect(screen.queryByText(/^Layout$/)).toBeNull()

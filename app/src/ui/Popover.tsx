@@ -94,6 +94,7 @@ export function Popover({
     >
       {children}
     </div>,
-    document.body,
+    // Inside a modal dialog the rest of the page is inert, so the popover goes in the dialog.
+    anchor?.closest('dialog') ?? document.body,
   )
 }

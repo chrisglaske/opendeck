@@ -14,7 +14,7 @@ function collect(els: readonly SlideElement[], out: Set<string>) {
 }
 
 /** Every font family the deck uses: the theme's two plus hand-set ones, sorted. */
-export function fontsInUse(deck: Deck): string[] {
+export function fontsInUse(deck: Pick<Deck, 'theme' | 'slides'>): string[] {
   const out = new Set([deck.theme.fonts.heading, deck.theme.fonts.body])
   for (const s of deck.slides) collect(s.elements, out)
   return [...out].sort((a, b) => a.localeCompare(b))

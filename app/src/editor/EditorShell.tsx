@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Autosaver } from '../storage/autosave'
 import { useEditorStore } from './EditorContext'
 import { Panel } from './panel/Panel'
 import { Rail } from './Rail'
 import { fitScale, Stage } from './Stage'
+import type { BrandKit } from '../model/brandKit'
+import type { Theme } from '../model/theme'
+import { BrandKitDialog } from './theme/BrandKitDialog'
+import { ThemePanel } from './theme/ThemePanel'
 import { TopBar } from './TopBar'
 import { stepZoom } from './ZoomControl'
 import type { Zoom } from './ZoomControl'
@@ -34,6 +38,25 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   const store = useEditorStore()
   const [panelHidden, setPanelHidden] = useState(readPanelHidden)
   const [zoom, setZoom] = useState<Zoom>('fit')
+  const [panelView, setPanelView] = useState<'auto' | 'theme'>('auto')
+  const [themeEditor, setThemeEditor] = useState<{ mode: 'new' | 'edit' | 'deck'; start: Theme; kit?: BrandKit } | null>(null)
+  const deckTheme = () => store.getState().deck.theme
+
+  // Selecting something switches the panel back to its settings.
+  useEffect(() => {
+    let ids = store.getState().selection.ids
+    return store.subscribe(() => {
+      const next = store.getState().selection.ids
+      if (next !== ids && next.length > 0 && next.join() !== ids.join()) setPanelView('auto')
+      ids = next
+    })
+  }, [store])
+
+  const toggleTheme = () => {
+    if (panelView === 'theme') return setPanelView('auto')
+    setPanelView('theme')
+    if (panelHidden) togglePanel(false)
+  }
 
   const togglePanel = (hidden: boolean) => {
     setPanelHidden(hidden)
@@ -59,10 +82,21 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
 
   return (
     <div className={styles.shell} data-panel={panelHidden ? 'hidden' : 'shown'}>
-      <TopBar autosaver={autosaver} />
+      <TopBar autosaver={autosaver} themeOpen={panelView === 'theme' && !panelHidden} onToggleTheme={toggleTheme} />
       <Rail />
       <Stage zoom={zoom} onZoom={setZoom} panelHidden={panelHidden} onShowPanel={() => togglePanel(false)} />
-      {!panelHidden && <Panel onHide={() => togglePanel(true)} />}
+      {!panelHidden &&
+        (panelView === 'theme' ? (
+          <ThemePanel
+            onClose={() => setPanelView('auto')}
+            onCustomize={() => setThemeEditor({ mode: 'deck', start: deckTheme() })}
+            onCreateKit={() => setThemeEditor({ mode: 'new', start: deckTheme() })}
+            onEditKit={(kit) => setThemeEditor({ mode: 'edit', start: kit.theme, kit })}
+          />
+        ) : (
+          <Panel onHide={() => togglePanel(true)} />
+        ))}
+      {themeEditor && <BrandKitDialog {...themeEditor} onClose={() => setThemeEditor(null)} />}
     </div>
   )
 }

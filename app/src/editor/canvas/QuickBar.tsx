@@ -22,7 +22,7 @@ import {
   Underline,
   Ungroup,
 } from 'lucide-react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { bounds, unionRect } from '../../model/geometry'
 import { align, distribute, updateElements } from '../../model/ops'
@@ -34,7 +34,8 @@ import { useEditor, useEditorStore } from '../EditorContext'
 import { radiusPx } from '../../model/theme'
 import { ALIGN_BUTTONS } from '../panel/ArrangeTab'
 import { ColorButton } from '../pickers/ColorPicker'
-import { FontMenu } from '../pickers/FontMenu'
+import { fontsInUse } from '../../fonts/availability'
+import { FontPicker } from '../pickers/FontPicker'
 import { IconPicker } from '../pickers/IconPicker'
 import { LinkPopover } from '../pickers/LinkPopover'
 import { shortcutLabel } from '../shortcuts'
@@ -270,6 +271,8 @@ const keepFocus = { onMouseDown: (e: { preventDefault(): void }) => e.preventDef
 function TextBar({ slideId, el }: { slideId: string; el: TextEl }) {
   const store = useEditorStore()
   const theme = useEditor((st) => st.deck.theme)
+  const slides = useEditor((st) => st.deck.slides)
+  const inUse = useMemo(() => fontsInUse({ theme, slides }), [theme, slides])
   const session = useTextSession()
   const cmd = textCommands(store, slideId, el, theme, session)
   const linkRequest = useLinkRequest()
@@ -289,7 +292,15 @@ function TextBar({ slideId, el }: { slideId: string; el: TextEl }) {
 
   return (
     <>
-      <FontMenu value={cmd.font} onChange={cmd.setFont} onClosed={session ? refocus : undefined} />
+      <FontPicker
+        variant="quick"
+        label="Font"
+        value={cmd.fontName}
+        roles={theme.fonts}
+        inUse={inUse}
+        onPick={cmd.setFontFamily}
+        onClosed={session ? refocus : undefined}
+      />
       <NumberField
         size="sm"
         className={s.sizeField}

@@ -1,4 +1,4 @@
-import { PanelRightOpen } from 'lucide-react'
+import { Eye, PanelRightOpen } from 'lucide-react'
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { DragEvent, MouseEvent, ReactNode, RefObject } from 'react'
 import { SLIDE_H, SLIDE_W } from '../model/types'
@@ -19,6 +19,8 @@ import { useClipboard } from './clipboard'
 import { addImages, imageFiles } from './media'
 import { Dock } from './Dock'
 import { useEditor, useEditorStore } from './EditorContext'
+import { useDisplayTheme, usePreviewTheme } from './theme/themePreview'
+import pillStyles from './theme/ThemePanel.module.css'
 import { ZoomControl } from './ZoomControl'
 import type { Zoom } from './ZoomControl'
 import styles from './Stage.module.css'
@@ -88,7 +90,8 @@ export function Stage({
   const fit = fitScale(size.w, size.h)
   const scale = zoom === 'fit' ? fit : zoom / 100
 
-  const theme = useEditor((s) => s.deck.theme)
+  const theme = useDisplayTheme()
+  const previewing = usePreviewTheme()
   const slide = useEditor((s) => s.deck.slides.find((x) => x.id === s.selection.slideId) ?? s.deck.slides[0])
   const editingId = useEditor((s) => s.editingId)
 
@@ -193,6 +196,14 @@ export function Stage({
         <QuickBar frame={frame} scale={scale} container={stageEl} hidden={canvas.busy || menu !== null} onMore={(x, y) => setMenu({ x, y })} />
         {menu && <ElementMenu x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
         <Dock />
+        {previewing && (
+          <div className={pillStyles.pill} data-preview-pill="" role="status">
+            <Eye size={14} strokeWidth={1.75} aria-hidden />
+            <span>
+              Previewing <b>{previewing.name}</b> · click to apply
+            </span>
+          </div>
+        )}
         <ZoomControl zoom={zoom} fit={fit} onZoom={onZoom} />
         {panelHidden && (
           <div className={`${styles.chip} ${styles.showPanel}`}>
