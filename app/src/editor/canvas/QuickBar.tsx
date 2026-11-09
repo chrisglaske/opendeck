@@ -368,27 +368,21 @@ function ImageBar({ slideId, el }: { slideId: string; el: ImageEl }) {
   const update = useUpdate(slideId, el)
   return (
     <>
+      <Button size="sm" variant="secondary" icon={Replace} onClick={() => pickImageFile((f) => void replaceImage(store, slideId, el.id, f))}>
+        Replace
+      </Button>
+      <Sep />
       <SegmentedControl
         label="Image fit"
         options={[{ value: 'fill', label: 'Fill' }, { value: 'fit', label: 'Fit' }]}
         value={el.fit}
         onChange={(fit) => update('fit', (e) => ({ ...e, fit }))}
       />
-      <Sep />
       {!el.locked && (
         <Button size="sm" variant="ghost" icon={Crop} className={s.textButton} onClick={() => startCrop(store, el.id)}>
           Crop
         </Button>
       )}
-      <Button
-        size="sm"
-        variant="ghost"
-        icon={Replace}
-        className={s.textButton}
-        onClick={() => pickImageFile((f) => void replaceImage(store, slideId, el.id, f))}
-      >
-        Replace
-      </Button>
       <Sep />
       <DuplicateButton />
     </>

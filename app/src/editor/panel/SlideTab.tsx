@@ -1,7 +1,15 @@
 import { updateSlide } from '../../model/ops'
 import { themeVars } from '../../model/theme'
 import type { ColorRef, Slide, ThemeColorToken } from '../../model/types'
-import { ImageOff, ImagePlus, Replace } from 'lucide-react'
+import { ChevronDown, ImageOff, ImagePlus, Replace } from 'lucide-react'
+import { useMemo } from 'react'
+import type { Theme } from '../../model/theme'
+import { SLIDE_W } from '../../model/types'
+import { SlideView } from '../../render/SlideView'
+import { templateByRef } from '../../templates/builtins'
+import { groupLabel } from '../../templates/types'
+import type { Template } from '../../templates/types'
+import { useSlidesPanel } from '../slides/slidesPanelState'
 import { useAssetUrl } from '../../storage/assets'
 import { Button, Toggle } from '../../ui'
 import { useEditor, useEditorStore } from '../EditorContext'
@@ -28,6 +36,7 @@ export function SlideTab({ slide }: { slide: Slide }) {
 
   return (
     <div className={styles.body}>
+      <LayoutField layout={slide.layout} theme={theme} />
       <section>
         <h2 className={styles.heading} id="bg-heading">Background</h2>
         {/* The swatches show this deck's theme colors, not the app's. */}
@@ -86,6 +95,32 @@ export function SlideTab({ slide }: { slide: Slide }) {
         <span className={styles.hint}>Skipped when presenting</span>
       </div>
     </div>
+  )
+}
+
+const MINI_W = 64
+/** The person's own templates, until they can be looked up here. */
+const noTemplate = (): Template | undefined => undefined
+
+/** The slide's layout and a way to change it. A slide with no layout (or a removed one) shows "No layout". */
+function LayoutField({ layout, theme }: { layout?: string; theme: Theme }) {
+  const { changeLayout } = useSlidesPanel()
+  const t = templateByRef(layout, noTemplate)
+  const mini = useMemo(() => (t ? { id: t.id, ...t.slide, notes: '', hidden: false } : null), [t])
+  return (
+    <section>
+      <h2 className={styles.heading}>Layout</h2>
+      <button type="button" className={styles.layoutField} onClick={changeLayout}>
+        <span className={`${styles.layoutMini} ${mini ? '' : styles.layoutNone}`}>
+          {mini && <SlideView slide={mini} theme={theme} scale={MINI_W / SLIDE_W} interactive={false} />}
+        </span>
+        <span className={styles.grow}>
+          <span className={styles.layoutName}>{t ? t.name : 'No layout'}</span>
+          <span className={styles.layoutHint}>{t ? groupLabel(t.group) : 'Pick one to restyle this slide'}</span>
+        </span>
+        <ChevronDown size={16} strokeWidth={1.75} aria-hidden />
+      </button>
+    </section>
   )
 }
 

@@ -165,3 +165,14 @@ export function useAssetUrl(assetId: string | undefined): string | null {
   }, [assetId, load])
   return url
 }
+
+/** Picture sizes seen so far (when drawn or added), so a layout switch can crop to fill a new frame. */
+const sizes = new Map<string, { w: number; h: number }>()
+
+export function rememberImageSize(id: string, size: { w: number; h: number }) {
+  if (id && size.w > 0 && size.h > 0) sizes.set(id, size)
+}
+
+export function knownImageSize(id: string): { w: number; h: number } | undefined {
+  return sizes.get(id)
+}

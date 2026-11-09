@@ -80,7 +80,8 @@ export function enterTextEditing(store: EditorStore, id: string, how: TextEntry 
   const slide = slideOf(store)
   const el = findElement(slide, id)?.el
   if (el?.type !== 'text' || el.locked) return
-  entry = { id, entry: how }
+  // The first click into sample text selects all of it, so typing replaces it in one go.
+  entry = { id, entry: el.sample && (how.mode === 'point' || how.mode === 'end') ? { mode: 'all' } : how }
   store.select({ slideId: slide.id, ids: [id] })
   store.setEditing(id)
 }
@@ -121,7 +122,12 @@ export function watchTextEditing(store: EditorStore): () => void {
 /** Replaces a text box's paragraphs as part of the current typing step. */
 export function writeParagraphs(store: EditorStore, id: string, paragraphs: Paragraph[], coalesce = textCoalesce(id)) {
   const slide = slideOf(store)
-  store.apply((d) => updateElements(d, slide.id, [id], (e) => (e.type === 'text' ? { ...e, paragraphs } : e)), { coalesce })
+  // Changed sample text is the person's own from now on, in the same undo step as the change.
+  const own = (e: TextEl): TextEl => {
+    const { sample: _sample, ...rest } = e
+    return { ...rest, paragraphs }
+  }
+  store.apply((d) => updateElements(d, slide.id, [id], (e) => (e.type === 'text' ? own(e) : e)), { coalesce })
 }
 
 /** The whole text of a box, for commands that act on a selected (not edited) box. */

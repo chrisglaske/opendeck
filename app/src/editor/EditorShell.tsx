@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Autosaver } from '../storage/autosave'
 import { useEditorStore } from './EditorContext'
 import { Panel } from './panel/Panel'
@@ -9,6 +9,8 @@ import type { Theme } from '../model/theme'
 import { BrandKitDialog } from './theme/BrandKitDialog'
 import { ThemePanel } from './theme/ThemePanel'
 import { OpenDeckThemeContext } from './theme/themeEditorRequest'
+import { SlidesPanel } from './slides/SlidesPanel'
+import { SlidesPanelContext } from './slides/slidesPanelState'
 import { TopBar } from './TopBar'
 import { stepZoom } from './ZoomControl'
 import type { Zoom } from './ZoomControl'
@@ -39,7 +41,7 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   const store = useEditorStore()
   const [panelHidden, setPanelHidden] = useState(readPanelHidden)
   const [zoom, setZoom] = useState<Zoom>('fit')
-  const [panelView, setPanelView] = useState<'auto' | 'theme'>('auto')
+  const [panelView, setPanelView] = useState<'auto' | 'theme' | 'slides' | 'layout'>('auto')
   const [themeEditor, setThemeEditor] = useState<{ mode: 'new' | 'edit' | 'deck'; start: Theme; kit?: BrandKit } | null>(null)
   const deckTheme = () => store.getState().deck.theme
   const openDeckTheme = () => setThemeEditor({ mode: 'deck', start: deckTheme() })
@@ -59,6 +61,21 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
     setPanelView('theme')
     if (panelHidden) togglePanel(false)
   }
+
+  const slidesOpen = panelView === 'slides' && !panelHidden
+  const slidesPanel = useMemo(
+    () => ({
+      open: slidesOpen,
+      toggle: () => {
+        if (slidesOpen) return setPanelView('auto')
+        setPanelView('slides')
+        if (panelHidden) togglePanel(false)
+      },
+      changeLayout: () => setPanelView('layout'),
+    }),
+    // togglePanel only sets state and writes storage, so it needn't be a dependency.
+    [slidesOpen, panelHidden],
+  )
 
   const togglePanel = (hidden: boolean) => {
     setPanelHidden(hidden)
@@ -86,6 +103,7 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
 
   return (
     <OpenDeckThemeContext.Provider value={openDeckTheme}>
+      <SlidesPanelContext.Provider value={slidesPanel}>
       <div className={styles.shell} data-panel={panelHidden ? 'hidden' : 'shown'}>
         <TopBar autosaver={autosaver} themeOpen={panelView === 'theme' && !panelHidden} onToggleTheme={toggleTheme} />
         <Rail />
@@ -98,11 +116,14 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
               onCreateKit={() => setThemeEditor({ mode: 'new', start: deckTheme() })}
               onEditKit={(kit) => setThemeEditor({ mode: 'edit', start: kit.theme, kit })}
             />
+          ) : panelView === 'slides' || panelView === 'layout' ? (
+            <SlidesPanel key={panelView} mode={panelView === 'slides' ? 'add' : 'change'} onClose={() => setPanelView('auto')} />
           ) : (
             <Panel onHide={() => togglePanel(true)} />
           ))}
         {themeEditor && <BrandKitDialog {...themeEditor} onClose={() => setThemeEditor(null)} />}
       </div>
+      </SlidesPanelContext.Provider>
     </OpenDeckThemeContext.Provider>
   )
 }

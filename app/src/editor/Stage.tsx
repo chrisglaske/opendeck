@@ -17,10 +17,11 @@ import { useCanvasGestures } from './canvas/useCanvasGestures'
 import { useCanvasKeys } from './canvas/useCanvasKeys'
 import { worldItems } from './canvas/world'
 import { useClipboard } from './clipboard'
-import { addImages, imageFiles } from './media'
+import { addImages, imageFiles, replaceImage } from './media'
 import { AsideLayer } from './AsideLayer'
 import { Dock } from './Dock'
 import { useEditor, useEditorStore } from './EditorContext'
+import { useLayoutPreview } from './slides/layoutPreview'
 import { useDisplayTheme, usePreviewTheme } from './theme/themePreview'
 import pillStyles from './theme/ThemePanel.module.css'
 import { ZoomControl } from './ZoomControl'
@@ -101,7 +102,10 @@ export function Stage({
   const previewing = usePreviewTheme()
   const slide = useEditor((s) => s.deck.slides.find((x) => x.id === s.selection.slideId) ?? s.deck.slides[0])
   const editingId = useEditor((s) => s.editingId)
-  const width = stageWidth(slide)
+  // While a layout card is hovered in Change layout, the canvas shows the slide in that layout.
+  const layoutPreview = useLayoutPreview()
+  const shownLayout = layoutPreview && slide && layoutPreview.slideId === slide.id ? layoutPreview : null
+  const width = stageWidth(shownLayout?.slide ?? slide)
   const fit = fitScale(size.w, size.h, width)
   const scale = zoom === 'fit' ? fit : zoom / 100
 
@@ -138,7 +142,7 @@ export function Stage({
     if (canvas.selectAt(e.clientX, e.clientY)) setMenu({ x: e.clientX, y: e.clientY })
   }
 
-  // Image files dropped on the canvas land where they are dropped.
+  // Image files dropped on the canvas land where they are dropped; one dropped on a picture replaces it.
   const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer.types).includes('Files')
   const onDragOver = (e: DragEvent) => {
     if (!hasFiles(e)) return
@@ -150,6 +154,8 @@ export function Stage({
     e.preventDefault()
     const files = imageFiles(e.dataTransfer.files)
     const all = Array.from(e.dataTransfer.files)
+    const target = files.length === 1 ? canvas.imageAt(e.clientX, e.clientY) : null
+    if (target) return void replaceImage(store, store.getState().selection.slideId, target, files[0])
     // Non-image files still go through the import, which explains why they can't be used.
     void addImages(store, files.length ? files : all.slice(0, 1), toSlidePoint(e.clientX, e.clientY))
   }
@@ -182,7 +188,9 @@ export function Stage({
               onClickCapture={stopLinks}
             >
               <div className={styles.slide}>
-                {slide && (
+                {shownLayout ? (
+                  <SlideView slide={shownLayout.slide} theme={theme} scale={scale} interactive={false} />
+                ) : slide && (
                   <SlideView
                     slide={slide}
                     theme={theme}
@@ -193,7 +201,11 @@ export function Stage({
                   />
                 )}
               </div>
-              {slide && <AsideLayer slide={slide} theme={theme} scale={scale} editingId={editingId} renderTextEditor={renderTextEditor} />}
+              {shownLayout ? (
+                <AsideLayer slide={shownLayout.slide} theme={theme} scale={scale} editingId={null} renderTextEditor={renderTextEditor} />
+              ) : (
+                slide && <AsideLayer slide={slide} theme={theme} scale={scale} editingId={editingId} renderTextEditor={renderTextEditor} />
+              )}
               <Overlay
                 scale={scale}
                 hoverId={canvas.hoverId}
@@ -211,11 +223,11 @@ export function Stage({
         <QuickBar frame={frame} scale={scale} container={stageEl} hidden={canvas.busy || menu !== null} onMore={(x, y) => setMenu({ x, y })} />
         {menu && <ElementMenu x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
         <Dock />
-        {previewing && (
+        {(shownLayout || previewing) && (
           <div className={pillStyles.pill} data-preview-pill="" role="status">
             <Eye size={14} strokeWidth={1.75} aria-hidden />
             <span>
-              Previewing <b>{previewing.name}</b> · click to apply
+              Previewing <b>{shownLayout ? shownLayout.name : previewing!.name}</b> · {shownLayout ? 'click to switch' : 'click to apply'}
             </span>
           </div>
         )}

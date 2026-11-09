@@ -1,7 +1,7 @@
 import { CopyPlus, Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, MouseEvent, PointerEvent as ReactPointerEvent } from 'react'
-import { addSlide, deleteSlides, duplicateSlides, moveSlides, updateSlide } from '../model/ops'
+import { deleteSlides, duplicateSlides, moveSlides, updateSlide } from '../model/ops'
 import type { Theme } from '../model/theme'
 import { SLIDE_W } from '../model/types'
 import type { Deck, Slide } from '../model/types'
@@ -11,6 +11,7 @@ import { Button, ContextMenu } from '../ui'
 import type { MenuItem } from '../ui'
 import { useEditor, useEditorStore } from './EditorContext'
 import { isMac, shortcutLabel } from './shortcuts'
+import { useSlidesPanel } from './slides/slidesPanelState'
 import styles from './Rail.module.css'
 
 /** Thumbnail width in screen pixels. */
@@ -26,6 +27,7 @@ const ordered = (deck: Deck, ids: string[]) => deck.slides.filter((s) => ids.inc
 
 export function Rail() {
   const store = useEditorStore()
+  const slidesPanel = useSlidesPanel()
   const slides = useEditor((s) => s.deck.slides)
   const theme = useDisplayTheme()
   const current = useEditor((s) => s.selection.slideId)
@@ -97,12 +99,6 @@ export function Rail() {
     if (to < 0 || to > d.slides.length) return
     store.apply((x) => moveSlides(x, ids, to))
     focusThumb(current)
-  }
-  const add = () => {
-    const r = addSlide(store.getState().deck, current)
-    store.apply(() => r.deck, { selection: { slideId: r.slideId, ids: [] } })
-    setPicked([r.slideId])
-    anchor.current = r.slideId
   }
 
   const openMenu = (slide: Slide, x: number, y: number, returnTo: HTMLElement | null) => {
@@ -224,7 +220,14 @@ export function Rail() {
         ))}
         {dragging && dragging.drop === slides.length && <div className={styles.dropLine} data-drop-line="" aria-hidden />}
       </div>
-      <Button variant="secondary" size="sm" icon={Plus} className={styles.add} onClick={add}>
+      <Button
+        variant="secondary"
+        size="sm"
+        icon={Plus}
+        className={styles.add}
+        aria-pressed={slidesPanel.open}
+        onClick={slidesPanel.toggle}
+      >
         Add slide
       </Button>
       {ghost && dragging && (

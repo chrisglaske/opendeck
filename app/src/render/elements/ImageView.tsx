@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ImageEl, Rect } from '../../model/types'
-import { useAssetUrl } from '../../storage/assets'
+import { rememberImageSize, useAssetUrl } from '../../storage/assets'
 import { boxStyle, effectStyle } from './box'
 import { SampleArt } from './SampleArt'
 import s from '../SlideView.module.css'
@@ -34,7 +34,11 @@ export function ImageView({ el }: { el: ImageEl }) {
             src={url}
             alt=""
             draggable={false}
-            onLoad={(e) => setNatural({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+            onLoad={(e) => {
+              const n = { w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight }
+              rememberImageSize(el.assetId, n)
+              setNatural(n)
+            }}
             style={{ left: `${image.x}px`, top: `${image.y}px`, width: `${image.w}px`, height: `${image.h}px`, opacity: natural ? 1 : 0 }}
           />
         </div>

@@ -6,6 +6,7 @@ import type { TextEl } from '../../model/types'
 import { EditorProvider } from '../EditorContext'
 import { isMac } from '../shortcuts'
 import { Stage } from '../Stage'
+import { enterTextEditing } from './textSession'
 import { createEditorStore } from '../store'
 import type { EditorStore } from '../store'
 
@@ -210,4 +211,50 @@ describe('text editor', () => {
     fireEvent.click(within(screen.getByRole('toolbar', { name: 'Text options' })).getByRole('button', { name: 'Italic' }))
     expect(textOf(s, el.id)![0].runs).toEqual([{ text: 'H' }, { text: 'ell', italic: true }, { text: 'o' }])
   })
+
+  describe('sample text', () => {
+    function render1(el: TextEl) {
+      const deck = createDeck('Text')
+      deck.slides[0].elements = [el]
+      const store = createEditorStore(deck)
+      render(
+        <EditorProvider store={store}>
+          <Stage zoom={100} onZoom={() => {}} panelHidden={false} onShowPanel={() => {}} />
+        </EditorProvider>,
+      )
+      return store
+    }
+    const sampleOf = (s: EditorStore, id: string) => (s.getState().deck.slides[0].elements.find((e) => e.id === id) as TextEl).sample
+
+    it('the first click into sample text selects all of it', () => {
+      const el: TextEl = { ...textBox('Ana Ruiz'), sample: true }
+      const s = render1(el)
+      act(() => enterTextEditing(s, el.id, { mode: 'point', x: 120, y: 110 }))
+      expect(window.getSelection()!.toString()).toBe('Ana Ruiz')
+      input('insertText', 'Bo')
+      expect(textOf(s, el.id)![0].runs).toEqual([{ text: 'Bo' }])
+      expect(sampleOf(s, el.id)).toBeUndefined()
+      act(() => s.undo())
+      expect(textOf(s, el.id)![0].runs).toEqual([{ text: 'Ana Ruiz' }])
+      expect(sampleOf(s, el.id)).toBe(true)
+    })
+
+    it('after editing, clicks place the cursor', () => {
+      const el = textBox('Ana Ruiz')
+      const s = render1(el)
+      act(() => enterTextEditing(s, el.id, { mode: 'end' }))
+      expect(window.getSelection()!.toString()).toBe('')
+    })
+
+    it('leaving sample text unchanged keeps it a sample', () => {
+      const el: TextEl = { ...textBox('Ana Ruiz'), sample: true }
+      const s = render1(el)
+      act(() => enterTextEditing(s, el.id, { mode: 'end' }))
+      fireEvent.keyDown(editor(), { key: 'Escape' })
+      expect(s.getState().editingId).toBeNull()
+      expect(sampleOf(s, el.id)).toBe(true)
+      expect(s.getState().canUndo).toBe(false)
+    })
+  })
 })
+

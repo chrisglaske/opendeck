@@ -1,8 +1,9 @@
 import { createImage } from '../model/factory'
+import { coverCrop } from '../model/geometry'
 import { addElements, updateElements, updateSlide } from '../model/ops'
 import type { ImageEl, Point } from '../model/types'
 import { getDeckStore } from '../storage/appStore'
-import { ACCEPTED, ImageTooLargeError, importImage, UnsupportedImageError } from '../storage/assets'
+import { ACCEPTED, ImageTooLargeError, importImage, rememberImageSize, UnsupportedImageError } from '../storage/assets'
 import { toast } from '../ui'
 import { SAVE_ERROR_TEXT } from './SaveStatus'
 import type { EditorStore } from './store'
@@ -28,6 +29,7 @@ export async function saveImageFile(file: Blob) {
   toast('Adding image…', { durationMs: 2000 })
   try {
     const r = await importImage(await getDeckStore(), file)
+    rememberImageSize(r.assetId, { w: r.width, h: r.height })
     if (r.notSaved) toast(`Image added, but not saved. ${SAVE_ERROR_TEXT[r.notSaved]}`, { durationMs: 8000 })
     return r
   } catch (e) {
@@ -55,12 +57,19 @@ export async function addImages(editor: EditorStore, files: File[], at?: Point) 
   editor.apply((d) => addElements(d, slideId, els), { selection: { slideId, ids: els.map((e) => e.id) } })
 }
 
-/** Swaps the picture in an image box; the box stays and the crop starts over. */
+/**
+ * Swaps the picture in an image box. The box keeps its place, size, corners and fit; the new
+ * picture is cropped to fill it. A sample picture becomes an ordinary one.
+ */
 export async function replaceImage(editor: EditorStore, slideId: string, id: string, file: File) {
   const r = await saveImageFile(file)
   if (!r) return
   editor.apply((d) =>
-    updateElements(d, slideId, [id], (e) => (e.type === 'image' ? { ...e, assetId: r.assetId, crop: { x: 0, y: 0, w: 1, h: 1 } } : e)),
+    updateElements(d, slideId, [id], (e) => {
+      if (e.type !== 'image') return e
+      const { art: _art, sample: _sample, ...rest } = e
+      return { ...rest, assetId: r.assetId, crop: coverCrop({ w: r.width, h: r.height }, { w: e.w, h: e.h }) }
+    }),
   )
 }
 

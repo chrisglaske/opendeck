@@ -50,10 +50,9 @@ describe('EditorShell', () => {
 
   it('leaves out features from later stages', () => {
     setup()
-    for (const name of [/share/i, /present/i, /layouts?/i]) {
+    for (const name of [/share/i, /present/i]) {
       expect(screen.queryByRole('button', { name })).toBeNull()
     }
-    expect(screen.queryByText(/^Layout$/)).toBeNull()
   })
 
   it('enables undo once there is something to undo', () => {
@@ -72,6 +71,7 @@ describe('EditorShell', () => {
     await userEvent.click(options()[1])
     expect(store.getState().selection.slideId).toBe(deck.slides[1].id)
     await userEvent.click(screen.getByRole('button', { name: 'Add slide' }))
+    await userEvent.click(within(screen.getByRole('complementary', { name: 'Add slide' })).getByRole('button', { name: 'Blank' }))
     const s = slides(store)
     expect(s).toHaveLength(4)
     expect(s[2].id).not.toBe(deck.slides[2].id)

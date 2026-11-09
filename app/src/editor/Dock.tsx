@@ -1,4 +1,4 @@
-import { Image, MoveUpRight, Shapes, Square, Stamp, Type } from 'lucide-react'
+import { Image, LayoutTemplate, MoveUpRight, Shapes, Square, Stamp, Type } from 'lucide-react'
 import { useState } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { createIcon, createLine, createLogo, createShape, createText } from '../model/factory'
@@ -10,6 +10,7 @@ import { useEditorStore } from './EditorContext'
 import { addImages, pickImageFile } from './media'
 import { IconPicker } from './pickers/IconPicker'
 import { shortcutLabel, useShortcuts } from './shortcuts'
+import { useSlidesPanel } from './slides/slidesPanelState'
 import styles from './Dock.module.css'
 
 type Tool = { key: string; label: string; icon: LucideIcon; make: () => SlideElement }
@@ -30,6 +31,7 @@ const TOOLS: Tool[] = [
 
 export function Dock() {
   const store = useEditorStore()
+  const slidesPanel = useSlidesPanel()
   const [iconAnchor, setIconAnchor] = useState<HTMLSpanElement | null>(null)
   const [iconsOpen, setIconsOpen] = useState(false)
   const add = (el: SlideElement) => {
@@ -71,6 +73,8 @@ export function Dock() {
         </Popover>
       )}
       <IconButton icon={Stamp} iconSize={18} label="Logo" onClick={() => add(createLogo())} />
+      <hr className={styles.sep} />
+      <IconButton icon={LayoutTemplate} iconSize={18} label="Layouts" pressed={slidesPanel.open} onClick={slidesPanel.toggle} />
     </div>
   )
 }

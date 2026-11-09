@@ -1,13 +1,19 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
-import { createDeck, createShape } from '../../model/factory'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createDeck, createImage, createShape } from '../../model/factory'
 import { group } from '../../model/ops'
 import { applyTheme } from '../../model/themeOps'
 import { createAutosaver } from '../../storage/autosave'
 import { createMemoryStore } from '../../storage/deckStore'
 import { EditorShell } from '../EditorShell'
-import type { ShapeEl, SlideElement } from '../../model/types'
+import type { ImageEl, ShapeEl, SlideElement } from '../../model/types'
+
+vi.mock('../../storage/appStore', () => ({ getDeckStore: async () => ({}) }))
+vi.mock('../../storage/assets', async (orig) => ({
+  ...(await orig<typeof import('../../storage/assets')>()),
+  importImage: async () => ({ assetId: 'photo-1', width: 800, height: 400 }),
+}))
 import { EditorProvider } from '../EditorContext'
 import { Stage } from '../Stage'
 import { createEditorStore } from '../store'
@@ -262,3 +268,47 @@ describe('elements kept beside the slide', () => {
     expect(screen.getByText('Not in this layout')).toBeInTheDocument()
   })
 })
+
+describe('sample pictures', () => {
+  const picture = (): ImageEl => ({
+    ...createImage('', { w: 400, h: 400 }),
+    x: 100,
+    y: 100,
+    w: 400,
+    h: 400,
+    radius: 200,
+    art: { kind: 'photo', variant: 0 },
+    sample: true,
+  })
+
+  it('shows Replace in the quick bar for a sample picture', () => {
+    const p = picture()
+    const s = setup([p])
+    click(node(p.id), [200, 200])
+    expect(sel(s)).toEqual([p.id])
+    expect(within(screen.getByRole('toolbar', { name: 'Image options' })).getByRole('button', { name: 'Replace' })).toBeInTheDocument()
+  })
+
+  it('dropping a photo on a picture replaces it', async () => {
+    const p = picture()
+    const s = setup([p])
+    pointAt(node(p.id))
+    const file = new File(['x'], 'photo.png', { type: 'image/png' })
+    fireEvent.drop(node(p.id), { clientX: 200, clientY: 200, dataTransfer: { files: [file], types: ['Files'] } })
+    await waitFor(() => expect((els(s)[0] as ImageEl).assetId).toBe('photo-1'))
+    expect(els(s)).toHaveLength(1)
+    expect(els(s)[0]).toMatchObject({ id: p.id, radius: 200, w: 400 })
+    expect((els(s)[0] as ImageEl).art).toBeUndefined()
+  })
+
+  it('dropping a photo on empty canvas still adds a new image', async () => {
+    const p = picture()
+    const s = setup([p])
+    pointAt(slideRoot())
+    const file = new File(['x'], 'photo.png', { type: 'image/png' })
+    fireEvent.drop(slideRoot(), { clientX: 900, clientY: 800, dataTransfer: { files: [file], types: ['Files'] } })
+    await waitFor(() => expect(els(s)).toHaveLength(2))
+    expect((els(s)[0] as ImageEl).art).toEqual({ kind: 'photo', variant: 0 })
+  })
+})
+

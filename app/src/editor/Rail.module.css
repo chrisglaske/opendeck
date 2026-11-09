@@ -150,3 +150,11 @@
   margin-left: 22px;
   justify-content: center;
 }
+
+/* Highlighted while the Slides panel is open. */
+.add[aria-pressed='true'],
+.add[aria-pressed='true']:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}

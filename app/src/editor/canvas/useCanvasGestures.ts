@@ -3,7 +3,7 @@ import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent }
 import { bounds, moveElement, resizeBox, rotateAround, scaleInto, unionRect, MIN_SIZE } from '../../model/geometry'
 import type { Handle, RotatedRect } from '../../model/geometry'
 import { centerOnSlide } from '../../model/aside'
-import { updateElements } from '../../model/ops'
+import { findElement, updateElements } from '../../model/ops'
 import { snapMove, snapResize } from '../../model/snap'
 import type { GapMark, Guide } from '../../model/snap'
 import { SLIDE_H, SLIDE_W } from '../../model/types'
@@ -407,6 +407,12 @@ export function useCanvasGestures(frame: HTMLElement | null, scale: number, toSl
       const target = pick(chainAt(clientX, clientY), slide, st.selection.ids)
       if (target && !st.selection.ids.includes(target)) store.select({ slideId: slide.id, ids: [target] })
       return target
+    },
+    /** The innermost picture under a point, for dropping a photo onto it; null when there is none. */
+    imageAt(clientX: number, clientY: number): string | null {
+      const slide = slideOf(store.getState())
+      const id = chainAt(clientX, clientY).findLast((x) => findElement(slide, x)?.el.type === 'image')
+      return id ?? null
     },
     canvasHandlers: { onPointerDown, onPointerMove, onPointerLeave, onDoubleClick },
     startResize,
