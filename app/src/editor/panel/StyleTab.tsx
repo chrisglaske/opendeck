@@ -1,12 +1,14 @@
-import { Baseline, MoveLeft, MoveRight, Space } from 'lucide-react'
+import { Baseline, MoveLeft, MoveRight, Space, Unlink } from 'lucide-react'
 import { findElement, updateElements } from '../../model/ops'
 import { radiusPx, resolveColor, themeVars } from '../../model/theme'
-import type { ColorRef, IconEl, ImageEl, LineEl, ShapeEl, Slide, TextEl, TextStyleId, ThemeColorToken } from '../../model/types'
-import { IconButton, NumberField, SegmentedControl, Toggle } from '../../ui'
+import { detachLogo, logoAssetFor } from '../../model/themeOps'
+import type { ColorRef, IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, TextEl, TextStyleId, ThemeColorToken } from '../../model/types'
+import { Button, IconButton, NumberField, SegmentedControl, Toggle } from '../../ui'
 import { useTextSession } from '../canvas/textSession'
 import { useEditor, useEditorStore } from '../EditorContext'
 import { customColors, themeColorName } from '../pickers/color'
 import { ColorButton } from '../pickers/ColorPicker'
+import { useOpenDeckTheme } from '../theme/themeEditorRequest'
 import { textCommands } from '../textCommands'
 import styles from './Panel.module.css'
 
@@ -31,6 +33,7 @@ export function StyleTab({ slide, id }: { slide: Slide; id: string }) {
   if (el?.type === 'line') return <LineStyle slideId={slide.id} el={el} />
   if (el?.type === 'image') return <ImageStyle slideId={slide.id} el={el} />
   if (el?.type === 'icon') return <IconStyle slideId={slide.id} el={el} />
+  if (el?.type === 'logo') return <LogoStyle slide={slide} el={el} />
   return null
 }
 
@@ -198,6 +201,13 @@ function ShapeStyle({ slideId, el }: { slideId: string; el: ShapeEl }) {
         <section>
           <h3 className={styles.heading}>Corners</h3>
           <NumberField label="Corner radius" suffix="px" min={0} max={2000} value={Math.round(radiusPx(el.radius, theme))} onChange={(radius) => update('radius', (e) => ({ ...e, radius }))} />
+          {el.radius === 'theme' ? (
+            <p className={styles.swatchNote}>From theme</p>
+          ) : (
+            <button type="button" className={styles.noteLink} onClick={() => update('radius', (e) => ({ ...e, radius: 'theme' }))}>
+              Use theme corners
+            </button>
+          )}
         </section>
       )}
     </>
@@ -260,6 +270,29 @@ function ImageStyle({ slideId, el }: { slideId: string; el: ImageEl }) {
         <NumberField label="Corner radius" suffix="px" min={0} max={2000} value={Math.round(el.radius)} onChange={(radius) => update('radius', (e) => ({ ...e, radius }))} />
       </section>
     </>
+  )
+}
+
+function LogoStyle({ slide, el }: { slide: Slide; el: LogoEl }) {
+  const store = useEditorStore()
+  const theme = useEditor((st) => st.deck.theme)
+  const openDeckTheme = useOpenDeckTheme()
+  return (
+    <section>
+      <h3 className={styles.heading}>Brand logo</h3>
+      <div className={styles.logoRow}>
+        <span className={styles.badge}>Follows theme</span>
+        {logoAssetFor(theme, slide) ? (
+          <Button variant="secondary" size="sm" icon={Unlink} onClick={() => store.apply((d) => detachLogo(d, slide.id, el.id))}>
+            Detach
+          </Button>
+        ) : (
+          <Button variant="secondary" size="sm" onClick={openDeckTheme}>
+            Add a logo to the theme
+          </Button>
+        )}
+      </div>
+    </section>
   )
 }
 

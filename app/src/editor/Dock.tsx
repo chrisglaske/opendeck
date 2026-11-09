@@ -1,7 +1,7 @@
-import { Image, MoveUpRight, Shapes, Square, Type } from 'lucide-react'
+import { Image, MoveUpRight, Shapes, Square, Stamp, Type } from 'lucide-react'
 import { useState } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { createIcon, createLine, createShape, createText } from '../model/factory'
+import { createIcon, createLine, createLogo, createShape, createText } from '../model/factory'
 import { addElements } from '../model/ops'
 import type { SlideElement } from '../model/types'
 import { IconButton, Popover } from '../ui'
@@ -70,6 +70,7 @@ export function Dock() {
           />
         </Popover>
       )}
+      <IconButton icon={Stamp} iconSize={18} label="Logo" onClick={() => add(createLogo())} />
     </div>
   )
 }

@@ -1,14 +1,19 @@
 import { Palette, Plus, RefreshCw, SlidersHorizontal, Upload, X } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { BrandKit } from '../../model/brandKit'
 import { BUILTIN_THEMES } from '../../model/builtinThemes'
 import type { Theme } from '../../model/theme'
 import { applyTheme, isKitNewer, themeFromKit } from '../../model/themeOps'
+import { getDeckStore } from '../../storage/appStore'
+import { importKitFile } from '../../storage/kitFile'
+import type { KitImportError } from '../../storage/kitFile'
 import { useBrandKits } from '../../storage/kits'
 import { Button, IconButton, toast } from '../../ui'
 import { exitTextEditing } from '../canvas/textSession'
 import { useEditor, useEditorStore } from '../EditorContext'
+import { SAVE_ERROR_TEXT } from '../SaveStatus'
 import type { EditorStore } from '../store'
+import { KitMenu } from './KitMenu'
 import { ThemeCard } from './ThemeCard'
 import { setPreviewTheme } from './themePreview'
 import styles from './ThemePanel.module.css'
@@ -19,6 +24,19 @@ export function applyThemeWithToast(store: EditorStore, theme: Theme) {
   store.apply((d) => applyTheme(d, theme))
   setPreviewTheme(null)
   toast(`Theme changed to ${theme.name}`, { actionLabel: 'Undo', onAction: () => store.undo() })
+}
+
+const IMPORT_ERRORS: Record<KitImportError, string> = {
+  'not-a-kit': "That file isn't a brand kit OpenDeck can use",
+  'newer-version': 'That brand kit was made by a newer version of OpenDeck',
+  'too-large': 'That file is over 30 MB',
+}
+
+async function importKit(file: File) {
+  const r = await importKitFile(await getDeckStore(), file)
+  if (!r.ok) return toast(IMPORT_ERRORS[r.reason])
+  if (r.notSaved) toast(`Added brand kit ${r.kit.theme.name}, but not saved. ${SAVE_ERROR_TEXT[r.notSaved]}`, { durationMs: 8000 })
+  else toast(`Added brand kit ${r.kit.theme.name}`)
 }
 
 const SWATCHES = ['bg', 'surface', 'text', 'accent', 'accent2'] as const
@@ -79,10 +97,10 @@ export function ThemePanel({
   const kitThemes = useMemo(() => kits.map((k) => ({ kit: k, theme: themeFromKit(k) })), [kits])
   const source = theme.source
   const newerKit = kits.find((k) => isKitNewer(theme, k)) ?? null
+  const fileRef = useRef<HTMLInputElement>(null)
 
   // A preview never outlives the panel.
   useEffect(() => () => setPreviewTheme(null), [])
-  void onEditKit
 
   return (
     <aside className={styles.panel} aria-label="Theme">
@@ -109,11 +127,23 @@ export function ThemePanel({
         <section>
           <h3 className={styles.heading}>
             Your brand kits
-            <button type="button" className={`${styles.link} ${styles.headingLink}`}>
+            <button type="button" className={`${styles.link} ${styles.headingLink}`} onClick={() => fileRef.current?.click()}>
               <Upload size={12} strokeWidth={2} aria-hidden />
               Import
             </button>
           </h3>
+          <input
+            ref={fileRef}
+            type="file"
+            hidden
+            aria-label="Brand kit file"
+            accept=".odtheme,application/json"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              if (file) void importKit(file)
+            }}
+          />
           <div className={styles.grid}>
             {kitThemes.map(({ kit, theme: t }) => (
               <ThemeCard
@@ -121,7 +151,7 @@ export function ThemePanel({
                 theme={t}
                 current={source?.kind === 'kit' && source.id === kit.id}
                 onApply={() => applyThemeWithToast(store, t)}
-                onMore={() => {}}
+                more={<KitMenu kit={kit} onEdit={() => onEditKit(kit)} />}
               />
             ))}
             <button type="button" className={styles.add} onClick={onCreateKit}>

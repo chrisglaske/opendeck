@@ -23,6 +23,11 @@
   bottom: calc(100% + 4px);
 }
 
+.end {
+  right: 0;
+  left: auto;
+}
+
 .item {
   display: flex;
   align-items: center;

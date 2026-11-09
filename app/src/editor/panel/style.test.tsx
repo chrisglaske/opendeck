@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { createDeck, createShape, createText } from '../../model/factory'
+import { createDeck, createLogo, createShape, createText } from '../../model/factory'
 import type { ShapeEl, SlideElement, TextEl } from '../../model/types'
 import { createAutosaver } from '../../storage/autosave'
 import { createMemoryStore } from '../../storage/deckStore'
@@ -125,5 +125,29 @@ describe('slide background', () => {
     await userEvent.clear(hex)
     await userEvent.type(hex, '#2E6FD8{Enter}')
     expect(s.getState().deck.slides[0].background.color).toEqual({ hex: '#2E6FD8' })
+  })
+})
+
+describe('theme-bound style', () => {
+  it('shape corners follow the theme until set by hand', async () => {
+    const s = setup([createShape('rect')])
+    const field = () => panel().getByRole('spinbutton', { name: 'Corner radius' })
+    expect(field()).toHaveValue('27')
+    expect(panel().getByText('From theme')).toBeInTheDocument()
+    expect(panel().queryByRole('button', { name: 'Use theme corners' })).toBeNull()
+    await userEvent.clear(field())
+    await userEvent.type(field(), '10{Enter}')
+    expect(first<ShapeEl>(s).radius).toBe(10)
+    expect(panel().queryByText('From theme')).toBeNull()
+    await userEvent.click(panel().getByRole('button', { name: 'Use theme corners' }))
+    expect(first<ShapeEl>(s).radius).toBe('theme')
+    expect(field()).toHaveValue('27')
+  })
+
+  it('a logo explains that it follows the theme', async () => {
+    setup([createLogo()])
+    expect(panel().getByText('Follows theme')).toBeInTheDocument()
+    await userEvent.click(panel().getByRole('button', { name: 'Add a logo to the theme' }))
+    expect(within(screen.getByRole('dialog')).getByRole('heading', { name: "This deck's theme" })).toBeInTheDocument()
   })
 })

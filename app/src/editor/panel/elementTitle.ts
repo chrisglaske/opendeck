@@ -11,7 +11,7 @@ export function elementTitle(el: SlideElement): { icon: LucideIcon; label: strin
       return { icon: Square, label: el.radius === 'theme' || el.radius > 0 ? 'Rounded rectangle' : 'Rectangle' }
     case 'image': return { icon: Image, label: 'Image' }
     case 'icon': return { icon: Smile, label: 'Icon' }
-    case 'logo': return { icon: Stamp, label: 'Logo' }
+    case 'logo': return { icon: Stamp, label: 'Brand logo' }
     case 'line': return { icon: Minus, label: 'Line' }
     case 'group': return { icon: Group, label: 'Group' }
   }

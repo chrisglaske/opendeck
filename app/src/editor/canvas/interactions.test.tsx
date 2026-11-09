@@ -1,7 +1,12 @@
-import { fireEvent, render } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createDeck, createShape } from '../../model/factory'
 import { group } from '../../model/ops'
+import { applyTheme } from '../../model/themeOps'
+import { createAutosaver } from '../../storage/autosave'
+import { createMemoryStore } from '../../storage/deckStore'
+import { EditorShell } from '../EditorShell'
 import type { ShapeEl, SlideElement } from '../../model/types'
 import { EditorProvider } from '../EditorContext'
 import { Stage } from '../Stage'
@@ -174,5 +179,60 @@ describe('canvas interactions', () => {
     expect(sel(s)).toEqual([b.id])
     key('Escape')
     expect(sel(s)).toEqual([groupId])
+  })
+})
+
+describe('logo element', () => {
+  function shell(logo: { main?: string; dark?: string }) {
+    const deck = createDeck('Logo')
+    deck.theme = { ...deck.theme, logo }
+    const store = createEditorStore(deck)
+    render(
+      <EditorProvider store={store}>
+        <EditorShell autosaver={createAutosaver(createMemoryStore())} />
+      </EditorProvider>,
+    )
+    return store
+  }
+  const canvasNode = (id: string) => screen.getByRole('main', { name: 'Slide canvas' }).querySelector<HTMLElement>(`[data-el-id="${id}"]`)!
+  const logoBar = () => within(screen.getByRole('toolbar', { name: 'Logo options' }))
+  const addLogo = () => userEvent.click(within(screen.getByRole('toolbar', { name: 'Insert' })).getByRole('button', { name: 'Logo' }))
+
+  it('adds a logo that swaps with the theme', async () => {
+    const s = shell({ main: 'a1' })
+    await addLogo()
+    const [el] = els(s)
+    expect(el.type).toBe('logo')
+    expect(sel(s)).toEqual([el.id])
+    expect(canvasNode(el.id)).toHaveAttribute('data-logo-asset', 'a1')
+    expect(logoBar().getByText('Brand logo')).toBeInTheDocument()
+    expect(logoBar().getByText('Follows theme')).toBeInTheDocument()
+    act(() => s.apply((d) => applyTheme(d, { ...d.theme, logo: { main: 'a2' } })))
+    expect(canvasNode(el.id)).toHaveAttribute('data-logo-asset', 'a2')
+  })
+
+  it('detaches a logo into a normal image', async () => {
+    const s = shell({ main: 'a1' })
+    await addLogo()
+    const id = els(s)[0].id
+    await userEvent.click(logoBar().getByRole('button', { name: 'Detach' }))
+    expect(els(s)[0]).toMatchObject({ id, type: 'image', assetId: 'a1' })
+    act(() => s.undo())
+    expect(els(s)[0]).toMatchObject({ id, type: 'logo' })
+  })
+
+  it('locks a logo from its bar', async () => {
+    const s = shell({ main: 'a1' })
+    await addLogo()
+    await userEvent.click(logoBar().getByRole('button', { name: 'Lock' }))
+    expect(els(s)[0].locked).toBe(true)
+  })
+
+  it('offers to add a logo when the theme has none', async () => {
+    shell({})
+    await addLogo()
+    expect(logoBar().queryByRole('button', { name: 'Detach' })).toBeNull()
+    await userEvent.click(logoBar().getByRole('button', { name: 'Add a logo to the theme' }))
+    expect(within(screen.getByRole('dialog')).getByRole('heading', { name: "This deck's theme" })).toBeInTheDocument()
   })
 })

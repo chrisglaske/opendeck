@@ -8,6 +8,7 @@ import type { BrandKit } from '../model/brandKit'
 import type { Theme } from '../model/theme'
 import { BrandKitDialog } from './theme/BrandKitDialog'
 import { ThemePanel } from './theme/ThemePanel'
+import { OpenDeckThemeContext } from './theme/themeEditorRequest'
 import { TopBar } from './TopBar'
 import { stepZoom } from './ZoomControl'
 import type { Zoom } from './ZoomControl'
@@ -41,6 +42,7 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   const [panelView, setPanelView] = useState<'auto' | 'theme'>('auto')
   const [themeEditor, setThemeEditor] = useState<{ mode: 'new' | 'edit' | 'deck'; start: Theme; kit?: BrandKit } | null>(null)
   const deckTheme = () => store.getState().deck.theme
+  const openDeckTheme = () => setThemeEditor({ mode: 'deck', start: deckTheme() })
 
   // Selecting something switches the panel back to its settings.
   useEffect(() => {
@@ -81,22 +83,24 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   })
 
   return (
-    <div className={styles.shell} data-panel={panelHidden ? 'hidden' : 'shown'}>
-      <TopBar autosaver={autosaver} themeOpen={panelView === 'theme' && !panelHidden} onToggleTheme={toggleTheme} />
-      <Rail />
-      <Stage zoom={zoom} onZoom={setZoom} panelHidden={panelHidden} onShowPanel={() => togglePanel(false)} />
-      {!panelHidden &&
-        (panelView === 'theme' ? (
-          <ThemePanel
-            onClose={() => setPanelView('auto')}
-            onCustomize={() => setThemeEditor({ mode: 'deck', start: deckTheme() })}
-            onCreateKit={() => setThemeEditor({ mode: 'new', start: deckTheme() })}
-            onEditKit={(kit) => setThemeEditor({ mode: 'edit', start: kit.theme, kit })}
-          />
-        ) : (
-          <Panel onHide={() => togglePanel(true)} />
-        ))}
-      {themeEditor && <BrandKitDialog {...themeEditor} onClose={() => setThemeEditor(null)} />}
-    </div>
+    <OpenDeckThemeContext.Provider value={openDeckTheme}>
+      <div className={styles.shell} data-panel={panelHidden ? 'hidden' : 'shown'}>
+        <TopBar autosaver={autosaver} themeOpen={panelView === 'theme' && !panelHidden} onToggleTheme={toggleTheme} />
+        <Rail />
+        <Stage zoom={zoom} onZoom={setZoom} panelHidden={panelHidden} onShowPanel={() => togglePanel(false)} />
+        {!panelHidden &&
+          (panelView === 'theme' ? (
+            <ThemePanel
+              onClose={() => setPanelView('auto')}
+              onCustomize={openDeckTheme}
+              onCreateKit={() => setThemeEditor({ mode: 'new', start: deckTheme() })}
+              onEditKit={(kit) => setThemeEditor({ mode: 'edit', start: kit.theme, kit })}
+            />
+          ) : (
+            <Panel onHide={() => togglePanel(true)} />
+          ))}
+        {themeEditor && <BrandKitDialog {...themeEditor} onClose={() => setThemeEditor(null)} />}
+      </div>
+    </OpenDeckThemeContext.Provider>
   )
 }

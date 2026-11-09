@@ -1,4 +1,5 @@
-import { Check, Ellipsis } from 'lucide-react'
+import { Check } from 'lucide-react'
+import type { ReactNode } from 'react'
 import type { Theme } from '../../model/theme'
 import { SAMPLE_SLIDES } from '../../model/sampleSlides'
 import { SLIDE_W } from '../../model/types'
@@ -18,13 +19,13 @@ export function ThemeCard({
   theme,
   current,
   onApply,
-  onMore,
+  more,
 }: {
   theme: Theme
   current: boolean
   onApply(): void
   /** Brand kits have a menu (edit, duplicate, export, delete). */
-  onMore?(button: HTMLElement): void
+  more?: ReactNode
 }) {
   const show = () => setPreviewTheme(theme)
   const hide = () => setPreviewTheme(null)
@@ -49,11 +50,7 @@ export function ThemeCard({
           <span className={styles.cardLabel}>{theme.name}</span>
         </span>
       </button>
-      {onMore && (
-        <button type="button" className={styles.more} aria-label={`${theme.name} options`} onClick={(e) => onMore(e.currentTarget)}>
-          <Ellipsis size={14} strokeWidth={1.75} aria-hidden />
-        </button>
-      )}
+      {more}
     </div>
   )
 }

@@ -228,10 +228,13 @@
   font-weight: 600;
 }
 
-.more {
+.moreWrap {
   position: absolute;
   right: -4px;
   bottom: -4px;
+}
+
+.more {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -310,4 +313,28 @@
 
 .pill svg {
   color: var(--accent-text);
+}
+
+.confirm {
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.confirmTitle {
+  display: block;
+  font-size: var(--fs-ui);
+  color: var(--ink);
+}
+
+.confirmText {
+  margin: 6px 0 12px;
+  font-size: var(--fs-caption);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.confirmRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
 }

@@ -35,10 +35,13 @@ export function Menu({
   trigger,
   items,
   label,
+  align = 'start',
 }: {
   trigger: ReactElement<TriggerProps>
   items: MenuItem[]
   label: string
+  /** Which edge of the trigger the menu lines up with; `end` keeps a menu near the right edge on screen. */
+  align?: 'start' | 'end'
 }) {
   const id = useId()
   const wrapRef = useRef<HTMLSpanElement>(null)
@@ -154,7 +157,7 @@ export function Menu({
           id={id}
           role="menu"
           aria-label={label}
-          className={`${styles.menu} ${above ? styles.above : styles.below}`}
+          className={`${styles.menu} ${above ? styles.above : styles.below} ${align === 'end' ? styles.end : ''}`}
           onKeyDown={onMenuKeyDown}
         >
           {items.map((item, i) => {

@@ -13,25 +13,31 @@ import {
   Italic,
   Link,
   List,
+  Lock,
+  LockOpen,
   Minus,
   Replace,
   MoveLeft,
   MoveRight,
   Square,
   SquareDashed,
+  Stamp,
   Underline,
   Ungroup,
+  Unlink,
 } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { bounds, unionRect } from '../../model/geometry'
 import { align, distribute, updateElements } from '../../model/ops'
-import type { IconEl, ImageEl, LineEl, ShapeEl, Slide, SlideElement, TextEl } from '../../model/types'
+import type { IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, SlideElement, TextEl } from '../../model/types'
 import { LIMITS } from '../../model/sanitize'
 import { Button, IconButton, Menu, NumberField, Popover, SegmentedControl } from '../../ui'
 import { elementCommands, selectionInfo } from '../commands'
 import { useEditor, useEditorStore } from '../EditorContext'
 import { radiusPx } from '../../model/theme'
+import { detachLogo, logoAssetFor } from '../../model/themeOps'
+import { useOpenDeckTheme } from '../theme/themeEditorRequest'
 import { ALIGN_BUTTONS } from '../panel/ArrangeTab'
 import { ColorButton } from '../pickers/ColorPicker'
 import { fontsInUse } from '../../fonts/availability'
@@ -149,6 +155,7 @@ function barFor(slide: Slide, ids: string[], single: SlideElement | null, count:
   if (single.type === 'group') return { label: 'Group options', body: <GroupBar /> }
   if (single.type === 'image') return { label: 'Image options', body: <ImageBar slideId={slide.id} el={single} /> }
   if (single.type === 'icon') return { label: 'Icon options', body: <IconBar slideId={slide.id} el={single} /> }
+  if (single.type === 'logo') return { label: 'Logo options', body: <LogoBar slide={slide} el={single} /> }
   return null
 }
 
@@ -426,6 +433,33 @@ function IconBar({ slideId, el }: { slideId: string; el: IconEl }) {
       />
       <Sep />
       <DuplicateButton />
+    </>
+  )
+}
+
+function LogoBar({ slide, el }: { slide: Slide; el: LogoEl }) {
+  const store = useEditorStore()
+  const theme = useEditor((st) => st.deck.theme)
+  const openDeckTheme = useOpenDeckTheme()
+  return (
+    <>
+      <span className={s.label}>
+        <Stamp size={14} strokeWidth={1.75} aria-hidden />
+        Brand logo
+      </span>
+      <span className={s.badge}>Follows theme</span>
+      <Sep />
+      {logoAssetFor(theme, slide) ? (
+        <Button size="sm" variant="ghost" icon={Unlink} className={s.textButton} onClick={() => store.apply((d) => detachLogo(d, slide.id, el.id))}>
+          Detach
+        </Button>
+      ) : (
+        <Button size="sm" variant="ghost" className={s.textButton} onClick={openDeckTheme}>
+          Add a logo to the theme
+        </Button>
+      )}
+      <Sep />
+      <IconButton icon={el.locked ? Lock : LockOpen} label="Lock" size="sm" pressed={el.locked} onClick={() => elementCommands(store).toggleLock()} />
     </>
   )
 }

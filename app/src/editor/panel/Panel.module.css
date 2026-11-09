@@ -405,3 +405,43 @@
   align-items: flex-start;
   gap: 2px;
 }
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--accent-text);
+  font-size: var(--fs-overline);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.noteLink {
+  margin: 6px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.noteLink:hover {
+  text-decoration: underline;
+}
+
+.noteLink:focus-visible {
+  box-shadow: var(--focus-ring);
+}
