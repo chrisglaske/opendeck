@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { afterEach, beforeEach } from 'vitest'
+import { EDITOR_MODE_KEY, MODE_NOTE_KEY, resetEditorModeForTests } from '../editor/mode/editorMode'
 
 type Listener = (e: MediaQueryListEvent) => void
 
@@ -31,6 +32,13 @@ Object.defineProperty(window, 'matchMedia', {
       removeListener: (l: Listener) => mediaStub.listeners.delete(l),
       dispatchEvent: () => true,
     }) as unknown as MediaQueryList,
+})
+
+// Existing suites test every control, so they run in Advanced; Simple-mode tests opt out.
+beforeEach(() => {
+  localStorage.setItem(EDITOR_MODE_KEY, 'advanced')
+  localStorage.setItem(MODE_NOTE_KEY, '1')
+  resetEditorModeForTests()
 })
 
 afterEach(() => {

@@ -11,6 +11,7 @@ import { addImages, pickImageFile } from './media'
 import { IconPicker } from './pickers/IconPicker'
 import { shortcutLabel, useShortcuts } from './shortcuts'
 import { useSlidesPanel } from './slides/slidesPanelState'
+import { useEditorMode } from './mode/editorMode'
 import styles from './Dock.module.css'
 
 type Tool = { key: string; label: string; icon: LucideIcon; make: () => SlideElement }
@@ -45,13 +46,33 @@ export function Dock() {
     iconAnchor?.querySelector('button')?.focus()
   }
   useShortcuts(Object.fromEntries(TOOLS.map((t) => [t.key, () => insert(t)])))
+  const { simple } = useEditorMode()
+  const pickPicture = () => pickImageFile((f) => void addImages(store, [f]))
+
+  if (simple) {
+    const labeled = (label: string, Icon: LucideIcon, onClick: () => void, pressed?: boolean) => (
+      <button type="button" className={styles.labeled} aria-pressed={pressed} onClick={onClick}>
+        <Icon size={18} strokeWidth={1.75} aria-hidden />
+        {label}
+      </button>
+    )
+    return (
+      <div role="toolbar" aria-label="Insert" aria-orientation="vertical" className={`${styles.dock} ${styles.simple}`}>
+        {labeled('Text', Type, () => insert(TOOLS[0]))}
+        {labeled('Picture', Image, pickPicture)}
+        {labeled('Shape', Square, () => insert(TOOLS[1]))}
+        <hr className={styles.sep} />
+        {labeled('Layouts', LayoutTemplate, slidesPanel.toggle, slidesPanel.open)}
+      </div>
+    )
+  }
 
   return (
     <div role="toolbar" aria-label="Insert" aria-orientation="vertical" className={styles.dock}>
       {TOOLS.map((t) => (
         <IconButton key={t.key} icon={t.icon} iconSize={18} label={t.label} shortcut={shortcutLabel(t.key)} onClick={() => insert(t)} />
       ))}
-      <IconButton icon={Image} iconSize={18} label="Image" onClick={() => pickImageFile((f) => void addImages(store, [f]))} />
+      <IconButton icon={Image} iconSize={18} label="Image" onClick={pickPicture} />
       <span ref={setIconAnchor} className={styles.anchor}>
         <IconButton
           icon={Shapes}

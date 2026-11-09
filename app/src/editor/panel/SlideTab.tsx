@@ -1,7 +1,7 @@
 import { updateSlide } from '../../model/ops'
 import { themeVars } from '../../model/theme'
 import type { ColorRef, Slide, ThemeColorToken } from '../../model/types'
-import { ChevronDown, ImageOff, ImagePlus, Replace } from 'lucide-react'
+import { ChevronDown, ImageOff, ImagePlus, LayoutTemplate, Replace } from 'lucide-react'
 import { useMemo } from 'react'
 import type { Theme } from '../../model/theme'
 import { SLIDE_W } from '../../model/types'
@@ -28,7 +28,8 @@ const BACKGROUNDS: { token: ThemeColorToken; label: string }[] = [
 const isToken = (c: ColorRef, t: ThemeColorToken) => 'theme' in c && c.theme === t
 const swatchVar = (t: ThemeColorToken) => `var(--t-${t.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())})`
 
-export function SlideTab({ slide }: { slide: Slide }) {
+/** Simple shows the layout as a card and only the theme backgrounds. */
+export function SlideTab({ slide, simple = false }: { slide: Slide; simple?: boolean }) {
   const store = useEditorStore()
   const theme = useEditor((s) => s.deck.theme)
   const set = (patch: Parameters<typeof updateSlide>[2], coalesce?: string) =>
@@ -36,7 +37,7 @@ export function SlideTab({ slide }: { slide: Slide }) {
 
   return (
     <div className={styles.body}>
-      <LayoutField layout={slide.layout} theme={theme} />
+      <LayoutField layout={slide.layout} theme={theme} simple={simple} />
       <section>
         <h2 className={styles.heading} id="bg-heading">Background</h2>
         {/* The swatches show this deck's theme colors, not the app's. */}
@@ -58,6 +59,7 @@ export function SlideTab({ slide }: { slide: Slide }) {
             )
           })}
         </div>
+        {!simple && (
         <div className={styles.rowGap}>
           <ColorButton
             variant="field"
@@ -67,7 +69,9 @@ export function SlideTab({ slide }: { slide: Slide }) {
             onChange={(color) => color && set({ background: { ...slide.background, color } }, `bg:${slide.id}`)}
           />
         </div>
+        )}
       </section>
+      {!simple && (
       <section>
         <h2 className={styles.heading}>Background image</h2>
         <BackgroundImage
@@ -79,6 +83,7 @@ export function SlideTab({ slide }: { slide: Slide }) {
           }}
         />
       </section>
+      )}
       <section>
         <label className={styles.heading} htmlFor="slide-notes">Speaker notes</label>
         <textarea
@@ -100,12 +105,34 @@ export function SlideTab({ slide }: { slide: Slide }) {
 
 const MINI_W = 64
 /** The slide's layout and a way to change it. A slide with no layout (or a removed one) shows "No layout". */
-function LayoutField({ layout, theme }: { layout?: string; theme: Theme }) {
+function LayoutField({ layout, theme, simple }: { layout?: string; theme: Theme; simple: boolean }) {
   const { changeLayout } = useSlidesPanel()
   // Re-reads when the person's templates change (renamed or deleted).
   useMyTemplates()
   const t = templateByRef(layout, myTemplate)
   const mini = useMemo(() => (t ? { id: t.id, ...t.slide, notes: '', hidden: false } : null), [t])
+  const thumb = (
+    <span className={`${styles.layoutMini} ${mini ? '' : styles.layoutNone}`}>
+      {mini && <SlideView slide={mini} theme={theme} scale={MINI_W / SLIDE_W} interactive={false} />}
+    </span>
+  )
+  if (simple) {
+    return (
+      <section>
+        <h2 className={styles.heading}>Layout</h2>
+        <div className={styles.layoutCard}>
+          {thumb}
+          <span className={styles.grow}>
+            <span className={styles.layoutName}>{t ? t.name : 'No layout'}</span>
+            <span className={styles.layoutHint}>{t ? 'Your text moves with you' : 'Pick one to restyle this slide'}</span>
+          </span>
+        </div>
+        <Button size="sm" variant="secondary" icon={LayoutTemplate} className={styles.changeLayout} onClick={changeLayout}>
+          Change layout
+        </Button>
+      </section>
+    )
+  }
   return (
     <section>
       <h2 className={styles.heading}>Layout</h2>

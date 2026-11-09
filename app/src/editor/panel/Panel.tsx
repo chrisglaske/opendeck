@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { findElement } from '../../model/ops'
 import { IconButton, TabPanel, Tabs } from '../../ui'
 import { useEditor } from '../EditorContext'
+import { useEditorMode } from '../mode/editorMode'
 import { ArrangeTab } from './ArrangeTab'
 import { elementTitle } from './elementTitle'
 import { SlideTab } from './SlideTab'
@@ -16,9 +17,11 @@ export function Panel({ onHide }: { onHide(): void }) {
   const slide = useEditor((s) => s.deck.slides.find((x) => x.id === s.selection.slideId) ?? s.deck.slides[0])
   const ids = useEditor((s) => s.selection.ids)
   const [tab, setTab] = useState<'style' | 'arrange'>('style')
+  const { simple } = useEditorMode()
 
   const first = ids.length ? findElement(slide, ids[0])?.el : undefined
-  const hasSelection = ids.length > 0 && first !== undefined
+  // Simple keeps the panel on the slide; the selection's controls live in its quick bar.
+  const hasSelection = !simple && ids.length > 0 && first !== undefined
   const tabs = hasSelection
     ? [{ id: 'style', label: 'Style' }, { id: 'arrange', label: 'Arrange' }]
     : [{ id: 'slide', label: 'Slide' }]
@@ -42,7 +45,7 @@ export function Panel({ onHide }: { onHide(): void }) {
             {value === 'arrange' && <ArrangeTab key={ids.join(',')} slide={slide} ids={ids} />}
           </div>
         ) : (
-          <SlideTab slide={slide} />
+          <SlideTab slide={slide} simple={simple} />
         )}
       </TabPanel>
     </aside>

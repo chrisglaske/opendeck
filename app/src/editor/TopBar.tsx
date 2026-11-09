@@ -5,6 +5,7 @@ import type { Autosaver } from '../storage/autosave'
 import { useColorMode } from '../theme/useColorMode'
 import { Button, IconButton, Logo } from '../ui'
 import { useEditor, useEditorStore } from './EditorContext'
+import { EditorModeSwitch } from './mode/EditorModeSwitch'
 import { SaveStatus } from './SaveStatus'
 import { shortcutLabel } from './shortcuts'
 import styles from './TopBar.module.css'
@@ -79,6 +80,7 @@ export function TopBar({ autosaver, themeOpen, onToggleTheme }: { autosaver: Aut
       <IconButton icon={Undo2} label="Undo" shortcut={shortcutLabel('mod+z')} disabled={!canUndo} onClick={() => store.undo()} />
       <IconButton icon={Redo2} label="Redo" shortcut={shortcutLabel('shift+mod+z')} disabled={!canRedo} onClick={() => store.redo()} />
       <span className={styles.spacer} />
+      <EditorModeSwitch />
       <Button variant="ghost" icon={Palette} aria-pressed={themeOpen} onClick={onToggleTheme}>
         Theme
       </Button>

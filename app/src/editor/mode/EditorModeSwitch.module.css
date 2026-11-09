@@ -1,0 +1,29 @@
+.wrap {
+  display: inline-flex;
+  margin-right: var(--s-1);
+}
+
+.note {
+  width: 280px;
+  padding: 14px;
+}
+
+.title {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.body {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-ui);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

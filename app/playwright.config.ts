@@ -6,6 +6,19 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:4173/v2/',
+    // Existing specs test every control, so they run in Advanced; the editing-modes spec opts out.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:4173',
+          localStorage: [
+            { name: 'opendeck.v2.editorMode', value: 'advanced' },
+            { name: 'opendeck.v2.modeNoteSeen', value: '1' },
+          ],
+        },
+      ],
+    },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
