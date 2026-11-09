@@ -4,9 +4,10 @@ import { createText } from '../model/factory'
 import { moveElement } from '../model/geometry'
 import { newId } from '../model/ids'
 import { asOwnElement } from '../model/roles'
-import { addElements, deleteElements, findElement } from '../model/ops'
+import { addElements, findElement } from '../model/ops'
 import { sanitizeElements } from '../model/sanitize'
 import type { Slide, SlideElement } from '../model/types'
+import { elementCommands } from './commands'
 import { useEditorStore } from './EditorContext'
 import { addImages, imageFiles } from './media'
 import { isTypingTarget } from './shortcuts'
@@ -147,8 +148,8 @@ export function useClipboard(): void {
       if (!e.clipboardData || !forCanvas(store, e)) return
       if (!copySelection(store, e.clipboardData)) return
       e.preventDefault()
-      const { selection } = store.getState()
-      store.apply((d) => deleteElements(d, selection.slideId, selection.ids), { selection: { slideId: selection.slideId, ids: [] } })
+      // Copies everything selected; in Simple, locked items stay on the slide.
+      elementCommands(store).remove()
     }
     const onPaste = (e: ClipboardEvent) => {
       if (!e.clipboardData || !forCanvas(store, e)) return

@@ -149,6 +149,24 @@ describe('locked items in Simple', () => {
     expect(els(s)).toHaveLength(1)
   })
 
+  it('Mod+X copies a locked item but keeps it, and cuts the unlocked ones beside it', () => {
+    const a = shape(100, 100, { locked: true }), b = shape(300, 100)
+    const s = setup([a, b])
+    const cut = () => {
+      const data = new Map<string, string>()
+      const e = new Event('cut', { bubbles: true, cancelable: true })
+      Object.assign(e, { clipboardData: { setData: (t: string, v: string) => data.set(t, v), getData: (t: string) => data.get(t) ?? '', files: [] } })
+      act(() => void document.body.dispatchEvent(e))
+      return data
+    }
+    select(s, a.id)
+    expect(cut().size).toBeGreaterThan(0)
+    expect(els(s).map((e) => e.id)).toEqual([a.id, b.id])
+    select(s, a.id, b.id)
+    cut()
+    expect(els(s).map((e) => e.id)).toEqual([a.id])
+  })
+
   it('a mixed selection deletes only the unlocked items', () => {
     const a = shape(100, 100, { locked: true }), b = shape(300, 100)
     const s = setup([a, b])

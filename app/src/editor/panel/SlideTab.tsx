@@ -43,7 +43,8 @@ export function SlideTab({ slide, simple = false }: { slide: Slide; simple?: boo
         {/* The swatches show this deck's theme colors, not the app's. */}
         <div role="radiogroup" aria-labelledby="bg-heading" className={styles.bgOptions} style={themeVars(theme)}>
           {BACKGROUNDS.map((b) => {
-            const on = isToken(slide.background.color, b.token)
+            // In Simple a background image covers the color, so no swatch shows as picked and picking one replaces the image.
+            const on = !(simple && slide.background.imageId) && isToken(slide.background.color, b.token)
             return (
               <button
                 key={b.token}
@@ -54,7 +55,7 @@ export function SlideTab({ slide, simple = false }: { slide: Slide; simple?: boo
                 title={b.label}
                 className={styles.bgOption}
                 style={{ backgroundColor: swatchVar(b.token) }}
-                onClick={() => !on && set({ background: { ...slide.background, color: { theme: b.token } } })}
+                onClick={() => !on && set({ background: simple ? { color: { theme: b.token } } : { ...slide.background, color: { theme: b.token } } })}
               />
             )
           })}

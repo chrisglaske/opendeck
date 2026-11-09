@@ -89,10 +89,14 @@ describe('Simple slide panel', () => {
     expect(current().background.color).toEqual({ hex: '#2F9E6B' })
   })
 
-  it('a background image stays when a swatch is picked', async () => {
-    const { current } = setup({ background: { color: { theme: 'bg' }, imageId: 'img-1' } })
-    await userEvent.click(screen.getByRole('radio', { name: 'Surface' }))
-    expect(current().background).toEqual({ color: { theme: 'surface' }, imageId: 'img-1' })
+  it('a background image marks no swatch and a pick replaces it in one undo step', async () => {
+    const { store, current } = setup({ background: { color: { theme: 'bg' }, imageId: 'img-1' } })
+    const radios = within(screen.getByRole('radiogroup', { name: 'Background' })).getAllByRole('radio')
+    for (const r of radios) expect(r).toHaveAttribute('aria-checked', 'false')
+    await userEvent.click(screen.getByRole('radio', { name: 'Background' }))
+    expect(current().background).toEqual({ color: { theme: 'bg' } })
+    act(() => store.undo())
+    expect(current().background).toEqual({ color: { theme: 'bg' }, imageId: 'img-1' })
   })
 
   it('keeps speaker notes and hide slide', () => {
