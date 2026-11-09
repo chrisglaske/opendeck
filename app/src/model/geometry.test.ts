@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MIN_SIZE, bounds, moveElement, resizeBox, rotateAround, scaleInto, unionRect } from './geometry'
+import { MIN_SIZE, bounds, coverCrop, moveElement, resizeBox, rotateAround, scaleInto, unionRect } from './geometry'
 import { createLine, createShape } from './factory'
 import type { ShapeEl } from './types'
 
@@ -109,5 +109,14 @@ describe('scaleInto', () => {
   it('scales line endpoints', () => {
     const l = scaleInto({ ...createLine(), x1: 0, y1: 0, x2: 100, y2: 50 }, box(0, 0, 100, 100), box(0, 0, 200, 200))
     expect(l).toMatchObject({ x1: 0, y1: 0, x2: 200, y2: 100 })
+  })
+})
+
+describe('coverCrop', () => {
+  it('crops a wide photo to fill a square frame', () => {
+    expect(coverCrop({ w: 2000, h: 1000 }, { w: 500, h: 500 })).toEqual({ x: 0.25, y: 0, w: 0.5, h: 1 })
+  })
+  it('crops a tall photo to fill a wide frame', () => {
+    expect(coverCrop({ w: 1000, h: 2000 }, { w: 400, h: 200 })).toEqual({ x: 0, y: 0.375, w: 1, h: 0.25 })
   })
 })

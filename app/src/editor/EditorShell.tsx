@@ -3,7 +3,7 @@ import type { Autosaver } from '../storage/autosave'
 import { useEditorStore } from './EditorContext'
 import { Panel } from './panel/Panel'
 import { Rail } from './Rail'
-import { fitScale, Stage } from './Stage'
+import { fitScale, Stage, stageWidth } from './Stage'
 import type { BrandKit } from '../model/brandKit'
 import type { Theme } from '../model/theme'
 import { BrandKitDialog } from './theme/BrandKitDialog'
@@ -68,7 +68,9 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   // Zoom steps start from the current fit value, measured from the canvas.
   const currentFit = () => {
     const el = document.querySelector<HTMLElement>('[data-stage-scroller]')
-    return el ? fitScale(el.clientWidth, el.clientHeight) : 1
+    const st = store.getState()
+    const slide = st.deck.slides.find((x) => x.id === st.selection.slideId)
+    return el ? fitScale(el.clientWidth, el.clientHeight, stageWidth(slide)) : 1
   }
 
   // While text is being edited, the text editor handles its own undo.

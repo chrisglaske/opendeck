@@ -138,3 +138,14 @@ export function childToParent<T extends SlideElement>(child: T, group: RotatedRe
   if (group.rotation % 360 === 0) return moved
   return rotateAround(moved, { x: group.x + group.w / 2, y: group.y + group.h / 2 }, group.rotation)
 }
+
+/** The centered crop (0..1 of the source) that fills `box` without distortion. */
+export function coverCrop(natural: { w: number; h: number }, box: { w: number; h: number }): Rect {
+  const src = natural.w / natural.h, dst = box.w / box.h
+  if (src > dst) {
+    const w = dst / src
+    return { x: (1 - w) / 2, y: 0, w, h: 1 }
+  }
+  const h = src / dst
+  return { x: 0, y: (1 - h) / 2, w: 1, h }
+}

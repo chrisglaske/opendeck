@@ -236,3 +236,29 @@ describe('logo element', () => {
     expect(within(screen.getByRole('dialog')).getByRole('heading', { name: "This deck's theme" })).toBeInTheDocument()
   })
 })
+
+describe('elements kept beside the slide', () => {
+  it('dragging a parked element onto the slide makes it a normal element', () => {
+    const a = shape(2100, 100, 100, 100, { aside: true })
+    const s = setup([a])
+    drag(node(a.id), [2150, 150], [950, 150])
+    expect(byId(s, a.id).x).toBe(900)
+    expect(byId(s, a.id).aside).toBeUndefined()
+    s.undo()
+    expect(byId(s, a.id)).toMatchObject({ x: 2100, aside: true })
+  })
+
+  it('a parked element dropped beside the slide stays parked', () => {
+    const a = shape(2100, 100, 100, 100, { aside: true })
+    const s = setup([a])
+    drag(node(a.id), [2150, 150], [2170, 150])
+    expect(byId(s, a.id)).toMatchObject({ x: 2120, aside: true })
+  })
+
+  it('draws parked elements beside the slide, labelled', () => {
+    const a = shape(2100, 100, 100, 100, { aside: true })
+    setup([a])
+    expect(node(a.id)).not.toBeNull()
+    expect(screen.getByText('Not in this layout')).toBeInTheDocument()
+  })
+})

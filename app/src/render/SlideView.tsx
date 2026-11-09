@@ -29,14 +29,21 @@ export type SlideViewProps = {
   renderTextEditor?: (el: TextEl) => ReactNode
   /** Draw placeholders for empty theme slots (e.g. a logo box with no logo). Only the editing canvas does. */
   placeholders?: boolean
+  /**
+   * Elements parked beside the slide: `'hide'` (the default, for present, thumbnails and export)
+   * skips them; `'only'` draws just them, with no background and no clipping (the editing canvas).
+   */
+  aside?: 'hide' | 'only'
 }
 
 /** The one slide renderer, shared by the canvas, the rail thumbnails, present and export. */
-export function SlideView({ slide, theme, scale, interactive = true, editingId = null, renderTextEditor, placeholders = false }: SlideViewProps) {
+export function SlideView({ slide, theme, scale, interactive = true, editingId = null, renderTextEditor, placeholders = false, aside = 'hide' }: SlideViewProps) {
   const ctx: RenderCtx = { theme, slide, placeholders, editingId, renderTextEditor }
+  const only = aside === 'only'
+  const elements = slide.elements.filter((el) => (only ? el.aside : !el.aside))
   return (
     <div
-      className={s.root}
+      className={only ? `${s.root} ${s.asideOnly}` : s.root}
       data-slide-root=""
       aria-hidden={interactive ? undefined : true}
       // Thumbnails can't be focused or clicked into (e.g. links inside them).
@@ -46,12 +53,12 @@ export function SlideView({ slide, theme, scale, interactive = true, editingId =
         width: `${SLIDE_W}px`,
         height: `${SLIDE_H}px`,
         transform: `scale(${scale})`,
-        backgroundColor: resolveColor(slide.background.color),
+        backgroundColor: only ? undefined : resolveColor(slide.background.color),
         pointerEvents: interactive ? undefined : 'none',
       }}
     >
-      {slide.background.imageId ? <BackgroundImage assetId={slide.background.imageId} /> : null}
-      {slide.elements.map((el) => <ElementView key={el.id} el={el} ctx={ctx} />)}
+      {!only && slide.background.imageId ? <BackgroundImage assetId={slide.background.imageId} /> : null}
+      {elements.map((el) => <ElementView key={el.id} el={el} ctx={ctx} />)}
     </div>
   )
 }

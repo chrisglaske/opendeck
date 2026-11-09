@@ -2,9 +2,11 @@ import { useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import { bounds, moveElement, resizeBox, rotateAround, scaleInto, unionRect, MIN_SIZE } from '../../model/geometry'
 import type { Handle, RotatedRect } from '../../model/geometry'
+import { centerOnSlide } from '../../model/aside'
 import { updateElements } from '../../model/ops'
 import { snapMove, snapResize } from '../../model/snap'
 import type { GapMark, Guide } from '../../model/snap'
+import { SLIDE_H, SLIDE_W } from '../../model/types'
 import type { LineEl, Point, Rect, Slide, SlideElement } from '../../model/types'
 import { useEditorStore } from '../EditorContext'
 import { isMac } from '../shortcuts'
@@ -125,6 +127,7 @@ export function useCanvasGestures(frame: HTMLElement | null, scale: number, toSl
     const p0 = toSlidePoint(e.clientX, e.clientY)
     const c0 = { x: e.clientX, y: e.clientY }
     let began = false
+    let moved = new Map<string, SlideElement>()
     startDrag(e, {
       move(ev) {
         if (!began) {
@@ -143,13 +146,21 @@ export function useCanvasGestures(frame: HTMLElement | null, scale: number, toSl
           guides = s.guides
           gaps = s.gaps
         }
-        store.preview(writeBack(slide.id, new Map(items.map((i) => [i.id, i.toLocal(moveElement(i.el, dx, dy))]))))
+        moved = new Map(items.map((i) => [i.id, i.toLocal(moveElement(i.el, dx, dy))]))
+        store.preview(writeBack(slide.id, moved))
         const b = shifted(box0!, dx, dy)
         setVisuals({ guides, gaps, marquee: null, readout: { text: `X ${round(b.x)} · Y ${round(b.y)}`, x: b.x, y: b.y + b.h } })
       },
       end() {
-        if (began) store.commit()
-        else if (clickTarget && ids.length > 1) store.select({ slideId: slide.id, ids: [clickTarget] })
+        if (began) {
+          // A parked element dropped onto the slide becomes an ordinary element, in the same step.
+          const landed = [...moved.values()].filter((el) => el.aside && centerOnSlide(el, SLIDE_W, SLIDE_H))
+          if (landed.length) {
+            for (const el of landed) moved.set(el.id, (({ aside: _a, ...rest }) => rest as SlideElement)(el))
+            store.preview(writeBack(slide.id, moved))
+          }
+          store.commit()
+        } else if (clickTarget && ids.length > 1) store.select({ slideId: slide.id, ids: [clickTarget] })
         finish()
       },
       cancel() {

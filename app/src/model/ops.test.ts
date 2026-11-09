@@ -3,9 +3,9 @@ import {
   addElements, addSlide, align, deleteElements, deleteSlides, distribute, duplicateElements, duplicateSlides, findElement,
   group, moveLayer, moveSlides, renameDeck, reorder, ungroup, updateElements, updateSlide,
 } from './ops'
-import { createDeck, createShape, createSlide } from './factory'
+import { createDeck, createShape, createSlide, createText } from './factory'
 import { bounds, childToParent } from './geometry'
-import type { Deck, GroupEl, ShapeEl, SlideElement } from './types'
+import type { Deck, GroupEl, ShapeEl, SlideElement, TextEl } from './types'
 
 function deepFreeze<T>(o: T): T {
   if (o && typeof o === 'object' && !Object.isFrozen(o)) {
@@ -180,5 +180,30 @@ describe('align and distribute', () => {
   it('distribute needs three', () => {
     const d = deckWith([rect('a', 0, 0), rect('b', 500, 0)])
     expect(distribute(d, 's0', ['a', 'b'], 'h')).toBe(d)
+  })
+})
+
+describe('template marks', () => {
+  const marks = (e: SlideElement): string[] =>
+    [...['role', 'sample', 'aside'].filter((k) => k in e), ...(e.type === 'group' ? e.children.flatMap(marks) : [])]
+
+  it("copies of template elements are the person's own", () => {
+    const g: GroupEl = {
+      id: 'g', type: 'group', x: 0, y: 0, w: 100, h: 100, rotation: 0, locked: false, role: 'decor',
+      children: [rect('c', 0, 0, 100, 100, { role: 'decor' })],
+    }
+    const t: TextEl = { ...createText('title'), id: 't', role: 'title', sample: true }
+    const r = duplicateElements(deckWith([t, g]), 's0', ['t', 'g'])
+    for (const id of r.ids) expect(marks(el(r.deck, id))).toEqual([])
+    expect(el(r.deck, 't')).toMatchObject({ role: 'title', sample: true })
+    expect(marks(el(r.deck, 'g'))).toEqual(['role', 'role'])
+  })
+
+  it('duplicated slides keep their template marks', () => {
+    const d = deckWith([{ ...createText('title'), id: 't', role: 'title', sample: true }])
+    const withLayout = { ...d, slides: [{ ...d.slides[0], layout: 'builtin:title' }, ...d.slides.slice(1)] }
+    const r = duplicateSlides(withLayout, ['s0'])
+    expect(r.deck.slides[1].layout).toBe('builtin:title')
+    expect(r.deck.slides[1].elements[0]).toMatchObject({ role: 'title', sample: true })
   })
 })

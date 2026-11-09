@@ -85,3 +85,17 @@ describe('clipboard', () => {
     expect(pastePlacement([copy], [a, { ...a, id: 'b', x: a.x + 24, y: a.y + 24 }])).toEqual({ dx: 48, dy: 48 })
   })
 })
+
+describe('pasting template elements', () => {
+  it('pasted template elements lose their template marks', () => {
+    const slide = createSlide()
+    const t = { ...createText('title'), role: 'title', sample: true as const, aside: true as const }
+    const s = { ...createShape('rect'), role: 'decor' }
+    slide.elements = [t, s]
+    const g = group({ ...createDeck(), slides: [slide] }, slide.id, [t.id, s.id]).deck.slides[0].elements[0]
+    const parsed = parseClipboard(serializeSelection({ ...slide, elements: [g] }, [g.id]))!
+    const marks = (e: SlideElement): string[] =>
+      [...['role', 'sample', 'aside'].filter((k) => k in e), ...(e.type === 'group' ? e.children.flatMap(marks) : [])]
+    expect(parsed.flatMap(marks)).toEqual([])
+  })
+})

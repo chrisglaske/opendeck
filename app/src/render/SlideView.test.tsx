@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createIcon, createLogo, createShape, createSlide, createText } from '../model/factory'
+import { createIcon, createImage, createLogo, createShape, createSlide, createText } from '../model/factory'
 import type { Theme } from '../model/theme'
 import { AssetLoaderContext } from '../storage/assets'
 import { OPENDECK_THEME } from '../model/theme'
@@ -154,5 +154,53 @@ describe('logo element', () => {
     const slide = { ...slideWith(logo), background: { color: { hex: '#0E1320' } } }
     const { container } = drawLogo({ ...OPENDECK_THEME, logo: { main: 'a1', dark: 'a2' } }, slide)
     expect(node(container, logo.id).getAttribute('data-logo-asset')).toBe('a2')
+  })
+})
+
+describe('template drawing', () => {
+  it('draws sample art in theme colors', () => {
+    const photo = { ...createImage('', { w: 800, h: 600 }), art: { kind: 'photo' as const, variant: 0 as const } }
+    const face = { ...createImage('', { w: 400, h: 400 }), art: { kind: 'initials' as const, text: 'AR', variant: 1 as const } }
+    const { container } = draw(slideWith(photo, face))
+    expect(node(container, photo.id).querySelector('[data-sample-art="photo"]')).not.toBeNull()
+    expect(node(container, photo.id).querySelector('img')).toBeNull()
+    expect(node(container, face.id).querySelector('[data-sample-art="initials"]')!.textContent).toBe('AR')
+  })
+
+  it('applies opacity, shadow and a fade', () => {
+    const sh = { ...createShape('rect'), opacity: 0.5, shadow: true as const, fade: 'up' as const, fill: { theme: 'text' as const } }
+    const { container } = draw(slideWith(sh))
+    const n = node(container, sh.id)
+    expect(n.style.opacity).toBe('0.5')
+    expect(n.style.filter).toContain('drop-shadow')
+    expect(n.style.backgroundImage).toBe('linear-gradient(to top, var(--t-text), transparent)')
+    expect(n.style.backgroundColor).toBe('')
+  })
+
+  it('draws nothing for a fade with no fill', () => {
+    const sh = { ...createShape('rect'), fade: 'left' as const, fill: null }
+    const { container } = draw(slideWith(sh))
+    expect(node(container, sh.id).style.backgroundImage).toBe('')
+  })
+
+  it('shows no placeholder for a template logo on a theme without one', () => {
+    const fromTemplate = { ...createLogo(), role: 'decor' }
+    const own = createLogo()
+    const { container } = render(<SlideView slide={slideWith(fromTemplate, own)} theme={OPENDECK_THEME} scale={1} placeholders />)
+    expect(node(container, fromTemplate.id).querySelector('[data-logo-placeholder]')).toBeNull()
+    expect(node(container, own.id).querySelector('[data-logo-placeholder]')).not.toBeNull()
+  })
+
+  it('never draws parked elements on the slide', () => {
+    const kept = createText('body')
+    const parked = { ...createText('body'), aside: true as const }
+    const slide = slideWith(kept, parked)
+    const normal = draw(slide)
+    expect(node(normal.container, parked.id)).toBeNull()
+    expect(node(normal.container, kept.id)).not.toBeNull()
+    normal.unmount()
+    const only = render(<SlideView slide={slide} theme={OPENDECK_THEME} scale={1} aside="only" />)
+    expect(node(only.container, parked.id)).not.toBeNull()
+    expect(node(only.container, kept.id)).toBeNull()
   })
 })

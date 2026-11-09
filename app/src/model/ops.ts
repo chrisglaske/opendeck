@@ -6,6 +6,7 @@
 import { createSlide } from './factory'
 import { bounds, childToParent, moveElement, unionRect } from './geometry'
 import { newId } from './ids'
+import { asOwnElement } from './roles'
 import { LIMITS } from './sanitize'
 import { SLIDE_H, SLIDE_W } from './types'
 import type { Deck, GroupEl, Rect, Slide, SlideElement } from './types'
@@ -199,7 +200,7 @@ export function duplicateElements(d: Deck, slideId: string, ids: string[], offse
     if (!list.some((e) => ids.includes(e.id))) return list
     return list.flatMap((e) => {
       if (!ids.includes(e.id)) return [e]
-      const copy = moveElement(cloneEl(e), offset, offset)
+      const copy = moveElement(asOwnElement(cloneEl(e)), offset, offset)
       newIds.push(copy.id)
       return [e, copy]
     })
@@ -327,5 +328,13 @@ export function distribute(d: Deck, slideId: string, ids: string[], axis: 'h' | 
     const delta = targets.get(e.id)! - pos(bounds(e))
     if (delta === 0) return e
     return axis === 'h' ? moveElement(e, delta, 0) : moveElement(e, 0, delta)
+  })
+}
+
+/** Makes parked elements ordinary slide elements again (top level only, where parking happens). */
+export function clearAside(d: Deck, slideId: string, ids: string[]): Deck {
+  return mapSlide(d, slideId, (s) => {
+    if (!s.elements.some((e) => e.aside && ids.includes(e.id))) return s
+    return { ...s, elements: s.elements.map((e) => (e.aside && ids.includes(e.id) ? (({ aside: _a, ...rest }) => rest as El)(e) : e)) }
   })
 }

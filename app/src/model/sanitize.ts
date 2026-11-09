@@ -9,10 +9,11 @@ import { newId } from './ids'
 import { OPENDECK_THEME } from './theme'
 import type { Theme, ThemeSource, ThemeTextStyle } from './theme'
 import { createSlide } from './factory'
+import { ROLE } from './roles'
 import { DECK_VERSION, THEME_COLOR_TOKENS } from './types'
 import type {
-  ColorRef, Deck, DerivedColor, GroupEl, IconEl, ImageEl, LineEl, Paragraph, Rect, Run, ShapeEl, Slide, SlideElement, Stroke,
-  LogoEl, TextEl, TextStyleId, ThemeColorToken,
+  ColorRef, Deck, DerivedColor, FadeDir, GroupEl, IconEl, ImageEl, LineEl, Paragraph, Rect, Run, ShapeEl, Slide, SlideElement, Stroke,
+  LogoEl, SampleArt, TextEl, TextStyleId, ThemeColorToken,
 } from './types'
 
 export type SanitizeResult = { ok: true; deck: Deck; repaired: number } | { ok: false; reason: 'not-a-deck' | 'newer-version' }
@@ -42,6 +43,8 @@ const HEX = /^#[0-9a-f]{6}$/i
 const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/
 const ICON_NAME = /^[a-z0-9-]{1,64}$/
 const FONT_NAME = /^[A-Za-z0-9 ._-]{1,64}$/
+const LAYOUT_REF = /^(builtin|mine):[A-Za-z0-9_-]{1,64}$/
+const INITIALS = /^[\p{L}\p{N}]{1,3}$/u
 const SAFE_HREF = /^(https?:\/\/|mailto:)[^\s\u0000-\u001f\u007f]+$/i
 
 /** True for the only link targets OpenDeck allows: http(s) and mailto. */
@@ -157,6 +160,43 @@ function sanitizeCrop(c: Ctx, v: unknown): Rect {
   return { x, y, w, h }
 }
 
+/** `undefined` when missing; a bad value is dropped and counted. */
+function optTrue(c: Ctx, v: unknown): true | undefined {
+  if (v === undefined) return undefined
+  if (v === true) return true
+  c.fix()
+  return undefined
+}
+
+function sanitizeArt(v: unknown): SampleArt | null {
+  if (!isObj(v) || (v.variant !== 0 && v.variant !== 1)) return null
+  if (v.kind === 'photo') return { kind: 'photo', variant: v.variant }
+  if (v.kind === 'initials' && typeof v.text === 'string' && INITIALS.test(v.text)) return { kind: 'initials', text: v.text, variant: v.variant }
+  return null
+}
+
+/** Template marks every element can carry: missing is fine, invalid is a repair. */
+function marks(c: Ctx, v: Obj): { role?: string; aside?: true } {
+  const out: { role?: string; aside?: true } = {}
+  if (v.role !== undefined) {
+    if (typeof v.role === 'string' && ROLE.test(v.role)) out.role = v.role
+    else c.fix()
+  }
+  if (optTrue(c, v.aside)) out.aside = true
+  return out
+}
+
+/** Opacity and shadow for text, shapes and images. Full opacity is stored as no opacity. */
+function effects(c: Ctx, v: Obj): { opacity?: number; shadow?: true } {
+  const out: { opacity?: number; shadow?: true } = {}
+  if (v.opacity !== undefined) {
+    const o = c.num(v.opacity, 1, 0.05, 1)
+    if (o < 1) out.opacity = o
+  }
+  if (optTrue(c, v.shadow)) out.shadow = true
+  return out
+}
+
 /**
  * Cleans one element. `depth` is the group nesting level of its parent list.
  * Returns a list: usually one element, several when a too-deep group is
@@ -172,15 +212,18 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
       locked: c.bool(v.locked, false),
       stroke: sanitizeStroke(c, v.stroke, { color: { theme: 'text' }, width: 4, dash: 'solid' }),
       start: c.oneOf(v.start, ['none', 'arrow'], 'none'), end: c.oneOf(v.end, ['none', 'arrow'], 'none'),
+      ...marks(c, v),
     }
     return [el]
   }
   if (!['text', 'shape', 'image', 'icon', 'logo', 'group'].includes(type as string)) { c.fix(); return [] }
-  if (type === 'image' && (typeof v.assetId !== 'string' || !SAFE_ID.test(v.assetId))) { c.fix(); return [] }
+  const art = type === 'image' && v.art !== undefined ? sanitizeArt(v.art) : null
+  if (type === 'image' && v.art !== undefined && !art) { c.fix(); return [] }
+  if (type === 'image' && !art && (typeof v.assetId !== 'string' || !SAFE_ID.test(v.assetId))) { c.fix(); return [] }
 
   const box = {
     id: c.id(v.id), x: c.coord(v.x), y: c.coord(v.y), w: c.size(v.w), h: c.size(v.h),
-    rotation: c.rotation(v.rotation), locked: c.bool(v.locked, false),
+    rotation: c.rotation(v.rotation), locked: c.bool(v.locked, false), ...marks(c, v),
   }
   switch (type) {
     case 'text': {
@@ -204,7 +247,8 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
       if (color) el.color = color
       if (v.lineHeight !== undefined) el.lineHeight = c.num(v.lineHeight, 1.2, 0.5, 4)
       if (v.letterSpacing !== undefined) el.letterSpacing = c.num(v.letterSpacing, 0, -0.5, 1)
-      return [el]
+      if (optTrue(c, v.sample)) el.sample = true
+      return [Object.assign(el, effects(c, v))]
     }
     case 'shape': {
       const el: ShapeEl = {
@@ -212,14 +256,21 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
         radius: v.radius === 'theme' ? 'theme' : c.num(v.radius, 0, 0, LIMITS.size),
         fill: v.fill === null ? null : c.color(v.fill, { theme: 'surface' }),
         stroke: v.stroke === null ? null : sanitizeStroke(c, v.stroke, { color: { theme: 'text' }, width: 4, dash: 'solid' }),
+        ...effects(c, v),
+      }
+      if (v.fade !== undefined) {
+        const fade = c.oneOf<FadeDir | ''>(v.fade, ['up', 'down', 'left', 'right'], '')
+        if (fade) el.fade = fade
       }
       return [el]
     }
     case 'image': {
       const el: ImageEl = {
-        ...box, type: 'image', assetId: v.assetId as string, fit: c.oneOf(v.fit, ['fill', 'fit'], 'fill'),
-        crop: sanitizeCrop(c, v.crop), radius: c.num(v.radius, 0, 0, LIMITS.size),
+        ...box, type: 'image', assetId: art ? '' : (v.assetId as string), fit: c.oneOf(v.fit, ['fill', 'fit'], 'fill'),
+        crop: sanitizeCrop(c, v.crop), radius: c.num(v.radius, 0, 0, LIMITS.size), ...effects(c, v),
       }
+      if (art) el.art = art
+      if (optTrue(c, v.sample)) el.sample = true
       return [el]
     }
     case 'icon': {
@@ -254,19 +305,29 @@ function sanitizeList(c: Ctx, v: unknown, depth: number): SlideElement[] {
 
 function sanitizeSlide(c: Ctx, v: unknown): Slide | null {
   if (!isObj(v)) { c.fix(); return null }
-  const bg = isObj(v.background) ? v.background : (c.fix(), {} as Obj)
-  const background: Slide['background'] = { color: c.color(bg.color, { theme: 'bg' }) }
-  if (bg.imageId !== undefined) {
-    if (typeof bg.imageId === 'string' && SAFE_ID.test(bg.imageId)) background.imageId = bg.imageId
-    else c.fix()
-  }
-  return {
+  const background = sanitizeBackground(c, v.background)
+  const slide: Slide = {
     id: c.id(v.id),
     elements: sanitizeList(c, v.elements, 0),
     background,
     notes: c.str(v.notes, '', LIMITS.notes),
     hidden: c.bool(v.hidden, false),
   }
+  if (v.layout !== undefined) {
+    if (typeof v.layout === 'string' && LAYOUT_REF.test(v.layout)) slide.layout = v.layout
+    else c.fix()
+  }
+  return slide
+}
+
+function sanitizeBackground(c: Ctx, v: unknown): Slide['background'] {
+  const bg = isObj(v) ? v : (c.fix(), {} as Obj)
+  const background: Slide['background'] = { color: c.color(bg.color, { theme: 'bg' }) }
+  if (bg.imageId !== undefined) {
+    if (typeof bg.imageId === 'string' && SAFE_ID.test(bg.imageId)) background.imageId = bg.imageId
+    else c.fix()
+  }
+  return background
 }
 
 /** Theme fields added after decks were first saved: missing is fine, invalid is a repair. */
@@ -381,4 +442,13 @@ export function sanitizeTheme(raw: unknown): Theme {
 export function sanitizeElements(raw: unknown): SlideElement[] {
   if (!Array.isArray(raw)) return []
   return sanitizeList(new Ctx(), raw, 0)
+}
+
+/** Cleans one slide's elements and background from outside (e.g. a template), with its own repair count. */
+export function sanitizeSlideContent(raw: unknown): { elements: SlideElement[]; background: Slide['background']; repaired: number } {
+  const c = new Ctx()
+  const v = isObj(raw) ? raw : (c.fix(), {} as Obj)
+  const elements = sanitizeList(c, v.elements, 0)
+  const background = sanitizeBackground(c, v.background)
+  return { elements, background, repaired: c.repaired }
 }

@@ -445,3 +445,32 @@
 .noteLink:focus-visible {
   box-shadow: var(--focus-ring);
 }
+
+.rowGapBelow {
+  margin-bottom: 8px;
+}
+
+.fieldLabel {
+  margin: 0 0 6px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.sliderField {
+  flex: none;
+  width: 72px;
+}

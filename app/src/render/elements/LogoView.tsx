@@ -8,7 +8,8 @@ import s from '../SlideView.module.css'
 
 /**
  * Shows the theme's logo (the dark-background version on dark slides). With no logo in the
- * theme it draws nothing, or a dashed placeholder on the editing canvas.
+ * theme it draws nothing, or a dashed placeholder on the editing canvas. A logo that came
+ * from a template never shows the placeholder: the template simply has no logo on that theme.
  */
 export function LogoView({ el, theme, slide, placeholders }: { el: LogoEl; theme: Theme; slide: Slide; placeholders: boolean }) {
   const assetId = logoAssetFor(theme, slide)
@@ -17,7 +18,7 @@ export function LogoView({ el, theme, slide, placeholders }: { el: LogoEl; theme
     <div className={`${s.el} ${s.logo}`} data-el-id={el.id} data-logo-asset={assetId} style={boxStyle(el)}>
       {assetId ? (
         url ? <img src={url} alt="" draggable={false} /> : null
-      ) : placeholders ? (
+      ) : placeholders && !el.role ? (
         <div className={s.logoPlaceholder} data-logo-placeholder="">
           <Stamp size={36} strokeWidth={1.75} aria-hidden="true" />
           <span>Logo</span>

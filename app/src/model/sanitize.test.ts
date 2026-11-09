@@ -244,3 +244,61 @@ describe('sanitizeElements', () => {
     expect(ok(bad).deck.theme.source).toEqual({ kind: 'builtin', id: 'swiss', name: 'Swiss', updatedAt: 0 })
   })
 })
+
+describe('template fields', () => {
+  function templated() {
+    const d = createDeck()
+    d.slides[0].layout = 'builtin:stats'
+    d.slides[0].elements = [
+      { ...createText('heading'), id: 't1', role: 'stat.value[2]', sample: true, opacity: 0.5, shadow: true },
+      { ...createShape('rect'), id: 's1', role: 'decor', fade: 'up' },
+      { ...createImage('', { w: 400, h: 400 }), id: 'i1', art: { kind: 'initials', text: 'AR', variant: 1 }, sample: true, role: 'person.photo[1]' },
+      { ...createText('body'), id: 't2', aside: true, role: 'stat.value[4]' },
+    ]
+    return JSON.parse(JSON.stringify(d)) as Deck
+  }
+
+  it('keeps template fields', () => {
+    const d = templated()
+    expect(sanitizeDeck(d)).toEqual({ ok: true, deck: d, repaired: 0 })
+  })
+
+  it('cleans bad template fields', () => {
+    const d = templated() as unknown as Record<string, any>
+    const [t1, s1, i1, t2] = d.slides[0].elements
+    t1.role = 'evil'
+    t1.sample = 'yes'
+    t1.opacity = 7
+    s1.role = 'title[0]'
+    s1.fade = 'diagonal'
+    s1.opacity = -1
+    t2.aside = 1
+    d.slides[0].layout = 'http://x'
+    const photo = { ...i1, id: 'i2', art: { kind: 'photo', variant: 5 } }
+    const tag = { ...i1, id: 'i3', art: { kind: 'initials', text: '<b>', variant: 0 } }
+    d.slides[0].elements.push(photo, tag)
+    const r = ok(d)
+    const [a, b, , c] = r.deck.slides[0].elements as Record<string, unknown>[]
+    expect(r.deck.slides[0].elements).toHaveLength(4)
+    expect(a.role).toBeUndefined()
+    expect(a.sample).toBeUndefined()
+    expect(a.opacity).toBeUndefined()
+    expect(b.role).toBeUndefined()
+    expect(b.fade).toBeUndefined()
+    expect(b.opacity).toBe(0.05)
+    expect(c.aside).toBeUndefined()
+    expect(r.deck.slides[0].layout).toBeUndefined()
+    // role, sample, opacity, role, fade, opacity, aside, layout, two dropped images
+    expect(r.repaired).toBe(10)
+  })
+
+  it('loads decks saved before templates with no repairs', () => {
+    const d = richDeck()
+    const r = ok(d)
+    expect(r.repaired).toBe(0)
+    const keys = (els: SlideElement[]): string[] => els.flatMap((e) => [...Object.keys(e), ...(e.type === 'group' ? keys(e.children) : [])])
+    const added = ['role', 'sample', 'aside', 'opacity', 'shadow', 'fade', 'art']
+    expect(keys(r.deck.slides[0].elements).filter((k) => added.includes(k))).toEqual([])
+    expect('layout' in r.deck.slides[0]).toBe(false)
+  })
+})

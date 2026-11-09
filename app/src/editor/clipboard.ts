@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { createText } from '../model/factory'
 import { moveElement } from '../model/geometry'
 import { newId } from '../model/ids'
+import { asOwnElement } from '../model/roles'
 import { addElements, deleteElements, findElement } from '../model/ops'
 import { sanitizeElements } from '../model/sanitize'
 import type { Slide, SlideElement } from '../model/types'
@@ -61,7 +62,7 @@ export function parseClipboard(text: string): SlideElement[] | null {
   if (typeof raw !== 'object' || raw === null) return null
   const clip = raw as Partial<Clip>
   if (clip.format !== CLIP_FORMAT || clip.version !== CLIP_VERSION || !Array.isArray(clip.elements)) return null
-  const elements = sanitizeElements(clip.elements).map(freshIds)
+  const elements = sanitizeElements(clip.elements).map((e) => asOwnElement(freshIds(e)))
   return elements.length ? elements : null
 }
 

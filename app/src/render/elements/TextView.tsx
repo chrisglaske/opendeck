@@ -5,7 +5,7 @@ import { resolveColor, textStyleOf } from '../../model/theme'
 import type { Theme } from '../../model/theme'
 import type { Paragraph, Run, TextEl } from '../../model/types'
 import { useAutoFit } from '../useAutoFit'
-import { boxStyle } from './box'
+import { boxStyle, effectStyle } from './box'
 import s from '../SlideView.module.css'
 
 /** Font size scaled by the auto-fit multiplier set on the text box. */
@@ -81,7 +81,7 @@ export function TextView({ el, theme }: { el: TextEl; theme: Theme }) {
       ref={ref}
       className={`${s.el} ${s.text}`}
       data-el-id={el.id}
-      style={{ ...textBoxStyle(el, theme), ['--fit' as string]: String(fit) }}
+      style={{ ...textBoxStyle(el, theme), ...effectStyle(el), ['--fit' as string]: String(fit) }}
     >
       {renderParagraphs(el.paragraphs, t.weight)}
     </div>

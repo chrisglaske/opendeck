@@ -1,7 +1,7 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { createDeck, createLogo, createShape, createText } from '../../model/factory'
+import { createDeck, createImage, createLine, createLogo, createShape, createText } from '../../model/factory'
 import type { ShapeEl, SlideElement, TextEl } from '../../model/types'
 import { createAutosaver } from '../../storage/autosave'
 import { createMemoryStore } from '../../storage/deckStore'
@@ -149,5 +149,72 @@ describe('theme-bound style', () => {
     expect(panel().getByText('Follows theme')).toBeInTheDocument()
     await userEvent.click(panel().getByRole('button', { name: 'Add a logo to the theme' }))
     expect(within(screen.getByRole('dialog')).getByRole('heading', { name: "This deck's theme" })).toBeInTheDocument()
+  })
+})
+
+describe('Effects', () => {
+  const pic = (): SlideElement => ({ ...createImage('a1', { w: 400, h: 300 }) })
+
+  it('sets opacity as one undo step', async () => {
+    const s = setup([createShape('rect')])
+    const f = panel().getByRole('spinbutton', { name: 'Opacity' })
+    await userEvent.clear(f)
+    await userEvent.type(f, '40{Enter}')
+    expect(first<ShapeEl>(s).opacity).toBe(0.4)
+    s.undo()
+    expect(first<ShapeEl>(s).opacity).toBeUndefined()
+  })
+
+  it('stores full opacity as no opacity and never goes below 5%', async () => {
+    const s = setup([{ ...createShape('rect'), opacity: 0.5 }])
+    const f = panel().getByRole('spinbutton', { name: 'Opacity' })
+    await userEvent.clear(f)
+    await userEvent.type(f, '1{Enter}')
+    expect(first<ShapeEl>(s).opacity).toBe(0.05)
+    await userEvent.clear(f)
+    await userEvent.type(f, '100{Enter}')
+    expect(first<ShapeEl>(s).opacity).toBeUndefined()
+  })
+
+  it('drags the opacity slider as one undo step', () => {
+    const s = setup([createShape('rect')])
+    const slider = panel().getByRole('slider', { name: 'Opacity' })
+    fireEvent.change(slider, { target: { value: '80' } })
+    fireEvent.change(slider, { target: { value: '60' } })
+    expect(first<ShapeEl>(s).opacity).toBe(0.6)
+    s.undo()
+    expect(first<ShapeEl>(s).opacity).toBeUndefined()
+  })
+
+  it('turns the shadow on and off', async () => {
+    const s = setup([createText('body')])
+    await userEvent.click(panel().getByRole('switch', { name: 'Shadow' }))
+    expect(first<TextEl>(s).shadow).toBe(true)
+    await userEvent.click(panel().getByRole('switch', { name: 'Shadow' }))
+    expect(first<TextEl>(s).shadow).toBeUndefined()
+  })
+
+  it('switches a shape fill to a fade toward the top', async () => {
+    const s = setup([createShape('rect')])
+    await userEvent.click(panel().getByRole('radio', { name: 'Fade' }))
+    expect(first<ShapeEl>(s).fade).toBe('up')
+    expect(panel().getByRole('button', { name: 'Fades toward top' })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(panel().getByRole('button', { name: 'Fades toward bottom' }))
+    expect(first<ShapeEl>(s).fade).toBe('down')
+    await userEvent.click(panel().getByRole('radio', { name: 'Solid' }))
+    expect(first<ShapeEl>(s).fade).toBeUndefined()
+    expect(panel().queryByRole('button', { name: 'Fades toward top' })).toBeNull()
+  })
+
+  it('offers effects but no fade for images', () => {
+    setup([pic()])
+    expect(panel().getByRole('spinbutton', { name: 'Opacity' })).toBeInTheDocument()
+    expect(panel().getByRole('switch', { name: 'Shadow' })).toBeInTheDocument()
+    expect(panel().queryByRole('radio', { name: 'Fade' })).toBeNull()
+  })
+
+  it('offers no effects for lines and icons', () => {
+    setup([createLine()])
+    expect(panel().queryByRole('spinbutton', { name: 'Opacity' })).toBeNull()
   })
 })

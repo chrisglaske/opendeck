@@ -1,8 +1,9 @@
 import { Eye, PanelRightOpen } from 'lucide-react'
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { DragEvent, MouseEvent, ReactNode, RefObject } from 'react'
+import { ASIDE_W, ASIDE_X } from '../model/aside'
 import { SLIDE_H, SLIDE_W } from '../model/types'
-import type { Point } from '../model/types'
+import type { Point, Slide, TextEl } from '../model/types'
 import { SlideView } from '../render/SlideView'
 import { IconButton } from '../ui'
 import { bounds, unionRect } from '../model/geometry'
@@ -17,6 +18,7 @@ import { useCanvasKeys } from './canvas/useCanvasKeys'
 import { worldItems } from './canvas/world'
 import { useClipboard } from './clipboard'
 import { addImages, imageFiles } from './media'
+import { AsideLayer } from './AsideLayer'
 import { Dock } from './Dock'
 import { useEditor, useEditorStore } from './EditorContext'
 import { useDisplayTheme, usePreviewTheme } from './theme/themePreview'
@@ -48,11 +50,19 @@ export function useStage(): StageApi {
 
 export const useStageScale = () => useStage().scale
 
-/** The scale at which the whole slide fits a viewport of the given size. */
-export function fitScale(w: number, h: number): number {
-  const sw = (w - STAGE_PADDING.left - STAGE_PADDING.right) / SLIDE_W
+/**
+ * The scale at which the whole slide fits a viewport of the given size. `width` is the
+ * area to fit in slide units: wider than the slide when elements are parked beside it.
+ */
+export function fitScale(w: number, h: number, width = SLIDE_W): number {
+  const sw = (w - STAGE_PADDING.left - STAGE_PADDING.right) / width
   const sh = (h - STAGE_PADDING.top - STAGE_PADDING.bottom) / SLIDE_H
   return Math.max(MIN_SCALE, Math.min(sw, sh))
+}
+
+/** The area the canvas shows, in slide units: wider when elements are parked beside the slide, so they're visible at Fit. */
+export function stageWidth(slide: Slide | undefined): number {
+  return slide?.elements.some((e) => e.aside) ? ASIDE_X + ASIDE_W : SLIDE_W
 }
 
 function useElementSize(ref: RefObject<HTMLElement | null>) {
@@ -87,13 +97,13 @@ export function Stage({
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [frame, setFrame] = useState<HTMLDivElement | null>(null)
   const size = useElementSize(scrollerRef)
-  const fit = fitScale(size.w, size.h)
-  const scale = zoom === 'fit' ? fit : zoom / 100
-
   const theme = useDisplayTheme()
   const previewing = usePreviewTheme()
   const slide = useEditor((s) => s.deck.slides.find((x) => x.id === s.selection.slideId) ?? s.deck.slides[0])
   const editingId = useEditor((s) => s.editingId)
+  const width = stageWidth(slide)
+  const fit = fitScale(size.w, size.h, width)
+  const scale = zoom === 'fit' ? fit : zoom / 100
 
   const toSlidePoint = useCallback(
     (clientX: number, clientY: number): Point => {
@@ -144,6 +154,16 @@ export function Stage({
     void addImages(store, files.length ? files : all.slice(0, 1), toSlidePoint(e.clientX, e.clientY))
   }
 
+  const renderTextEditor = (el: TextEl) => (
+    <TextEditor
+      key={el.id}
+      el={el}
+      theme={theme}
+      onCommit={(ps, coalesce) => writeParagraphs(store, el.id, ps, coalesce)}
+      onExit={() => exitTextEditing(store)}
+    />
+  )
+
   // Links on the slide work when presenting; while editing a click selects instead.
   const stopLinks = (e: MouseEvent) => {
     if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault()
@@ -154,6 +174,7 @@ export function Stage({
       <main ref={setStageEl} className={styles.stage} aria-label="Slide canvas">
         <div ref={scrollerRef} className={styles.scroller} data-stage-scroller="">
           <div className={styles.content} {...canvas.canvasHandlers} onContextMenu={onContextMenu} onDragOver={onDragOver} onDrop={onDrop}>
+            <div className={styles.area} style={{ width: `${width * scale}px`, height: `${SLIDE_H * scale}px` }}>
             <div
               ref={setFrame}
               className={styles.frame}
@@ -168,18 +189,11 @@ export function Stage({
                     scale={scale}
                     placeholders
                     editingId={editingId}
-                    renderTextEditor={(el) => (
-                      <TextEditor
-                        key={el.id}
-                        el={el}
-                        theme={theme}
-                        onCommit={(ps, coalesce) => writeParagraphs(store, el.id, ps, coalesce)}
-                        onExit={() => exitTextEditing(store)}
-                      />
-                    )}
+                    renderTextEditor={renderTextEditor}
                   />
                 )}
               </div>
+              {slide && <AsideLayer slide={slide} theme={theme} scale={scale} editingId={editingId} renderTextEditor={renderTextEditor} />}
               <Overlay
                 scale={scale}
                 hoverId={canvas.hoverId}
@@ -190,6 +204,7 @@ export function Stage({
               />
               <CropMode scale={scale} />
               {children}
+            </div>
             </div>
           </div>
         </div>

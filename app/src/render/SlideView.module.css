@@ -99,3 +99,13 @@
   font-size: 32px;
   font-weight: 600;
 }
+
+/* Parked elements beside the slide: nothing clipped, and only the elements themselves take the pointer. */
+.asideOnly {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.asideOnly > .el {
+  pointer-events: auto;
+}

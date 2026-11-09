@@ -24,11 +24,18 @@
   user-select: none;
 }
 
-/* The frame is not clipped, so handles and readouts can reach past the slide edge. */
-.frame {
+/* The slide plus, when elements are parked beside it, the parking area to its right. */
+.area {
   position: relative;
   flex: none;
   margin: auto;
+}
+
+/* The frame is not clipped, so handles and readouts can reach past the slide edge. */
+.frame {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .slide {

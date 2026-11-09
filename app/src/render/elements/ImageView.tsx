@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { ImageEl, Rect } from '../../model/types'
 import { useAssetUrl } from '../../storage/assets'
-import { boxStyle } from './box'
+import { boxStyle, effectStyle } from './box'
+import { SampleArt } from './SampleArt'
 import s from '../SlideView.module.css'
 
 type Size = { w: number; h: number }
@@ -19,14 +20,14 @@ export function imageLayout(box: Size, natural: Size, crop: Rect, fit: 'fill' | 
 }
 
 export function ImageView({ el }: { el: ImageEl }) {
-  const url = useAssetUrl(el.assetId)
+  const url = useAssetUrl(el.art ? undefined : el.assetId)
   const [natural, setNatural] = useState<Size | null>(null)
   // Until the image reports its size, assume the crop region already matches the box.
   const size = natural ?? { w: el.w / Math.max(1e-6, el.crop.w), h: el.h / Math.max(1e-6, el.crop.h) }
   const { frame, image } = imageLayout({ w: el.w, h: el.h }, size, el.crop, el.fit)
   return (
-    <div className={`${s.el} ${s.image}`} data-el-id={el.id} style={{ ...boxStyle(el), borderRadius: `${el.radius}px` }}>
-      {!url || !natural ? <div className={s.placeholder} /> : null}
+    <div className={`${s.el} ${s.image}`} data-el-id={el.id} style={{ ...boxStyle(el), ...effectStyle(el), borderRadius: `${el.radius}px` }}>
+      {el.art ? <SampleArt art={el.art} w={el.w} h={el.h} /> : !url || !natural ? <div className={s.placeholder} /> : null}
       {url ? (
         <div className={s.frame} style={{ left: `${frame.x}px`, top: `${frame.y}px`, width: `${frame.w}px`, height: `${frame.h}px` }}>
           <img

@@ -1,8 +1,9 @@
-import { Baseline, MoveLeft, MoveRight, Space, Unlink } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Baseline, MoveLeft, MoveRight, Space, Unlink } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { findElement, updateElements } from '../../model/ops'
 import { radiusPx, resolveColor, themeVars } from '../../model/theme'
 import { detachLogo, logoAssetFor } from '../../model/themeOps'
-import type { ColorRef, IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, TextEl, TextStyleId, ThemeColorToken } from '../../model/types'
+import type { ColorRef, FadeDir, IconEl, ImageEl, LineEl, LogoEl, ShapeEl, Slide, TextEl, TextStyleId, ThemeColorToken } from '../../model/types'
 import { Button, IconButton, NumberField, SegmentedControl, Toggle } from '../../ui'
 import { useTextSession } from '../canvas/textSession'
 import { useEditor, useEditorStore } from '../EditorContext'
@@ -145,7 +146,62 @@ function TextStyle({ slideId, el }: { slideId: string; el: TextEl }) {
         <Toggle label="Auto-fit text" checked={el.autoFit} onChange={cmd.setAutoFit} />
         <span className={styles.hint}>Shrinks to stay in the box</span>
       </div>
+      <Effects slideId={slideId} el={el} />
     </div>
+  )
+}
+
+const FADES: [FadeDir, string, LucideIcon][] = [['up', 'top', ArrowUp], ['down', 'bottom', ArrowDown], ['left', 'left', ArrowLeft], ['right', 'right', ArrowRight]]
+
+function withFade(e: ShapeEl, fade: FadeDir | undefined): ShapeEl {
+  const { fade: _f, ...rest } = e
+  return fade ? { ...rest, fade } : rest
+}
+
+type WithEffects = TextEl | ShapeEl | ImageEl
+
+/** Opacity (5–100%) and a drop shadow, shared by text, shapes and pictures. */
+function Effects({ slideId, el }: { slideId: string; el: WithEffects }) {
+  const store = useEditorStore()
+  const pct = Math.round((el.opacity ?? 1) * 100)
+  const set = (field: string, fn: (e: WithEffects) => WithEffects) =>
+    store.apply((d) => updateElements(d, slideId, [el.id], (e) => fn(e as WithEffects)), { coalesce: `${field}:${el.id}` })
+  const setOpacity = (p: number) =>
+    set('opacity', (e) => {
+      const { opacity: _o, ...rest } = e
+      const o = Math.min(100, Math.max(5, Math.round(p))) / 100
+      return (o < 1 ? { ...rest, opacity: o } : rest) as WithEffects
+    })
+  return (
+    <section>
+      <h3 className={styles.heading}>Effects</h3>
+      <p className={styles.fieldLabel}>Opacity</p>
+      <div className={styles.sliderRow}>
+        <input
+          type="range"
+          className={styles.slider}
+          aria-label="Opacity"
+          min={5}
+          max={100}
+          step={1}
+          value={pct}
+          onChange={(e) => setOpacity(Number(e.target.value))}
+        />
+        <NumberField label="Opacity" suffix="%" size="sm" className={styles.sliderField} min={5} max={100} value={pct} onChange={setOpacity} />
+      </div>
+      <div className={styles.rowGap}>
+        <Toggle
+          label="Shadow"
+          checked={el.shadow === true}
+          onChange={(on) =>
+            set('shadow', (e) => {
+              const { shadow: _s, ...rest } = e
+              return (on ? { ...rest, shadow: true } : rest) as WithEffects
+            })
+          }
+        />
+      </div>
+    </section>
   )
 }
 
@@ -162,7 +218,25 @@ function ShapeStyle({ slideId, el }: { slideId: string; el: ShapeEl }) {
     <>
       <section>
         <h3 className={styles.heading}>Fill</h3>
+        <div className={styles.rowGapBelow}>
+          <SegmentedControl
+            label="Fill type"
+            options={[{ value: 'solid', label: 'Solid' }, { value: 'fade', label: 'Fade' }]}
+            value={el.fade ? 'fade' : 'solid'}
+            onChange={(v) => update('fade', (e) => withFade(e, v === 'fade' ? 'up' : undefined))}
+          />
+        </div>
         <ColorButton variant="field" label="Fill color" value={el.fill} allowNone noneLabel="No fill" onChange={(fill) => update('fill', (e) => ({ ...e, fill }))} />
+        {el.fade && (
+          <div className={styles.rowGap}>
+            <p className={styles.fieldLabel}>Fades toward</p>
+            <div className={styles.buttonRow}>
+              {FADES.map(([dir, side, icon]) => (
+                <IconButton key={dir} icon={icon} label={`Fades toward ${side}`} pressed={el.fade === dir} onClick={() => update('fade', (e) => withFade(e, dir))} />
+              ))}
+            </div>
+          </div>
+        )}
       </section>
       <section>
         <h3 className={styles.heading}>Border</h3>
@@ -210,6 +284,7 @@ function ShapeStyle({ slideId, el }: { slideId: string; el: ShapeEl }) {
           )}
         </section>
       )}
+      <Effects slideId={slideId} el={el} />
     </>
   )
 }
@@ -269,6 +344,7 @@ function ImageStyle({ slideId, el }: { slideId: string; el: ImageEl }) {
         <h3 className={styles.heading}>Corners</h3>
         <NumberField label="Corner radius" suffix="px" min={0} max={2000} value={Math.round(el.radius)} onChange={(radius) => update('radius', (e) => ({ ...e, radius }))} />
       </section>
+      <Effects slideId={slideId} el={el} />
     </>
   )
 }
