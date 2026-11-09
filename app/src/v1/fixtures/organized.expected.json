@@ -1,0 +1,215 @@
+[
+  {
+    "id": "proj_uo9jlj8qv",
+    "name": "Acme pitch",
+    "lastModified": 1794246003780,
+    "folderId": "folder_1794246003778179",
+    "tags": [
+      "sales",
+      "Q4"
+    ],
+    "data": {
+      "slides": [
+        {
+          "id": "slide_1794246003779183",
+          "type": "glass_intro",
+          "navName": "Glass Hero",
+          "title": "New Presentation",
+          "kicker": "Presentation System",
+          "subtitle": "Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Auditable",
+              "icon": "fa-shield-halved",
+              "color": "#10B981"
+            },
+            {
+              "text": "Modular",
+              "icon": "fa-layer-group",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Presentation-Ready",
+              "icon": "fa-rocket",
+              "color": "#F97316"
+            }
+          ],
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": ""
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "schemaVersion": 3
+  },
+  {
+    "id": "proj_uhbwf4wni",
+    "name": "Team offsite",
+    "lastModified": 1794246003781,
+    "folderId": "folder_179424600377897",
+    "tags": [],
+    "data": {
+      "slides": [
+        {
+          "id": "slide_1794246003780348",
+          "type": "glass_intro",
+          "navName": "Glass Hero",
+          "title": "New Presentation",
+          "kicker": "Presentation System",
+          "subtitle": "Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Auditable",
+              "icon": "fa-shield-halved",
+              "color": "#10B981"
+            },
+            {
+              "text": "Modular",
+              "icon": "fa-layer-group",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Presentation-Ready",
+              "icon": "fa-rocket",
+              "color": "#F97316"
+            }
+          ],
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": ""
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "schemaVersion": 3
+  },
+  {
+    "id": "proj_8nftak40x",
+    "name": "Loose deck",
+    "lastModified": 1794246003782,
+    "folderId": null,
+    "tags": [
+      "draft"
+    ],
+    "data": {
+      "slides": [
+        {
+          "id": "slide_1794246003781122",
+          "type": "glass_intro",
+          "navName": "Glass Hero",
+          "title": "New Presentation",
+          "kicker": "Presentation System",
+          "subtitle": "Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Auditable",
+              "icon": "fa-shield-halved",
+              "color": "#10B981"
+            },
+            {
+              "text": "Modular",
+              "icon": "fa-layer-group",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Presentation-Ready",
+              "icon": "fa-rocket",
+              "color": "#F97316"
+            }
+          ],
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": ""
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "schemaVersion": 3
+  },
+  {
+    "id": "proj_4ce5uh4xk",
+    "name": "Orphaned deck",
+    "lastModified": 1794246003783,
+    "folderId": "folder_1794246003779737",
+    "tags": [],
+    "data": {
+      "slides": [
+        {
+          "id": "slide_179424600378234",
+          "type": "glass_intro",
+          "navName": "Glass Hero",
+          "title": "New Presentation",
+          "kicker": "Presentation System",
+          "subtitle": "Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Auditable",
+              "icon": "fa-shield-halved",
+              "color": "#10B981"
+            },
+            {
+              "text": "Modular",
+              "icon": "fa-layer-group",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Presentation-Ready",
+              "icon": "fa-rocket",
+              "color": "#F97316"
+            }
+          ],
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": ""
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "schemaVersion": 3
+  }
+]

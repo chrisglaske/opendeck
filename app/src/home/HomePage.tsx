@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { requestSlidesPanel } from '../editor/slides/openRequest'
 import { createDeck } from '../model/factory'
 import type { Deck } from '../model/types'
@@ -23,6 +23,7 @@ import { TrashPage } from './TrashPage'
 import { StartRow } from './StartRow'
 import { useDeckActions } from './useDeckActions'
 import { useHome } from './useHome'
+import { V1Notice } from './V1Notice'
 import styles from './HomePage.module.css'
 
 const live = (d: HomeDeck) => d.entry.trashedAt === null
@@ -31,7 +32,8 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
   const { data, setData, refresh, store } = useHome(storeProp)
   const actions = useDeckActions({ store, data, setData, refresh })
   const templates = useMyTemplates()
-  const [now] = useState(() => Date.now())
+  // Read the clock again whenever the decks or the page change, so "days left" and "Edited …" stay current.
+  const now = useMemo(() => Date.now(), [data, route])
 
   const openNew = async (d: Deck) => {
     if (!store) return
@@ -120,6 +122,7 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
           </>
         )}
       </main>
+      <V1Notice store={store} data={data} />
     </div>
   )
 }

@@ -1,0 +1,418 @@
+[
+  {
+    "id": "proj_bpg0rvimo",
+    "name": "Edited deck",
+    "lastModified": 1794246003658,
+    "folderId": null,
+    "tags": [],
+    "data": {
+      "slides": [
+        {
+          "id": "slide_1794246003612249",
+          "type": "glass_intro",
+          "navName": "Glass Hero",
+          "title": "New Presentation",
+          "kicker": "Presentation System",
+          "subtitle": "Craft a high-polish narrative with cinematic typography, glass surfaces, and crisp supporting badges.",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Auditable",
+              "icon": "fa-shield-halved",
+              "color": "#10B981"
+            },
+            {
+              "text": "Modular",
+              "icon": "fa-layer-group",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Presentation-Ready",
+              "icon": "fa-rocket",
+              "color": "#F97316"
+            }
+          ],
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": ""
+        },
+        {
+          "id": "slide_1794246003612_123",
+          "type": "intro",
+          "navName": "New Slide",
+          "title": "Edited intro title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about intro.\nSecond line of notes.",
+          "subtitle": "Jamie Rivera\nHead of Product",
+          "icon": "fa-rocket",
+          "tags": []
+        },
+        {
+          "id": "slide_1794246003612_938",
+          "type": "split",
+          "navName": "New Slide",
+          "title": "Edited split title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about split.\nSecond line of notes.",
+          "subtitle": "First line\nSecond line",
+          "bullets": [
+            "Faster onboarding",
+            "Fewer handoffs"
+          ],
+          "boxTitle": "Result",
+          "boxText": "Cut prep time by 70%",
+          "boxIcon": "fa-chart-line",
+          "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgADADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAgD/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABcBAQEBAQAAAAAAAAAAAAAAAAUABgf/xAAfEQABAgcBAQAAAAAAAAAAAAARBRIAASIxQVFhFBX/2gAMAwEAAhEDEQA/AMAVgxKen+11QAwbnstR0NUVPnsoc45Fhye4k8Vgk9KCf4m1EnAsOz3Elqn0H0NaMm55LUABsLQVgk8JJ6h4nUkjIseT3BKol/QZW1pwbjstRWCTwSgoe1tIBybjktRJaX899bnDAsez3AAbC0f/2Q=="
+        },
+        {
+          "id": "slide_1794246003612_773",
+          "type": "grid",
+          "navName": "New Slide",
+          "title": "Edited grid title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about grid.\nSecond line of notes.",
+          "subtitle": "Three areas",
+          "cards": [
+            {
+              "title": "Speed",
+              "text": "Ships daily",
+              "icon": "fa-bolt",
+              "color": "#3B82F6",
+              "image": ""
+            },
+            {
+              "title": "Trust",
+              "text": "Audited",
+              "icon": "fa-shield-halved",
+              "color": "#10B981",
+              "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgADADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAgD/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABgBAAMBAQAAAAAAAAAAAAAAAAADBQQG/8QAHxEAAQQABwAAAAAAAAAAAAAAEgACBREBFCIxQVFh/9oADAMBAAIRAxEAPwDIFXO7kpLIjpIr5ravMe1pe8VKIq5KIjZLPFpEa5ve/MOkMeSAKiYirkoiXJRueHUI3xe9e4dJb2EquSiAjY3IlqIq4ra/ce0MYKAKiYv/2Q=="
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003613_879",
+          "type": "list",
+          "navName": "New Slide",
+          "title": "Edited list title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about list.\nSecond line of notes.",
+          "subtitle": "Status",
+          "items": [
+            {
+              "label": "Write content",
+              "value": "DONE",
+              "icon": "fa-check-circle",
+              "color": "#10B981"
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003613_93",
+          "type": "code",
+          "navName": "New Slide",
+          "title": "Edited code title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about code.\nSecond line of notes.",
+          "subtitle": "Explain what this code block or configuration does.",
+          "codeHeader": "deploy.sh",
+          "codeContent": "npm run build\nnpm run deploy",
+          "codeColor": "text-green-400"
+        },
+        {
+          "id": "slide_1794246003613_767",
+          "type": "cta",
+          "navName": "New Slide",
+          "title": "Edited cta title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about cta.\nSecond line of notes.",
+          "subtitle": "Sign up today",
+          "icon": "fa-envelope",
+          "link": "https://example.com/signup"
+        },
+        {
+          "id": "slide_1794246003613_612",
+          "type": "glass_intro",
+          "navName": "New Slide",
+          "title": "Edited glass_intro title",
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": "Say this about glass_intro.\nSecond line of notes.",
+          "kicker": "Launch",
+          "subtitle": "A new way\nto present",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Private",
+              "icon": "fa-shield-halved",
+              "color": "#10B981"
+            },
+            {
+              "text": "Fast",
+              "icon": "fa-bolt",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Presentation-Ready",
+              "icon": "fa-rocket",
+              "color": "#F97316"
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003613_15",
+          "type": "comparison",
+          "navName": "New Slide",
+          "title": "Edited comparison title",
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "notes": "Say this about comparison.\nSecond line of notes.",
+          "kicker": "Decision Frame",
+          "subtitle": "Use this layout for before-and-after thinking, tradeoffs, or competing approaches.",
+          "leftTitle": "Before",
+          "leftText": "Manual",
+          "leftIcon": "fa-triangle-exclamation",
+          "leftPoints": [
+            "Slow",
+            "Error-prone",
+            "Difficult to keep presentation quality consistent"
+          ],
+          "rightTitle": "After",
+          "rightText": "Automatic",
+          "rightIcon": "fa-rocket",
+          "rightPoints": [
+            "Quick",
+            "Consistent",
+            "Higher polish without extra design work"
+          ]
+        },
+        {
+          "id": "slide_1794246003614_733",
+          "type": "showcase_window",
+          "navName": "New Slide",
+          "title": "Edited showcase_window title",
+          "transition": "fade-in",
+          "bgOverride": "bg-deepblue",
+          "notes": "Say this about showcase_window.\nSecond line of notes.",
+          "kicker": "Showcase",
+          "subtitle": "Combine narrative context with a polished macOS-style window for code, repo structure, or walkthrough content.",
+          "bullets": [
+            "Set the scene",
+            "Use the window to display structure, config, or terminal output",
+            "Pair the visual with clear takeaways on the left"
+          ],
+          "windowTitle": "config.yaml",
+          "codeHeader": "Presentation Frame",
+          "codeContent": "mode: live\nlevel: 2",
+          "codeColor": "text-blue-400"
+        },
+        {
+          "id": "slide_1794246003614_981",
+          "type": "roadmap_cards",
+          "navName": "New Slide",
+          "title": "Edited roadmap_cards title",
+          "transition": "fade-in",
+          "bgOverride": "bg-sunset",
+          "notes": "Say this about roadmap_cards.\nSecond line of notes.",
+          "kicker": "Plan",
+          "subtitle": "Map the rollout in stages with clear ownership and visual status markers.",
+          "phases": [
+            {
+              "title": "Now",
+              "text": "Build the base",
+              "status": "Current",
+              "color": "#3B82F6"
+            },
+            {
+              "title": "Polish",
+              "text": "Refine motion, backgrounds, and visual systems across exported decks.",
+              "status": "Next",
+              "color": "#8B5CF6"
+            },
+            {
+              "title": "Advanced",
+              "text": "Introduce more presentational controls for high-stakes talks and demos.",
+              "status": "Later",
+              "color": "#F97316"
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003614_504",
+          "type": "corp_title",
+          "navName": "New Slide",
+          "title": "Edited corp_title title",
+          "transition": "fade-in",
+          "bgOverride": "bg-purewhite",
+          "notes": "Say this about corp_title.\nSecond line of notes.",
+          "subtitle": "Quarterly review",
+          "author": "Sam Lee"
+        },
+        {
+          "id": "slide_1794246003614_772",
+          "type": "corp_quote",
+          "navName": "New Slide",
+          "title": "It changed how our team works.",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about corp_quote.\nSecond line of notes.",
+          "author": "Alex Kim, COO"
+        },
+        {
+          "id": "slide_1794246003615_119",
+          "type": "corp_image_text",
+          "navName": "New Slide",
+          "title": "Edited corp_image_text title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about corp_image_text.\nSecond line of notes.",
+          "subtitle": "Our new office",
+          "bullets": [
+            "Opened in May",
+            "Second supporting detail"
+          ],
+          "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgADADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAgE/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABcBAAMBAAAAAAAAAAAAAAAAAAAEBQb/xAAfEQABAwMFAAAAAAAAAAAAAAARAAQSBRQiATFBUWH/2gAMAwEAAhEDEQA/AM4KxbypVKxjjKR5Gw817WYZs7mWQCk4Vik4U2pX0sYxHJ3PmnSHjO2jkSgCok0Vik4S6lTb6OUYng7j3TpOM3ltLElVik4BTabYyylIcDY+69oePLmOICAKiTX/2Q=="
+        },
+        {
+          "id": "slide_1794246003615_846",
+          "type": "corp_basic",
+          "navName": "New Slide",
+          "title": "Edited corp_basic title",
+          "transition": "fade-in",
+          "bgOverride": "bg-purewhite",
+          "notes": "Say this about corp_basic.\nSecond line of notes.",
+          "subtitle": "Paragraph one.\n\nParagraph two."
+        },
+        {
+          "id": "slide_1794246003615_700",
+          "type": "corp_team",
+          "navName": "New Slide",
+          "title": "Edited corp_team title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about corp_team.\nSecond line of notes.",
+          "subtitle": "Who we are",
+          "team": [
+            {
+              "name": "Priya Shah",
+              "role": "CEO",
+              "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgADADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFwEBAQEBAAAAAAAAAAAAAAAAAAUBB//EAB4RAAAEBwAAAAAAAAAAAAAAAAAFERIBFSIxQVFh/9oADAMBAAIRAxEAPwACqWjnRUVTB9bWphbr2GhKwqlKwBqVS9lbnLhLJ2OwABJBVKVgFYqNZe+hzkyll5HYqlKwAGprMGUNauVunIaAAEkf/9k="
+            },
+            {
+              "name": "John Smith",
+              "role": "Lead Developer",
+              "image": ""
+            },
+            {
+              "name": "Alice Jones",
+              "role": "Designer",
+              "image": ""
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003615_712",
+          "type": "pitch_pricing",
+          "navName": "New Slide",
+          "title": "Edited pitch_pricing title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about pitch_pricing.\nSecond line of notes.",
+          "subtitle": "Simple plans",
+          "tiers": [
+            {
+              "name": "Basic",
+              "price": "$9",
+              "feature": "Core features",
+              "highlight": false
+            },
+            {
+              "name": "Pro",
+              "price": "$29",
+              "feature": "All premium features",
+              "highlight": true
+            },
+            {
+              "name": "Enterprise",
+              "price": "Custom",
+              "feature": "Dedicated support",
+              "highlight": false
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003616_881",
+          "type": "pitch_hero",
+          "navName": "New Slide",
+          "title": "Edited pitch_hero title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about pitch_hero.\nSecond line of notes.",
+          "kicker": "Big idea",
+          "subtitle": "Food without waste"
+        },
+        {
+          "id": "slide_1794246003616_353",
+          "type": "pitch_stats",
+          "navName": "New Slide",
+          "title": "Edited pitch_stats title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about pitch_stats.\nSecond line of notes.",
+          "subtitle": "This year",
+          "stats": [
+            {
+              "value": "42k",
+              "label": "Users",
+              "color": "#3B82F6"
+            },
+            {
+              "value": "10x",
+              "label": "Growth",
+              "color": "#10B981"
+            }
+          ]
+        },
+        {
+          "id": "slide_1794246003616_502",
+          "type": "pitch_timeline",
+          "navName": "New Slide",
+          "title": "Edited pitch_timeline title",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "notes": "Say this about pitch_timeline.\nSecond line of notes.",
+          "subtitle": "History",
+          "timeline": [
+            {
+              "year": "2024",
+              "text": "Founded",
+              "color": "#3B82F6"
+            },
+            {
+              "year": "2026",
+              "text": "Scale Operations",
+              "color": "#3B82F6"
+            }
+          ]
+        }
+      ],
+      "slideCounter": 20,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "schemaVersion": 3
+  }
+]

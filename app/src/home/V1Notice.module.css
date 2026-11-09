@@ -1,0 +1,26 @@
+.previews {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+
+.foot svg {
+  flex: none;
+}

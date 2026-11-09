@@ -13,6 +13,10 @@
   width: auto;
 }
 
+.wide {
+  width: min(560px, calc(100vw - 32px));
+}
+
 .dialog::backdrop {
   background: rgba(20, 20, 22, 0.4);
 }

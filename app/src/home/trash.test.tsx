@@ -70,6 +70,26 @@ describe('Trash page', () => {
     expect(within(card('C')).getByText('1 day left')).toHaveAttribute('data-soon', 'true')
   })
 
+  it('a deck trashed after Home opened shows 30 days left, not 31', async () => {
+    const store = createMemoryStore()
+    const d = createDeck('Later')
+    await store.putDeck(d)
+    await store.putLibrary(emptyEntry(d.id))
+    const { rerender } = render(<><HomePage route={{ view: 'home' }} store={store} /><ToastHost /></>)
+    await screen.findByText('Later', { selector: '[data-deck-name]' })
+    const opened = Date.now()
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(opened + 3 * 3600_000)
+    try {
+      await userEvent.click(within(card('Later')).getByRole('button', { name: 'More actions for Later' }))
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Move to Trash' }))
+      await waitFor(async () => expect((await entryOf(store, d.id))?.trashedAt).not.toBeNull())
+      rerender(<><HomePage route={{ view: 'trash' }} store={store} /><ToastHost /></>)
+      expect(await within(await waitFor(() => card('Later'))).findByText('30 days left')).toBeInTheDocument()
+    } finally {
+      clock.mockRestore()
+    }
+  })
+
   it('a trashed card does not open the deck', async () => {
     await setup([{ name: 'A', trashedDaysAgo: 1 }])
     expect(within(card('A')).queryByRole('link')).toBeNull()

@@ -36,6 +36,7 @@ export function DeckCard({
 }) {
   const preview = useDeckPreview(store, deck.id, deck.updatedAt)
   const pinned = deck.entry.pinnedAt !== null
+  const fromV1 = deck.entry.fromV1Unopened === true && !trashed
   return (
     <li ref={ref} className={styles.card} onContextMenu={onContextMenu} draggable={draggable} onDragStart={onDragStart}>
       <SlidePreview className={[styles.preview, trashed && styles.faded].filter(Boolean).join(' ')} slide={preview?.slide ?? null} theme={preview?.theme ?? null} />
@@ -45,8 +46,9 @@ export function DeckCard({
             ? <span className={styles.title} data-deck-name>{deck.name}</span>
             : <a className={styles.open} href={deckHref(deck.id)} data-deck-name>{deck.name}</a>)}
           <div className={styles.sub}>{sub ?? <>{formatEdited(deck.updatedAt, now)} · {slidesLabel(deck.slideCount)}</>}</div>
-          {(chips || deck.entry.tags.length > 0) && (
+          {(chips || deck.entry.tags.length > 0 || fromV1) && (
             <div className={styles.chips}>
+              {fromV1 && <Chip tone="peach" data-chip="v1">From V1</Chip>}
               {chips}
               {deck.entry.tags.map((t) => <Chip key={t} data-chip="tag">{t}</Chip>)}
             </div>

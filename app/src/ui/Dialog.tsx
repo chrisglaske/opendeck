@@ -10,6 +10,8 @@ export function Dialog({
   description,
   children,
   actions,
+  wide,
+  lead,
 }: {
   open: boolean
   onClose(): void
@@ -17,10 +19,14 @@ export function Dialog({
   description?: string
   children?: ReactNode
   actions: ReactNode
+  /** A wider dialog, for content such as previews. */
+  wide?: boolean
+  /** Content above the title. */
+  lead?: ReactNode
 }) {
   if (!open) return null
   return (
-    <OpenDialog onClose={onClose} title={title} description={description} actions={actions}>
+    <OpenDialog onClose={onClose} title={title} description={description} actions={actions} wide={wide} lead={lead}>
       {children}
     </OpenDialog>
   )
@@ -32,12 +38,14 @@ function OpenDialog({
   description,
   children,
   actions,
+  wide,
+  lead,
 }: Omit<Parameters<typeof Dialog>[0], 'open'>) {
   const titleId = useId()
   const descId = useId()
   return (
-    <ModalShell onClose={onClose} className={styles.dialog} titleId={titleId} descId={description ? descId : undefined}>
-      <DialogBox titleId={titleId} descId={descId} title={title} description={description} actions={actions}>
+    <ModalShell onClose={onClose} className={[styles.dialog, wide && styles.wide].filter(Boolean).join(' ')} titleId={titleId} descId={description ? descId : undefined}>
+      <DialogBox titleId={titleId} descId={descId} title={title} description={description} actions={actions} lead={lead}>
         {children}
       </DialogBox>
     </ModalShell>
@@ -152,6 +160,7 @@ function DialogBox({
   description,
   children,
   actions,
+  lead,
 }: {
   titleId?: string
   descId?: string
@@ -159,9 +168,11 @@ function DialogBox({
   description?: string
   children?: ReactNode
   actions: ReactNode
+  lead?: ReactNode
 }) {
   return (
     <div className={styles.box}>
+      {lead}
       <h3 id={titleId} className={styles.title}>
         {title}
       </h3>

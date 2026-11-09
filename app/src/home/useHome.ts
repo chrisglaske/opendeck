@@ -1,15 +1,40 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getDeckStore } from '../storage/appStore'
 import type { DeckStore } from '../storage/deckStore'
+import { firstRunCopy } from '../v1/importV1'
 import { onLibraryMessage } from './libraryChannel'
 import { loadHome, purgeDue } from './libraryService'
 import type { HomeData } from './libraryService'
 
-/** Stores whose Trash clean-up already ran during this page load. */
-const cleaned = new WeakSet<DeckStore>()
+/**
+ * The first-load work per store (V1 copy, then Trash clean-up), run once per page load. Every
+ * caller waits for the same run, so Home never shows before the copy has finished.
+ */
+const firstLoad = new WeakMap<DeckStore, Promise<void>>()
+function prepare(store: DeckStore): Promise<void> {
+  let p = firstLoad.get(store)
+  if (!p) {
+    p = (async () => {
+      await firstRunCopy(store, v1Storage(), Date.now()).catch(() => {})
+      await purgeDue(store, Date.now()).catch(() => {})
+    })()
+    firstLoad.set(store, p)
+  }
+  return p
+}
+
+/** V1's storage, if this browser lets us read it. */
+function v1Storage(): Pick<Storage, 'getItem'> {
+  try {
+    return window.localStorage
+  } catch {
+    return { getItem: () => null }
+  }
+}
 
 /**
- * Home's data. The first load cleans up the Trash once per page load; after that, Home
+ * Home's data. The first load copies V1's decks over (once per browser) and cleans up the Trash
+ * once per page load; after that, Home
  * refreshes when another tab changes the library and when the window gets focus back.
  */
 export function useHome(storeProp?: DeckStore): {
@@ -26,17 +51,16 @@ export function useHome(storeProp?: DeckStore): {
   }, [storeProp])
 
   const refresh = useCallback(async () => {
-    if (store) setRaw(await loadHome(store))
+    if (!store) return
+    await prepare(store)
+    setRaw(await loadHome(store))
   }, [store])
 
   useEffect(() => {
     if (!store) return
     let live = true
     void (async () => {
-      if (!cleaned.has(store)) {
-        cleaned.add(store)
-        await purgeDue(store, Date.now()).catch(() => {})
-      }
+      await prepare(store)
       const d = await loadHome(store)
       if (live) setRaw(d)
     })()

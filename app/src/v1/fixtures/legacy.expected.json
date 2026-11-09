@@ -1,0 +1,226 @@
+[
+  {
+    "id": "proj_legacy1",
+    "name": "Old glass deck",
+    "lastModified": 1700000000000,
+    "data": {
+      "slides": [
+        {
+          "id": "slide_a",
+          "type": "glass_intro",
+          "title": "Hello",
+          "tags": [
+            {
+              "text": "Legacy tag",
+              "icon": "fa-star"
+            },
+            {}
+          ],
+          "navName": "Slide 1",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "kicker": "Presentation System",
+          "subtitle": "",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": [
+            {
+              "text": "Legacy tag",
+              "icon": "fa-star",
+              "color": "#3B82F6"
+            },
+            {
+              "text": "Badge",
+              "icon": "fa-star",
+              "color": "#3B82F6"
+            }
+          ]
+        },
+        {
+          "id": "slide_b",
+          "type": "split",
+          "bullets": [
+            "One",
+            ""
+          ],
+          "image": "",
+          "navName": "Slide 2",
+          "title": "Main Topic Heading",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "subtitle": "",
+          "boxTitle": "Key Takeaway",
+          "boxText": "",
+          "boxIcon": "fa-lightbulb"
+        },
+        {
+          "type": "pitch_stats",
+          "stats": [
+            {
+              "value": "99%",
+              "label": "Uptime",
+              "color": "#3B82F6"
+            },
+            {
+              "value": "10x",
+              "label": "Growth",
+              "color": "#10B981"
+            }
+          ],
+          "id": "slide_1794246003833_836_2",
+          "navName": "Slide 3",
+          "title": "Main Topic Heading",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "subtitle": ""
+        },
+        {
+          "id": "slide_d",
+          "type": "grid",
+          "cards": [
+            {
+              "title": "Only title",
+              "text": "Description",
+              "icon": "fa-star",
+              "color": "#3B82F6",
+              "image": ""
+            }
+          ],
+          "transition": "fade-in",
+          "bgOverride": "bg-default",
+          "navName": "Slide 4",
+          "title": "Main Topic Heading",
+          "notes": "",
+          "subtitle": ""
+        },
+        {
+          "id": "slide_1794246003833_443_4",
+          "type": "intro",
+          "navName": "Slide 5",
+          "title": "Main Topic Heading",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-default"
+        }
+      ],
+      "slideCounter": 5,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "tags": [],
+    "schemaVersion": 3
+  },
+  {
+    "id": "proj_legacy2",
+    "name": "No slides",
+    "lastModified": 1700000001000,
+    "data": {
+      "slides": [
+        {
+          "type": "glass_intro",
+          "navName": "Welcome",
+          "title": "New Presentation",
+          "subtitle": "Start building your story here.",
+          "id": "slide_1794246003833_21_0",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "kicker": "Presentation System",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": []
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "tags": [],
+    "schemaVersion": 3
+  },
+  {
+    "name": "No id",
+    "data": {
+      "slides": [
+        {
+          "id": "s1",
+          "type": "intro",
+          "title": "Kept",
+          "navName": "Slide 1",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-default"
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "tags": [
+      "x"
+    ],
+    "id": "proj_1794246003833_2",
+    "lastModified": 1794246003833,
+    "schemaVersion": 3
+  },
+  {
+    "id": "proj_legacy1",
+    "name": "Duplicate id",
+    "lastModified": 1700000002000,
+    "data": {
+      "slides": [
+        {
+          "type": "glass_intro",
+          "navName": "Welcome",
+          "title": "New Presentation",
+          "subtitle": "Start building your story here.",
+          "id": "slide_1794246003833_937_0",
+          "notes": "",
+          "transition": "fade-in",
+          "bgOverride": "bg-aurora",
+          "kicker": "Presentation System",
+          "icon": "fa-wand-magic-sparkles",
+          "badges": []
+        }
+      ],
+      "slideCounter": 1,
+      "globalSettings": {
+        "theme": "#3B82F6",
+        "font": "'Inter', sans-serif",
+        "headerText": "OpenDeck",
+        "headerIcon": "OD",
+        "customFontUrl": "",
+        "customFontFamily": "",
+        "companyLogo": "",
+        "savedFonts": []
+      }
+    },
+    "tags": [],
+    "schemaVersion": 3
+  }
+]

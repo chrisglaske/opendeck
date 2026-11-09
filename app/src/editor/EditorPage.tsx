@@ -18,6 +18,7 @@ import { EditorShell } from './EditorShell'
 import { StateScreen } from './StateScreen'
 import { createEditorStore } from './store'
 import type { EditorStore } from './store'
+import { clearFromV1 } from '../v1/importV1'
 import styles from './EditorPage.module.css'
 
 type View =
@@ -127,6 +128,8 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
         return
       }
       await start(lock)
+      // The deck has now been opened, so it no longer shows the "From V1" chip on Home.
+      await clearFromV1(deckStore, deckId).catch(() => {})
     })()
 
     const flush = () => { void s.autosaver?.flush() }

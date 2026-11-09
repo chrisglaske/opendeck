@@ -64,6 +64,20 @@ describe('EditorPage', () => {
     expect(await screen.findByText('Q3 Board update')).toBeInTheDocument()
   })
 
+  it('opening a deck copied from V1 clears its From V1 mark', async () => {
+    const store = createMemoryStore()
+    const d = createDeck('From the old days')
+    await store.putDeck(d)
+    await store.putLibrary({ ...emptyEntry(d.id), v1Id: 'proj_1', fromV1Unopened: true })
+    render(<EditorPage deckId={d.id} store={store} />)
+    expect(await screen.findByText('From the old days')).toBeInTheDocument()
+    await waitFor(async () => {
+      const e = (await store.listLibrary()).map(sanitizeEntry).find((x) => x?.deckId === d.id)
+      expect(e?.fromV1Unopened).toBeUndefined()
+      expect(e?.v1Id).toBe('proj_1')
+    })
+  })
+
   describe('a deck in the Trash', () => {
     afterEach(() => { window.location.hash = '' })
 
