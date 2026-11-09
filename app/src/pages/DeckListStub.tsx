@@ -1,9 +1,11 @@
-import { Plus, Presentation, Trash2 } from 'lucide-react'
+import { ChevronDown, Plus, Presentation, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { createDeck } from '../model/factory'
 import { getDeckStore } from '../storage/appStore'
 import type { DeckStore, DeckSummary } from '../storage/deckStore'
-import { Button, IconButton, Logo, ModeSwitch } from '../ui'
+import { createStarterDeck, STARTER_DECKS } from '../templates/starters'
+import type { Deck } from '../model/types'
+import { Button, IconButton, Logo, Menu, ModeSwitch } from '../ui'
 import buttonStyles from '../ui/Button.module.css'
 import styles from './DeckListStub.module.css'
 
@@ -35,9 +37,8 @@ export default function DeckListStub({ store: storeProp }: { store?: DeckStore }
 
   useEffect(() => { void refresh() }, [refresh])
 
-  const newDeck = async () => {
+  const newDeck = async (d: Deck = createDeck()) => {
     if (!store) return
-    const d = createDeck()
     try {
       await store.putDeck(d)
     } catch {
@@ -62,14 +63,22 @@ export default function DeckListStub({ store: storeProp }: { store?: DeckStore }
       <main className={styles.content}>
         <div className={styles.head}>
           <h1 className={styles.title}>Your decks</h1>
-          {decks && decks.length > 0 && <Button variant="primary" icon={Plus} onClick={() => void newDeck()}>New deck</Button>}
+          {decks && decks.length > 0 && (
+            <div className={styles.actions}>
+              <StartFrom onPick={(id) => void newDeck(createStarterDeck(id))} />
+              <Button variant="primary" icon={Plus} onClick={() => void newDeck()}>New deck</Button>
+            </div>
+          )}
         </div>
         {decks && decks.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}><Presentation size={20} strokeWidth={1.75} aria-hidden /></span>
             <h2 className={styles.emptyTitle}>No decks yet</h2>
             <p className={styles.emptyText}>Start with a blank deck. Everything stays on this device.</p>
-            <Button variant="primary" icon={Plus} onClick={() => void newDeck()}>New deck</Button>
+            <div className={styles.actions}>
+              <StartFrom onPick={(id) => void newDeck(createStarterDeck(id))} />
+              <Button variant="primary" icon={Plus} onClick={() => void newDeck()}>New deck</Button>
+            </div>
           </div>
         )}
         {decks && decks.length > 0 && (
@@ -101,5 +110,22 @@ export default function DeckListStub({ store: storeProp }: { store?: DeckStore }
         )}
       </main>
     </div>
+  )
+}
+
+/** Ready-made decks to start from, each built from the built-in templates. */
+function StartFrom({ onPick }: { onPick(id: string): void }) {
+  return (
+    <Menu
+      label="Start from"
+      align="end"
+      items={STARTER_DECKS.map((s) => ({ id: s.id, label: s.name, icon: Presentation, hint: slidesLabel(s.slides.length), onSelect: () => onPick(s.id) }))}
+      trigger={
+        <button type="button" className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.md].join(' ')}>
+          Start from
+          <ChevronDown size={16} strokeWidth={1.75} aria-hidden />
+        </button>
+      }
+    />
   )
 }

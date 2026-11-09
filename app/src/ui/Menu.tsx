@@ -18,6 +18,8 @@ export type MenuItem =
       label: string
       icon?: LucideIcon
       shortcut?: string
+      /** A short note at the end of the row, such as a count. */
+      hint?: string
       danger?: boolean
       onSelect(): void
     }
@@ -184,6 +186,7 @@ export function Menu({
                 {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden className={styles.icon} />}
                 <span>{item.label}</span>
                 {item.shortcut && <kbd className={styles.kbd}>{item.shortcut}</kbd>}
+                {item.hint && <span className={styles.kbd}>{item.hint}</span>}
               </div>
             )
           })}
@@ -210,6 +213,7 @@ export function MenuPreview({ items, highlight }: { items: MenuItem[]; highlight
             {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden className={styles.icon} />}
             <span>{item.label}</span>
             {item.shortcut && <kbd className={styles.kbd}>{item.shortcut}</kbd>}
+            {item.hint && <span className={styles.kbd}>{item.hint}</span>}
           </div>
         )
       })}

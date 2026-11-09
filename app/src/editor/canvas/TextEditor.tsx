@@ -265,7 +265,7 @@ export function TextEditor({ el, theme, onCommit, onExit }: Props) {
       started.current = true
       const how = takeEntry(el.id)
       const all = allRange(el.paragraphs)
-      if (how.mode === 'all') range.current = all
+      if (how.mode === 'all' || (how.mode === 'type' && how.replace)) range.current = all
       else if (how.mode === 'point') {
         const p = caretFromPoint(n, how.x, how.y) ?? all.end
         range.current = { start: p, end: p }

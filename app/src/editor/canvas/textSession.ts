@@ -10,8 +10,8 @@ export type TextEntry =
   | { mode: 'end' }
   | { mode: 'all' }
   | { mode: 'point'; x: number; y: number }
-  /** Typing on a selected box: the text is added at the end. */
-  | { mode: 'type'; text: string }
+  /** Typing on a selected box: the text is added at the end, or replaces everything (`replace`). */
+  | { mode: 'type'; text: string; replace?: boolean }
 
 /** What the open text editor exposes to the quick bar and the Style tab. */
 export type TextSession = {
@@ -80,8 +80,9 @@ export function enterTextEditing(store: EditorStore, id: string, how: TextEntry 
   const slide = slideOf(store)
   const el = findElement(slide, id)?.el
   if (el?.type !== 'text' || el.locked) return
-  // The first click into sample text selects all of it, so typing replaces it in one go.
-  entry = { id, entry: el.sample && (how.mode === 'point' || how.mode === 'end') ? { mode: 'all' } : how }
+  // The first click into sample text selects all of it, so typing replaces it in one go;
+  // typing on a selected sample box replaces it too.
+  entry = { id, entry: !el.sample ? how : how.mode === 'type' ? { ...how, replace: true } : how.mode === 'point' || how.mode === 'end' ? { mode: 'all' } : how }
   store.select({ slideId: slide.id, ids: [id] })
   store.setEditing(id)
 }

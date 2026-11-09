@@ -246,6 +246,15 @@ describe('text editor', () => {
       expect(window.getSelection()!.toString()).toBe('')
     })
 
+    it('typing on a selected sample box replaces the sample', () => {
+      const el: TextEl = { ...textBox('64'), sample: true }
+      const s = render1(el)
+      act(() => s.select({ slideId: s.getState().deck.slides[0].id, ids: [el.id] }))
+      fireEvent.keyDown(document.body, { key: '7' })
+      expect(textOf(s, el.id)![0].runs).toEqual([{ text: '7' }])
+      expect(sampleOf(s, el.id)).toBeUndefined()
+    })
+
     it('leaving sample text unchanged keeps it a sample', () => {
       const el: TextEl = { ...textBox('Ana Ruiz'), sample: true }
       const s = render1(el)

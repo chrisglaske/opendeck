@@ -34,6 +34,25 @@ describe('DeckListStub', () => {
     expect(await store.getDeck(id)).not.toBeNull()
   })
 
+  it('starts a deck from a starter', async () => {
+    const store = await storeWith('Old')
+    render(<DeckListStub store={store} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Start from' }))
+    const items = screen.getAllByRole('menuitem').map((m) => m.textContent)
+    expect(items).toEqual(['Pitch deck10 slides', 'Quarterly review9 slides', 'Tech talk9 slides', 'Workshop9 slides'])
+    await userEvent.click(screen.getByRole('menuitem', { name: /Pitch deck/ }))
+    await waitFor(() => expect(window.location.hash).toMatch(/^#\/deck\/.+/))
+    const deck = (await store.getDeck(window.location.hash.slice('#/deck/'.length))) as { name: string; slides: unknown[] }
+    expect(deck.name).toBe('Pitch deck')
+    expect(deck.slides).toHaveLength(10)
+  })
+
+  it('offers Start from beside New deck when there are no decks', async () => {
+    render(<DeckListStub store={createMemoryStore()} />)
+    await screen.findByText('No decks yet')
+    expect(screen.getByRole('button', { name: 'Start from' })).toBeInTheDocument()
+  })
+
   it('asks in the row before deleting', async () => {
     const store = await storeWith('Keep', 'Old pitch')
     render(<DeckListStub store={store} />)

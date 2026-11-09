@@ -27,6 +27,12 @@
   min-height: 36px;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
 .title {
   font-size: 24px;
   line-height: 1.2;
