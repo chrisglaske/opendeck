@@ -18,4 +18,22 @@ describe('keyIntent', () => {
     expect(k('f', { ctrlKey: true })).toBeNull()
     expect(k('1', { altKey: true })).toBeNull()
   })
+
+  it('leaves Enter and Space to a focused control', () => {
+    const button = document.createElement('button')
+    const inner = document.createElement('span')
+    button.append(inner)
+    const ev = (key: string, target: EventTarget) => keyIntent({ key, metaKey: false, ctrlKey: false, altKey: false, target })
+    expect(ev('Enter', button)).toBeNull()
+    expect(ev(' ', inner)).toBeNull()
+    expect(ev('ArrowRight', button)).toBe('next')
+    expect(ev('Escape', button)).toBe('escape')
+    expect(ev('Enter', document.body)).toBe('enter')
+  })
+  it('leaves Esc to an open dialog', () => {
+    const dialog = document.createElement('dialog')
+    const button = document.createElement('button')
+    dialog.append(button)
+    expect(keyIntent({ key: 'Escape', metaKey: false, ctrlKey: false, altKey: false, target: button })).toBeNull()
+  })
 })

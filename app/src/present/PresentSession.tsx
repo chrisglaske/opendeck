@@ -14,6 +14,7 @@ import { SpeakerView } from './SpeakerView'
 import s from './PresentSession.module.css'
 
 const fullscreen = (el: Element | null | undefined) => { void el?.requestFullscreen?.()?.catch(() => {}) }
+const leaveFullscreen = () => { if (document.fullscreenElement) void document.exitFullscreen?.()?.catch(() => {}) }
 
 /** How a show starts. `popup` is the window opened from the click that started it (null when blocked or full screen). */
 export type ShowStart = { mode: 'window' | 'fullscreen'; fromSlideId: string | null; popup: Window | null }
@@ -69,13 +70,14 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
     if (ended.current) return
     ended.current = true
     popupRef.current?.win.close()
+    leaveFullscreen()
     onEnd(currentSlideId(showRef.current))
   }, [onEnd])
 
   const popupRef = useRef(popup)
   popupRef.current = popup
 
-  // Close the slides window when the show goes away. Deferred, so React's development
+  // Close the slides window and leave full screen when the show goes away. Deferred, so React's development
   // double-mount doesn't close the window it is about to use again.
   const mounted = useRef(true)
   useEffect(() => {
@@ -83,7 +85,11 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
     return () => {
       mounted.current = false
       const win = popupRef.current?.win
-      setTimeout(() => { if (!mounted.current) win?.close() }, 0)
+      setTimeout(() => {
+        if (mounted.current) return
+        win?.close()
+        leaveFullscreen()
+      }, 0)
     }
   }, [])
 

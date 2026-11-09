@@ -59,6 +59,13 @@ describe('PresentSession in a window', () => {
     expect(win.closed).toBe(true)
   })
 
+  it('Enter on a focused button presses it instead of moving the slide', () => {
+    render(<PresentSession deck={deck()} start={start()} onEnd={() => {}} />)
+    key(screen.getByRole('button', { name: 'End show' }), 'Enter')
+    key(screen.getByRole('button', { name: 'Pause timer' }), ' ')
+    expect(shown()).toBe('b')
+  })
+
   it('End show ends the show', () => {
     const onEnd = vi.fn()
     render(<PresentSession deck={deck()} start={start()} onEnd={onEnd} />)
@@ -154,6 +161,32 @@ describe('PresentSession full screen', () => {
     expect(onEnd).toHaveBeenCalledWith('b')
   })
 
+  describe('leaving full screen when the show ends', () => {
+    let exit: ReturnType<typeof vi.fn>
+    beforeEach(() => {
+      exit = vi.fn(() => Promise.resolve())
+      Object.defineProperty(document, 'fullscreenElement', { value: document.documentElement, configurable: true })
+      Object.defineProperty(document, 'exitFullscreen', { value: exit, configurable: true })
+    })
+    afterEach(() => {
+      Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true })
+    })
+
+    it('End leaves full screen', () => {
+      render(<PresentSession deck={deck()} start={full()} onEnd={() => {}} />)
+      fireEvent.click(screen.getByRole('button', { name: 'End' }))
+      expect(exit).toHaveBeenCalled()
+    })
+
+    it('a show that goes away (lock lost, deck trashed) leaves full screen', () => {
+      vi.useFakeTimers()
+      const { unmount } = render(<PresentSession deck={deck()} start={full()} onEnd={() => {}} />)
+      unmount()
+      act(() => { vi.advanceTimersByTime(0) })
+      expect(exit).toHaveBeenCalled()
+    })
+  })
+
   it('F asks for full screen in the window showing the slides', () => {
     const request = vi.fn(() => Promise.resolve())
     Element.prototype.requestFullscreen = request
@@ -164,6 +197,21 @@ describe('PresentSession full screen', () => {
 })
 
 describe('PresentSession when the slides window is blocked', () => {
+  it('Enter and Esc in the dialog stay in the dialog', () => {
+    vi.useFakeTimers()
+    const onEnd = vi.fn()
+    render(<PresentSession deck={deck()} start={start()} onEnd={onEnd} />)
+    win.closed = true
+    act(() => { vi.advanceTimersByTime(1000) })
+    vi.spyOn(window, 'open').mockReturnValue(null)
+    fireEvent.click(screen.getByRole('button', { name: 'Reopen slides window' }))
+    const retry = screen.getByRole('button', { name: 'Try again' })
+    key(retry, 'Enter')
+    key(retry, 'Escape')
+    expect(onEnd).not.toHaveBeenCalled()
+    expect(screen.getByText('Now · slide 2 of 3')).toBeInTheDocument()
+  })
+
   it('reopening a blocked window offers full screen instead, on the same slide', () => {
     vi.useFakeTimers()
     render(<PresentSession deck={deck()} start={start()} onEnd={() => {}} />)

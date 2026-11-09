@@ -61,6 +61,12 @@ describe('PlayerApp', () => {
     expect(shown()).toBe('c')
   })
 
+  it('Enter on the focused Speaker view button opens it instead of moving the slide', () => {
+    render(<PlayerApp deck={deck()} />)
+    key(screen.getByRole('button', { name: 'Speaker view' }), 'Enter')
+    expect(shown()).toBe('b')
+  })
+
   it('a number and Enter jump to that slide', () => {
     render(<PlayerApp deck={deck()} />)
     key(window, '2')

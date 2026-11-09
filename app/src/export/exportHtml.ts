@@ -2,6 +2,7 @@ import type { Deck } from '../model/types'
 import { getDeckStore } from '../storage/appStore'
 import { deckFontFamilies } from '../storage/deckFile'
 import { bundledFaceRules, pickFontFaces } from './fontFaces'
+import type { FaceRule } from './fontFaces'
 import { buildHtmlFile } from './htmlFile'
 import type { FileFontFace } from './htmlFile'
 
@@ -32,6 +33,17 @@ async function fetchBytes(url: string): Promise<ArrayBuffer> {
   return r.arrayBuffer()
 }
 
+/**
+ * Fetches the app's own font files for the file. A face that can't be fetched (say, a tab
+ * left open across a site update) is left out; the text then falls back to the next font.
+ */
+export async function fetchBundledFaces(rules: readonly FaceRule[]): Promise<FileFontFace[]> {
+  const results = await Promise.allSettled(
+    rules.map(async (r): Promise<FileFontFace> => ({ family: r.family, weight: r.weight, style: r.style, unicodeRange: r.unicodeRange, data: await fetchBytes(r.src), type: 'font/woff2' })),
+  )
+  return results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+}
+
 /** Makes the downloadable HTML file for a deck from what this browser has: pictures, fonts and the player. */
 export async function makeHtmlFile(deck: Deck): Promise<Blob> {
   const store = await getDeckStore()
@@ -40,9 +52,7 @@ export async function makeHtmlFile(deck: Deck): Promise<Blob> {
   // Every character the slides and notes could show decides which language subsets come along.
   const text = JSON.stringify(visible) + deck.name
   const bundled = pickFontFaces(bundledFaceRules(document), [...families, ...UI_FAMILIES], text)
-  const fontFaces: FileFontFace[] = await Promise.all(
-    bundled.map(async (r) => ({ family: r.family, weight: r.weight, style: r.style, unicodeRange: r.unicodeRange, data: await fetchBytes(r.src), type: 'font/woff2' })),
-  )
+  const fontFaces = await fetchBundledFaces(bundled)
   const wanted = new Set(families)
   for (const f of await store.listFonts()) {
     if (wanted.has(f.family)) fontFaces.push({ family: f.family, weight: f.weight, style: f.style, data: f.data, type: MIME[f.format] ?? 'font/woff2' })
