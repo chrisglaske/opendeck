@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { listEntries, listFolders } from '../home/libraryService'
 import type { Deck, ImageEl, SlideElement } from '../model/types'
 import { importDeckFile } from '../storage/deckFile'
-import { createMemoryStore } from '../storage/deckStore'
+import { createMemoryStore, keepUnsaved } from '../storage/deckStore'
 import type { DeckStore } from '../storage/deckStore'
 import { FROM_OLD_VERSION } from './convert'
 import {
@@ -177,6 +177,32 @@ describe('pictures that cannot be read', () => {
     expect(img).toMatchObject({ assetId: '', art: { kind: 'photo', variant: 0 }, sample: true })
     expect(slide.notes).toContain(`${FROM_OLD_VERSION}\n`)
     expect(slide.notes).toContain(PICTURE_NOT_COPIED)
+  })
+})
+
+describe('storage full while copying', () => {
+  it('a deck whose pictures could not be stored is not counted as copied, and From V1 tries it again', async () => {
+    const inner = createMemoryStore()
+    let full = true
+    const store = keepUnsaved({
+      ...inner,
+      async putAsset(a) {
+        if (full) throw new DOMException('full', 'QuotaExceededError')
+        return inner.putAsset(a)
+      },
+    })
+    const ls = v1Storage(projectsOf('edited'))
+    await firstRunCopy(store, ls, NOW)
+    // Nothing is stored that points at pictures only this tab holds.
+    expect(await inner.listDecks()).toEqual([])
+    expect(await v1NewCount(store, ls)).toBe(1)
+
+    full = false
+    expect(await copyNewV1Decks(store, ls, NOW)).toEqual({ copied: 1, skipped: 0 })
+    const [d] = await decks(inner)
+    const pics = d.slides.flatMap((s) => flat(s.elements)).filter((e): e is ImageEl => e.type === 'image' && !e.art)
+    expect(pics).toHaveLength(4)
+    for (const p of pics) expect(await inner.getAsset(p.assetId)).toBeTruthy()
   })
 })
 

@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 
 /* Home, folders, tags, search, Trash and deck files from the person's side, on the built app. */
 
@@ -9,7 +10,7 @@ type Entry = { deckId: string; folderId: string | null; tags: string[]; pinnedAt
 type StoredDeck = { id: string; name: string; updatedAt: number }
 
 /** Everything in one IndexedDB store, so checks wait for the write rather than for a label. */
-function all<T>(page: Page, store: 'decks' | 'library' | 'folders'): Promise<T[]> {
+function all<T>(page: Page, store: 'decks' | 'library' | 'folders' | 'assets'): Promise<T[]> {
   return page.evaluate(
     (store) =>
       new Promise<T[]>((resolve) => {
@@ -185,6 +186,36 @@ test('Move to Trash, Undo, then Restore and Empty trash', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Empty trash' }).click()
   await expect.poll(async () => (await decks(page)).map((d) => d.name)).toEqual(['Pitch deck'])
   await expect.poll(async () => (await entries(page)).length).toBe(1)
+})
+
+test('Empty trash also removes pictures only that deck used, and keeps ones another deck uses', async ({ page }) => {
+  const photo = fileURLToPath(new URL('./fixtures/photo.jpg', import.meta.url))
+  const addPhoto = async () => {
+    const chooser = page.waitForEvent('filechooser')
+    await page.getByRole('button', { name: 'Image', exact: true }).click()
+    await (await chooser).setFiles(photo)
+  }
+  for (const starter of ['Pitch deck', 'Tech talk']) {
+    await startDeck(page, starter)
+    await card(page, starter).locator('[data-deck-name]').click()
+    await expect(page.getByRole('listbox', { name: 'Slides' })).toBeVisible()
+    const before = (await all(page, 'assets')).length
+    await addPhoto()
+    await expect.poll(async () => (await all(page, 'assets')).length).toBe(before + 1)
+    await expect.poll(async () => JSON.stringify(await deckNamed(page, starter))).toMatch(/"assetId":"[^"]+"/)
+  }
+  await page.goto('./')
+  const kept = JSON.stringify(await deckNamed(page, 'Tech talk'))
+  await deckMenu(page, 'Pitch deck', 'Move to Trash')
+  await expect.poll(async () => (await entryFor(page, 'Pitch deck'))?.trashedAt).not.toBeNull()
+  await page.goto('./#/trash')
+  await page.getByRole('button', { name: 'Empty trash' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Empty trash' }).click()
+  await expect.poll(async () => (await decks(page)).map((d) => d.name)).toEqual(['Tech talk'])
+  // Only the picture the remaining deck points to is left.
+  await expect.poll(async () => (await all<{ id: string }>(page, 'assets')).length).toBe(1)
+  const [left] = await all<{ id: string }>(page, 'assets')
+  expect(kept).toContain(`"assetId":"${left.id}"`)
 })
 
 test('trashing a deck open in another tab shows the Trash screen there, and Restore brings the editor back', async ({ page, context }) => {

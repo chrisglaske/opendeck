@@ -234,8 +234,10 @@ export function keepUnsaved(store: DeckStore): DeckStore {
         throw e
       }
     },
+    // Not caught (callers that show kits catch it themselves): picture clean-up must not mistake
+    // "couldn't read" for "no kits".
     async listKits() {
-      const saved = await store.listKits().catch(() => [])
+      const saved = await store.listKits()
       const keptIds = new Set(kits.keys())
       const fromStore = saved.filter((k) => !(typeof k === 'object' && k !== null && keptIds.has((k as { id?: unknown }).id as string)))
       return [...[...kits.values()].map((k) => structuredClone(k)), ...fromStore]
@@ -253,8 +255,9 @@ export function keepUnsaved(store: DeckStore): DeckStore {
       kits.delete(id)
       await store.deleteKit(id)
     },
+    // Not caught, for the same reason as listKits.
     async listTemplates() {
-      const saved = await store.listTemplates().catch(() => [])
+      const saved = await store.listTemplates()
       return [...[...templates.values()].map((t) => structuredClone(t)), ...saved.filter((t) => !templates.has(idOf(t)))]
     },
     async putTemplate(t) {

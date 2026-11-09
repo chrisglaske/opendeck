@@ -126,9 +126,16 @@ async function storePictures(store: DeckStore, c: ConvertedDeck): Promise<{ notS
   return notSaved ? { notSaved } : {}
 }
 
-/** Stores one converted deck with its library entry. */
-async function storeDeck(store: DeckStore, c: ConvertedDeck, entry: LibraryEntry): Promise<DeckImportResult & { stored: boolean }> {
+/**
+ * Stores one converted deck with its library entry. With `allPictures`, a deck whose pictures
+ * couldn't all be stored isn't stored either (they would only live in this tab), so it stays
+ * uncopied and From V1 can try it again.
+ */
+async function storeDeck(
+  store: DeckStore, c: ConvertedDeck, entry: LibraryEntry, allPictures = false,
+): Promise<DeckImportResult & { stored: boolean }> {
   const pics = await storePictures(store, c)
+  if (allPictures && pics.notSaved) return { ok: true, deckId: c.deck.id, notSaved: pics.notSaved, stored: false }
   try {
     await store.putDeck(c.deck)
   } catch (e) {
@@ -171,7 +178,7 @@ async function copyAll(store: DeckStore, ls: Ls, now: number): Promise<{ copied:
       const demo = isDemo(p)
       // The demo deck makes no folders or tags.
       const base = demo ? emptyEntry(c.deck.id) : setTags({ ...emptyEntry(c.deck.id), folderId: await folderFor(c.folderId) }, c.tags)
-      const r = await storeDeck(store, c, { ...base, v1Id: p.id, fromV1Unopened: true })
+      const r = await storeDeck(store, c, { ...base, v1Id: p.id, fromV1Unopened: true }, true)
       if (!r.stored) { skipped++; continue }
       copied.push(p.id)
       await store.putMeta(V1_META.copiedIds, copied)

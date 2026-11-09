@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createMemoryStore } from '../storage/deckStore'
+import { createMemoryStore, keepUnsaved } from '../storage/deckStore'
 import type { DeckStore } from '../storage/deckStore'
 import { createDeck, createImage } from '../model/factory'
 import type { Deck, GroupEl, SlideElement } from '../model/types'
@@ -201,6 +201,16 @@ describe('deleteForGood and clean-up', () => {
     expect(await purgeUnusedAssets(broken)).toBe(0)
     expect(await store.listAssetIds()).toHaveLength(3)
   })
+
+  for (const which of ['listTemplates', 'listKits'] as const) {
+    it(`removes nothing when ${which === 'listKits' ? 'brand kits' : 'templates'} cannot be read, even through keepUnsaved`, async () => {
+      const { store } = await setup()
+      await store.putAsset(asset('logo-or-template-picture'))
+      const broken = keepUnsaved({ ...store, async [which]() { throw full() } })
+      expect(await purgeUnusedAssets(broken)).toBe(0)
+      expect(await store.listAssetIds()).toContain('logo-or-template-picture')
+    })
+  }
 
   it('purgeDue removes only decks trashed 30+ days ago', async () => {
     const { store, d } = await setup()
