@@ -21,9 +21,14 @@ import styles from './ThemePanel.module.css'
 /** Applies a theme to the whole deck as one undo step, keeping any text being typed. */
 export function applyThemeWithToast(store: EditorStore, theme: Theme) {
   exitTextEditing(store)
+  const before = store.getState().deck.theme
   store.apply((d) => applyTheme(d, theme))
+  const after = store.getState().deck
   setPreviewTheme(null)
-  toast(`Theme changed to ${theme.name}`, { actionLabel: 'Undo', onAction: () => store.undo() })
+  // The toast's Undo takes back this theme change only: when something else was done since,
+  // the earlier theme comes back as a new step and that later work stays.
+  const undo = () => (store.getState().deck === after ? store.undo() : store.apply((d) => applyTheme(d, before)))
+  toast(`Theme changed to ${theme.name}`, { actionLabel: 'Undo', onAction: undo })
 }
 
 const IMPORT_ERRORS: Record<KitImportError, string> = {
@@ -54,14 +59,16 @@ function ThisDeck({ theme, newerKit, onCustomize }: { theme: Theme; newerKit: Br
             <span>
               <b>{newerKit.theme.name} was updated</b> since this deck used it.{' '}
               <button type="button" className={styles.link} onClick={() => applyThemeWithToast(store, themeFromKit(newerKit))}>
-                Update this deck
+                {theme.source?.customized ? 'Update this deck and replace your changes' : 'Update this deck'}
               </button>
             </span>
           </div>
         )}
         <div className={styles.currentName}>
           {theme.name}
-          {theme.source && <span className={styles.badge}>{theme.source.kind === 'kit' ? 'Brand kit' : 'Built-in'}</span>}
+          {theme.source && (
+            <span className={styles.badge}>{theme.source.customized ? 'Customized' : theme.source.kind === 'kit' ? 'Brand kit' : 'Built-in'}</span>
+          )}
         </div>
         <div className={styles.currentMeta}>
           <span className={styles.swatches} aria-hidden>
@@ -96,6 +103,12 @@ export function ThemePanel({
   const kits = useBrandKits()
   const kitThemes = useMemo(() => kits.map((k) => ({ kit: k, theme: themeFromKit(k) })), [kits])
   const source = theme.source
+  /** The deck uses this theme exactly as it is (not changed by hand since). */
+  const isCurrent = (kind: 'builtin' | 'kit', id: string) => source?.kind === kind && source.id === id && !source.customized
+  /** Clicking the theme the deck already uses, as it is now, changes nothing; on a customized deck it resets. */
+  const apply = (t: Theme, current: boolean) => {
+    if (!current) applyThemeWithToast(store, t)
+  }
   const newerKit = kits.find((k) => isKitNewer(theme, k)) ?? null
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -118,8 +131,8 @@ export function ThemePanel({
               <ThemeCard
                 key={t.id}
                 theme={t}
-                current={source?.kind === 'builtin' && source.id === t.id}
-                onApply={() => applyThemeWithToast(store, t)}
+                current={isCurrent('builtin', t.id)}
+                onApply={() => apply(t, isCurrent('builtin', t.id))}
               />
             ))}
           </div>
@@ -149,8 +162,8 @@ export function ThemePanel({
               <ThemeCard
                 key={kit.id}
                 theme={t}
-                current={source?.kind === 'kit' && source.id === kit.id}
-                onApply={() => applyThemeWithToast(store, t)}
+                current={isCurrent('kit', kit.id)}
+                onApply={() => apply(t, isCurrent('kit', kit.id) && !isKitNewer(theme, kit))}
                 more={<KitMenu kit={kit} onEdit={() => onEditKit(kit)} />}
               />
             ))}

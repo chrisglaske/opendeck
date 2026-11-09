@@ -234,4 +234,13 @@ describe('sanitizeElements', () => {
     expect(els).toHaveLength(2)
     expect((els[1] as TextEl).paragraphs[0].runs[0].href).toBeUndefined()
   })
+
+  it('keeps the customized mark on a theme source and drops a bad one', () => {
+    const d = createDeck('A')
+    d.theme.source = { kind: 'builtin', id: 'swiss', name: 'Swiss', updatedAt: 0, customized: true }
+    expect(ok(JSON.parse(JSON.stringify(d))).deck.theme.source).toEqual({ kind: 'builtin', id: 'swiss', name: 'Swiss', updatedAt: 0, customized: true })
+    const bad = JSON.parse(JSON.stringify(d))
+    bad.theme.source.customized = 'yes'
+    expect(ok(bad).deck.theme.source).toEqual({ kind: 'builtin', id: 'swiss', name: 'Swiss', updatedAt: 0 })
+  })
 })

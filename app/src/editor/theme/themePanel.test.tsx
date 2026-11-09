@@ -145,4 +145,58 @@ describe('theme panel', () => {
     expect(screen.getByRole('heading', { name: 'New brand kit' })).toBeInTheDocument()
     expect(screen.getByText('Starts from OpenDeck')).toBeInTheDocument()
   })
+
+  it('marks a customized deck: no card checked, and updating from its kit says it replaces the changes', async () => {
+    const kitTheme = { ...builtinTheme('sage')!, id: 'k1', name: 'Acme Co.', source: null }
+    const kit: BrandKit = { id: 'k1', theme: kitTheme, createdAt: 1, updatedAt: 2 }
+    const kv = createMemoryStore()
+    await kv.putKit(kit)
+    await loadKits(kv)
+    const { store } = setup((d) => {
+      d.theme = { ...themeFromKit({ ...kit, updatedAt: 1 }), radius: 46 }
+      d.theme.source = { ...d.theme.source!, customized: true }
+    })
+    await userEvent.click(themeButton())
+    expect(within(panel()).getByText('Customized')).toBeInTheDocument()
+    expect(within(panel()).queryByText('Brand kit')).toBeNull()
+    expect(card('Acme Co.')).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(within(panel()).getByRole('button', { name: 'Update this deck and replace your changes' }))
+    expect(store.getState().deck.theme).toEqual(themeFromKit(kit))
+  })
+
+  it('does nothing when the theme the deck already uses is clicked', async () => {
+    const { store } = setup()
+    await userEvent.click(themeButton())
+    expect(card('OpenDeck')).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(card('OpenDeck'))
+    expect(store.getState().canUndo).toBe(false)
+    expect(screen.queryByText('Theme changed to OpenDeck')).toBeNull()
+  })
+
+  it('resets a customized deck when its own theme card is clicked', async () => {
+    const { store } = setup((d) => {
+      d.theme = { ...builtinTheme('swiss')!, radius: 46 }
+      d.theme.source = { ...d.theme.source!, customized: true }
+    })
+    await userEvent.click(themeButton())
+    expect(card('Swiss')).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(card('Swiss'))
+    expect(store.getState().deck.theme).toEqual(builtinTheme('swiss'))
+    expect(card('Swiss')).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('brings a deck up to date when its brand kit card is clicked after the kit changed', async () => {
+    const kitTheme = { ...builtinTheme('sage')!, id: 'k1', name: 'Acme Co.', source: null }
+    const kit: BrandKit = { id: 'k1', theme: kitTheme, createdAt: 1, updatedAt: 2 }
+    const kv = createMemoryStore()
+    await kv.putKit(kit)
+    await loadKits(kv)
+    const { store } = setup((d) => {
+      d.theme = themeFromKit({ ...kit, theme: { ...kitTheme, radius: 0 }, updatedAt: 1 })
+    })
+    await userEvent.click(themeButton())
+    await userEvent.click(card('Acme Co.'))
+    expect(store.getState().deck.theme).toEqual(themeFromKit(kit))
+  })
 })
+

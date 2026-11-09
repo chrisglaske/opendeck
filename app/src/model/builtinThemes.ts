@@ -31,7 +31,7 @@ function make(s: Spec): Theme {
 export const BUILTIN_THEMES: readonly Theme[] = [
   OPENDECK_THEME,
   make({
-    id: 'boardroom', name: 'Boardroom', heading: 'IBM Plex Sans', body: 'IBM Plex Sans', radius: 7, titleWeight: 600, titleLs: -0.015,
+    id: 'boardroom', name: 'Boardroom', heading: 'IBM Plex Sans', body: 'IBM Plex Sans', radius: 12, titleWeight: 600, titleLs: -0.015,
     colors: { bg: '#FFFFFF', surface: '#EEF2F7', text: '#0F2235', muted: '#4A5A6C', accent: '#1D5FD1', accentText: '#1D5FD1', onAccent: '#FFFFFF', accent2: '#0F2235', line: '#DCE3EC' },
   }),
   make({
@@ -39,7 +39,7 @@ export const BUILTIN_THEMES: readonly Theme[] = [
     colors: { bg: '#F6F1E9', surface: '#ECE4D6', text: '#221C16', muted: '#665B4F', accent: '#B0432A', accentText: '#A33D25', onAccent: '#FFFFFF', accent2: '#2F4A3A', line: '#DDD2C0' },
   }),
   make({
-    id: 'midnight', name: 'Midnight', heading: 'Space Grotesk', body: 'Inter', radius: 19, titleWeight: 700, titleLs: -0.025,
+    id: 'midnight', name: 'Midnight', heading: 'Space Grotesk', body: 'Inter', radius: 12, titleWeight: 700, titleLs: -0.025,
     colors: { bg: '#0E1320', surface: '#182136', text: '#EEF2F8', muted: '#9AA6BA', accent: '#3FD0C9', accentText: '#3FD0C9', onAccent: '#0E1320', accent2: '#F5B94A', line: '#263049' },
   }),
   make({

@@ -111,11 +111,13 @@ describe('BrandKitDialog', () => {
     await userEvent.click(dialog().getByRole('radio', { name: 'Round' }))
     await userEvent.click(dialog().getByRole('button', { name: 'Done' }))
     expect(theme(store).radius).toBe(46)
-    expect(theme(store).source?.id).toBe('swiss')
+    expect(theme(store).source).toMatchObject({ id: 'swiss', customized: true })
     reopen()
     expect(dialog().getByRole('radio', { name: 'Round' })).toHaveAttribute('aria-checked', 'true')
     await userEvent.click(dialog().getByRole('button', { name: 'Reset to Swiss' }))
     expect(dialog().getByRole('radio', { name: 'Square' })).toHaveAttribute('aria-checked', 'true')
+    await userEvent.click(dialog().getByRole('button', { name: 'Done' }))
+    expect(theme(store)).toEqual(builtinTheme('swiss'))
   })
 
   it('needs a name to save', async () => {

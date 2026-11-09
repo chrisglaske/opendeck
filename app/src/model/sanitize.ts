@@ -300,7 +300,10 @@ function sanitizeSource(c: Ctx, v: unknown): ThemeSource | null {
     && typeof v.name === 'string' && v.name.length <= LIMITS.name
     && typeof v.updatedAt === 'number' && Number.isFinite(v.updatedAt) && v.updatedAt >= 0
   ) {
-    return { kind: v.kind, id: v.id, name: v.name, updatedAt: v.updatedAt }
+    const source: ThemeSource = { kind: v.kind, id: v.id, name: v.name, updatedAt: v.updatedAt }
+    if (v.customized === true) source.customized = true
+    else if (v.customized !== undefined) c.fix()
+    return source
   }
   c.fix()
   return null

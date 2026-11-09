@@ -2,7 +2,14 @@ import type { ColorRef, DerivedColor, FontRef, TextEl, TextStyleId, ThemeColorTo
 
 export type ThemeTextStyle = { font: FontRef; size: number; weight: number; lineHeight: number; letterSpacing: number }
 /** Where a deck's theme came from, so the editor can mark it current and spot a newer brand kit. */
-export type ThemeSource = { kind: 'builtin' | 'kit'; id: string; name: string; updatedAt: number }
+export type ThemeSource = {
+  kind: 'builtin' | 'kit'
+  id: string
+  name: string
+  updatedAt: number
+  /** The deck's theme was changed by hand after it was applied. */
+  customized?: true
+}
 
 export type Theme = {
   id: string

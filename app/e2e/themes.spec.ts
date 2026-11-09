@@ -113,3 +113,18 @@ for (const mode of ['light', 'dark'] as const) {
     expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([])
   })
 }
+
+test("the toast's Undo takes back the theme change even after another edit", async ({ page }) => {
+  await newDeck(page)
+  const start = await canvasBg(page)
+  await openTheme(page)
+  await themePanel(page).getByRole('button', { name: 'Midnight', exact: true }).click()
+  const toast = page.getByRole('status').filter({ hasText: 'Theme changed to Midnight' })
+  await expect(toast).toBeVisible()
+  await page.getByRole('button', { name: 'Shape', exact: true }).click()
+  await expect(onCanvas(page)).toHaveCount(1)
+
+  await toast.getByRole('button', { name: 'Undo' }).click()
+  await expect.poll(() => canvasBg(page)).toBe(start)
+  await expect(onCanvas(page)).toHaveCount(1)
+})

@@ -212,3 +212,38 @@ test('the brand kit menu stays inside the Theme panel', async ({ page }) => {
   expect(menu.x).toBeGreaterThanOrEqual(panel.x)
   expect(menu.x + menu.width).toBeLessThanOrEqual(panel.x + panel.width)
 })
+
+test('brand kits and the update notice survive a reload', async ({ page }) => {
+  await newDeck(page)
+  await createAcme(page, { logo: false, font: false })
+  await page.reload()
+  await openTheme(page)
+  await expect(kitCards(page, 'Acme Co.')).toHaveAttribute('aria-pressed', 'true')
+
+  // Editing the kit after the reload still tells this deck about it.
+  await themePanel(page).getByRole('button', { name: 'Acme Co. options' }).click()
+  await page.getByRole('menuitem', { name: 'Edit' }).click()
+  await setColor(page, 'Second accent', '7048E8')
+  await kitDialog(page).getByRole('checkbox', { name: 'Apply to this deck' }).uncheck()
+  await kitDialog(page).getByRole('button', { name: 'Save brand kit' }).click()
+  await page.reload()
+  await openTheme(page)
+  await expect(themePanel(page).getByText('Acme Co. was updated')).toBeVisible()
+})
+
+test('the menu of a kit in the last row stays inside the Theme panel', async ({ page }) => {
+  await newDeck(page)
+  await createAcme(page, { logo: false, font: false })
+  for (let i = 0; i < 3; i++) {
+    await themePanel(page).getByRole('button', { name: 'Acme Co. options' }).first().click()
+    await page.getByRole('menuitem', { name: 'Duplicate' }).click()
+    await expect(themePanel(page).getByRole('button', { name: /options$/ })).toHaveCount(i + 2)
+  }
+  const more = themePanel(page).getByRole('button', { name: /options$/ }).last()
+  await more.scrollIntoViewIfNeeded()
+  const panel = (await themePanel(page).boundingBox())!
+  await more.click()
+  const menu = (await page.getByRole('menu').boundingBox())!
+  expect(menu.y).toBeGreaterThanOrEqual(panel.y)
+  expect(menu.y + menu.height).toBeLessThanOrEqual(panel.y + panel.height)
+})

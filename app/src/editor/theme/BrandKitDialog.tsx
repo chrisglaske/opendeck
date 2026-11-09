@@ -6,7 +6,7 @@ import { builtinTheme, CORNER_PRESETS } from '../../model/builtinThemes'
 import { SAMPLE_SLIDES } from '../../model/sampleSlides'
 import type { Theme } from '../../model/theme'
 import { deriveColors, issueLabel, readabilityIssues } from '../../model/themeColors'
-import { applyTheme, isDarkHex, themeFromKit } from '../../model/themeOps'
+import { applyTheme, isDarkHex, markCustomized, themeFromKit } from '../../model/themeOps'
 import { SLIDE_W } from '../../model/types'
 import type { DerivedColor, MainColor } from '../../model/types'
 import { SlideView } from '../../render/SlideView'
@@ -139,7 +139,7 @@ export function BrandKitDialog({ mode, start, kit, onClose }: { mode: 'new' | 'e
   }
 
   const done = () => {
-    if (JSON.stringify(draft) !== JSON.stringify(start)) applyToDeck(draft)
+    if (JSON.stringify(draft) !== JSON.stringify(start)) applyToDeck(markCustomized(draft, sourceTheme(start)))
     onClose()
   }
 

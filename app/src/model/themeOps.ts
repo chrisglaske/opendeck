@@ -53,3 +53,28 @@ export function detachLogo(deck: Deck, slideId: string, id: string): Deck {
   const image: ImageEl = { id, type: 'image', x, y, w, h, rotation, locked, assetId, fit: 'fit', crop: { x: 0, y: 0, w: 1, h: 1 }, radius: 0 }
   return updateElements(deck, slideId, [id], () => image)
 }
+
+/** JSON with sorted keys, so two themes compare by content rather than key order. */
+function canonical(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(canonical).join(',')}]`
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>
+    return `{${Object.keys(o).sort().filter((k) => o[k] !== undefined).map((k) => `${JSON.stringify(k)}:${canonical(o[k])}`).join(',')}}`
+  }
+  return JSON.stringify(v)
+}
+
+/** True when two themes look the same, wherever they came from. */
+export function sameLook(a: Theme, b: Theme): boolean {
+  return canonical({ ...a, source: null }) === canonical({ ...b, source: null })
+}
+
+/**
+ * The deck's theme after hand changes: marked as customized, unless it looks exactly like
+ * `original` (the theme it came from) again, in which case it simply is that theme.
+ */
+export function markCustomized(theme: Theme, original: Theme | undefined): Theme {
+  if (!theme.source) return structuredClone(theme)
+  if (original && sameLook(theme, original)) return structuredClone(original)
+  return { ...structuredClone(theme), source: { ...theme.source, customized: true } }
+}
