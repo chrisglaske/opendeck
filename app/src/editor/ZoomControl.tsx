@@ -7,15 +7,25 @@ import styles from './ZoomControl.module.css'
 
 /** Fit the slide to the canvas, or a fixed zoom in percent. */
 export type Zoom = 'fit' | number
-export const ZOOM_LEVELS = [50, 75, 100, 125, 150, 200, 300, 400]
+export const ZOOM_LEVELS = [10, 25, 50, 75, 100, 125, 150, 200, 300, 400]
 
 const pct = (scale: number) => Math.round(scale * 100)
 
-/** The next zoom level above (dir 1) or below (dir -1) the current effective zoom. */
+/**
+ * The next zoom stop above (dir 1) or below (dir -1) the current effective zoom. Fit is a
+ * stop too, wherever it lands, and takes the place of a level at the same zoom. With no stop
+ * further that way, the zoom stays as it is: zooming out never makes the slide bigger.
+ */
 export function stepZoom(zoom: Zoom, fit: number, dir: 1 | -1): Zoom {
-  const now = zoom === 'fit' ? fit * 100 : zoom
-  if (dir === 1) return ZOOM_LEVELS.find((z) => z > now + 0.5) ?? ZOOM_LEVELS[ZOOM_LEVELS.length - 1]
-  return [...ZOOM_LEVELS].reverse().find((z) => z < now - 0.5) ?? ZOOM_LEVELS[0]
+  const fitPct = fit * 100
+  const near = (a: number, b: number) => Math.abs(a - b) <= 0.5
+  const stops: { zoom: Zoom; pct: number }[] = [
+    ...ZOOM_LEVELS.filter((z) => !near(z, fitPct)).map((z) => ({ zoom: z as Zoom, pct: z })),
+    { zoom: 'fit' as const, pct: fitPct },
+  ].sort((a, b) => a.pct - b.pct)
+  const now = zoom === 'fit' ? fitPct : zoom
+  const next = dir === 1 ? stops.find((st) => st.pct > now + 0.5) : [...stops].reverse().find((st) => st.pct < now - 0.5)
+  return next ? next.zoom : zoom
 }
 
 export function zoomLabel(zoom: Zoom, fit: number): string {
