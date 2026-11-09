@@ -1,5 +1,8 @@
 import { useCallback, useRef, useState } from 'react'
+import { saveBlob } from '../editor/download'
 import { SAVE_ERROR_TEXT } from '../editor/SaveStatus'
+import { deckFileName, exportDeckFile } from '../storage/deckFile'
+import { openDeck } from '../storage/deckStore'
 import type { SaveErrorReason } from '../storage/autosave'
 import type { DeckStore } from '../storage/deckStore'
 import { toast } from '../ui'
@@ -75,6 +78,17 @@ export function useDeckActions({
     if (!r.ok) return failToast(r.reason)
     postChanged(r.id)
     await refresh()
+  }
+
+  const exportDeck = async (deck: HomeDeck) => {
+    try {
+      if (!store) throw new Error('no store')
+      const r = await openDeck(store, deck.id)
+      if (r.kind !== 'ok') throw new Error(r.kind)
+      saveBlob(await exportDeckFile(store, r.deck), deckFileName(r.deck.name))
+    } catch {
+      toast("Couldn't export the deck. Try again.")
+    }
   }
 
   const move = (deck: HomeDeck, folderId: string | null) => void apply(deck.entry, moveToFolder(deck.entry, folderId))
@@ -174,7 +188,7 @@ export function useDeckActions({
 
   return {
     restore, deleteDecks,
-    togglePin, rename, duplicate, move, moveById, moveToNewFolder, changeTags, moveToTrash,
+    togglePin, rename, duplicate, exportDeck, move, moveById, moveToNewFolder, changeTags, moveToTrash,
     newFolder, renameFolder, deleteFolder, editingFolder, setEditingFolder,
   }
 }

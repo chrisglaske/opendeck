@@ -72,7 +72,8 @@ export async function renameDeck(store: DeckStore, id: string, name: string): Pr
   })
 }
 
-function withNewIds(el: SlideElement): SlideElement {
+/** The same element (and any group children) with new ids. */
+export function withNewIds(el: SlideElement): SlideElement {
   if (el.type === 'group') return { ...el, id: newId(), children: el.children.map(withNewIds) }
   return { ...el, id: newId() }
 }

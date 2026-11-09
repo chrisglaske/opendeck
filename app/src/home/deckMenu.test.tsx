@@ -186,9 +186,9 @@ describe('deck menu', () => {
     expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['sales'])
   })
 
-  it('Export .odeck is shown but not yet available', async () => {
+  it('Export .odeck is available', async () => {
     await setup([{ name: 'Pitch' }])
-    expect(within(await openMenu('Pitch')).getByRole('menuitem', { name: 'Export .odeck' })).toHaveAttribute('aria-disabled', 'true')
+    expect(within(await openMenu('Pitch')).getByRole('menuitem', { name: 'Export .odeck' })).not.toHaveAttribute('aria-disabled', 'true')
   })
 
   it('Move to Trash removes the card at once and Undo puts it back with folder, tags and pin', async () => {

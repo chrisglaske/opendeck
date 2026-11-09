@@ -46,7 +46,7 @@ export function DeckMenu({
     },
     { id: 'tags', label: 'Tags…', icon: Tag, onSelect: onTags },
     'separator',
-    { id: 'export', label: 'Export .odeck', icon: FileDown, disabled: true, onSelect: () => {} },
+    { id: 'export', label: 'Export .odeck', icon: FileDown, onSelect: () => void actions.exportDeck(deck) },
     'separator',
     { id: 'trash', label: 'Move to Trash', icon: Trash2, danger: true, onSelect: () => void actions.moveToTrash(deck) },
   ]

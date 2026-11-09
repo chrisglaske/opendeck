@@ -1,4 +1,4 @@
-import { ChevronDown, Download, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { requestSlidesPanel } from '../editor/slides/openRequest'
 import { createDeck } from '../model/factory'
@@ -6,11 +6,11 @@ import type { Deck } from '../model/types'
 import type { DeckStore } from '../storage/deckStore'
 import { useMyTemplates } from '../storage/templates'
 import { createStarterDeck } from '../templates/starters'
-import { Button, Menu } from '../ui'
-import buttonStyles from '../ui/Button.module.css'
+import { Button } from '../ui'
 import { AllDecksPage } from './AllDecksPage'
 import { DeckGrid } from './DeckGrid'
 import { FolderPage } from './FolderPage'
+import { ImportMenu } from './ImportMenu'
 import { RECENT_COUNT } from './library'
 import type { HomeDeck } from './libraryService'
 import { deckHref } from './routes'
@@ -79,18 +79,7 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
         <div className={styles.bar}>
           <SearchBox data={data} store={store} />
           <span className={styles.grow} />
-          <Menu
-            label="Import"
-            align="end"
-            items={[{ id: 'odeck', label: 'Deck file (.odeck)…', onSelect: () => {} }]}
-            trigger={
-              <button type="button" className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.md].join(' ')}>
-                <Download size={16} strokeWidth={1.75} aria-hidden />
-                Import
-                <ChevronDown size={16} strokeWidth={1.75} aria-hidden />
-              </button>
-            }
-          />
+          <ImportMenu store={store} />
           <Button variant="primary" icon={Plus} onClick={start.onBlank}>New deck</Button>
         </div>
 
