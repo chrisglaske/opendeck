@@ -11,3 +11,4 @@ export function formatEdited(ts: number, now = Date.now()): string {
 const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 export const slidesLabel = (n: number) => count(n, 'slide', 'slides')
 export const decksLabel = (n: number) => count(n, 'deck', 'decks')
+export const formatSaved = (ts: number) => `Saved ${MONTH_DAY.format(ts)}`

@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createDeck } from '../model/factory'
 import { createMemoryStore } from '../storage/deckStore'
 import type { DeckStore } from '../storage/deckStore'
+import { takeSlidesPanelRequest } from '../editor/slides/openRequest'
 import HomePage from './HomePage'
 import { emptyEntry, trash } from './library'
 
@@ -54,6 +55,18 @@ describe('Home', () => {
     await userEvent.click(within(start).getByRole('button', { name: 'Blank' }))
     await waitFor(() => expect(window.location.hash).toMatch(/^#\/deck\/.+/))
     expect(await store.getDeck(window.location.hash.slice('#/deck/'.length))).not.toBeNull()
+  })
+
+  it('Browse all makes a blank deck, opens it and asks the editor to show the Slides panel', async () => {
+    const { store } = await storeWith([{ name: 'A' }])
+    render(<HomePage route={{ view: 'home' }} store={store} />)
+    const start = await screen.findByRole('region', { name: 'Start something new' })
+    await userEvent.click(within(start).getByRole('button', { name: 'Browse all' }))
+    await waitFor(() => expect(window.location.hash).toMatch(/^#\/deck\/.+/))
+    const id = window.location.hash.slice('#/deck/'.length)
+    expect(await store.getDeck(id)).not.toBeNull()
+    expect(takeSlidesPanelRequest(id)).toBe(true)
+    expect(takeSlidesPanelRequest(id)).toBe(false)
   })
 
   it('New deck in the top bar opens a new blank deck', async () => {

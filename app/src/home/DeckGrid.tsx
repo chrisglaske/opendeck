@@ -1,45 +1,15 @@
 import { useRef, useState } from 'react'
-import type { KeyboardEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { DeckStore } from '../storage/deckStore'
 import { DeckCard } from './DeckCard'
 import { DeckMenu } from './DeckMenu'
+import { startDeckDrag } from './dnd'
 import { tagCounts } from './library'
 import type { HomeData, HomeDeck } from './libraryService'
+import { RenameField } from './RenameField'
 import { TagsPopover } from './TagsPopover'
 import type { DeckActions } from './useDeckActions'
 import styles from './DeckGrid.module.css'
-
-/** Renames in place: Enter (or leaving the field) saves, Esc cancels, an empty name keeps the old one. */
-function RenameField({ name, onDone }: { name: string; onDone(name: string | null): void }) {
-  const done = useRef(false)
-  const finish = (v: string | null) => {
-    if (done.current) return
-    done.current = true
-    onDone(v)
-  }
-  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      finish(e.currentTarget.value)
-    } else if (e.key === 'Escape') {
-      e.preventDefault()
-      e.stopPropagation()
-      finish(null)
-    }
-  }
-  return (
-    <input
-      className={styles.rename}
-      aria-label="Deck name"
-      defaultValue={name}
-      maxLength={200}
-      autoFocus
-      onFocus={(e) => e.currentTarget.select()}
-      onKeyDown={onKeyDown}
-      onBlur={(e) => finish(e.currentTarget.value)}
-    />
-  )
-}
 
 /** A grid of deck cards, each with its ⋯ menu (also on right-click), rename in place and tags. */
 export function DeckGrid({
@@ -75,6 +45,8 @@ export function DeckGrid({
             store={store}
             now={now}
             chips={chips?.(d)}
+            draggable={renaming !== d.id}
+            onDragStart={(e) => startDeckDrag(e, d.id)}
             onContextMenu={(e) => {
               if (renaming === d.id) return
               e.preventDefault()
@@ -84,6 +56,9 @@ export function DeckGrid({
               renaming === d.id ? (
                 <RenameField
                   name={d.name}
+                  label="Deck name"
+                  maxLength={200}
+                  className={styles.rename}
                   onDone={(v) => {
                     setRenaming(null)
                     if (v !== null) void actions.rename(d, v)

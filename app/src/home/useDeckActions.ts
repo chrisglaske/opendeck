@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { SAVE_ERROR_TEXT } from '../editor/SaveStatus'
 import type { SaveErrorReason } from '../storage/autosave'
 import type { DeckStore } from '../storage/deckStore'
@@ -6,7 +6,7 @@ import { toast } from '../ui'
 import { moveToFolder, pin, restoreEntry, setTags, trash, unpin, UNDO_MS } from './library'
 import type { LibraryEntry } from './library'
 import { postChanged, postRestored, postTrashed } from './libraryChannel'
-import { createFolder, duplicateDeck, renameDeck, setEntry } from './libraryService'
+import { createFolder, deleteFolder as deleteFolderInStore, deleteForGood, duplicateDeck, renameDeck, renameFolder as renameFolderInStore, setEntry } from './libraryService'
 import type { HomeData, HomeDeck } from './libraryService'
 
 /** The first sentence of the editor's "Not saved" reason: why storage refused. */
@@ -30,6 +30,8 @@ export function useDeckActions({
   setData(fn: (d: HomeData) => HomeData): void
   refresh(): Promise<void>
 }) {
+  /** The folder whose name is being edited in the sidebar (a new folder starts out this way). */
+  const [editingFolder, setEditingFolder] = useState<string | null>(null)
   const dataRef = useRef(data)
   dataRef.current = data
   const entries = () => dataRef.current?.decks.map((d) => d.entry) ?? []
@@ -82,8 +84,54 @@ export function useDeckActions({
     const r = await createFolder(store, '')
     if (!r.ok) return failToast(r.reason)
     setData((d) => ({ ...d, folders: [...d.folders, r.folder] }))
+    postChanged(r.folder.id)
+    setEditingFolder(r.folder.id)
     await apply(deck.entry, moveToFolder(deck.entry, r.folder.id))
     return r.folder
+  }
+
+  /** Moves a dragged deck into a folder (`null`: out of any folder). */
+  const moveById = (deckId: string, folderId: string | null) => {
+    const deck = dataRef.current?.decks.find((x) => x.id === deckId)
+    if (!deck || deck.entry.trashedAt !== null || deck.entry.folderId === folderId) return
+    move(deck, folderId)
+  }
+
+  const newFolder = async () => {
+    if (!store) return
+    const r = await createFolder(store, '')
+    if (!r.ok) return failToast(r.reason)
+    setData((d) => ({ ...d, folders: [...d.folders, r.folder] }))
+    postChanged(r.folder.id)
+    setEditingFolder(r.folder.id)
+  }
+
+  const renameFolder = async (id: string, name: string) => {
+    const before = dataRef.current?.folders.find((f) => f.id === id)
+    const clean = name.trim().slice(0, 80).trim()
+    if (!store || !before || !clean || clean === before.name) return
+    const rename = (to: string) => setData((d) => ({ ...d, folders: d.folders.map((f) => (f.id === id ? { ...f, name: to } : f)) }))
+    rename(clean)
+    const r = await renameFolderInStore(store, id, clean)
+    if (r.ok) return postChanged(id)
+    rename(before.name)
+    if (r.reason !== 'limit' && r.reason !== 'open-elsewhere') failToast(r.reason)
+  }
+
+  /** Deletes a folder; its decks stay, with no folder. */
+  const deleteFolder = async (id: string): Promise<boolean> => {
+    if (!store) return false
+    const r = await deleteFolderInStore(store, id)
+    if (!r.ok) {
+      if (r.reason !== 'limit' && r.reason !== 'open-elsewhere') failToast(r.reason)
+      return false
+    }
+    setData((d) => ({
+      folders: d.folders.filter((f) => f.id !== id),
+      decks: d.decks.map((x) => (x.entry.folderId === id ? { ...x, entry: { ...x.entry, folderId: null } } : x)),
+    }))
+    postChanged(id)
+    return true
   }
 
   const changeTags = (deck: HomeDeck, tags: string[]) => {
@@ -107,7 +155,28 @@ export function useDeckActions({
     })
   }
 
-  return { togglePin, rename, duplicate, move, moveToNewFolder, changeTags, moveToTrash }
+  const restore = async (deck: HomeDeck) => {
+    const now = dataRef.current?.decks.find((x) => x.id === deck.id)?.entry ?? deck.entry
+    if (now.trashedAt === null) return
+    if (await apply(now, restoreEntry(now, dataRef.current?.folders ?? [], entries()))) postRestored(deck.id)
+  }
+
+  /** Deletes decks for good. Decks open in another tab are kept, and a toast says so. */
+  const deleteDecks = async (ids: string[]) => {
+    if (!store || !ids.length) return
+    const r = await deleteForGood(store, ids)
+    for (const id of r.deleted) postChanged(id)
+    if (r.skippedOpen.length === 1) toast('1 deck is open in another tab and was kept.')
+    else if (r.skippedOpen.length > 1) toast(`${r.skippedOpen.length} decks are open in another tab and were kept.`)
+    if (r.failed) failToast(r.failed)
+    await refresh()
+  }
+
+  return {
+    restore, deleteDecks,
+    togglePin, rename, duplicate, move, moveById, moveToNewFolder, changeTags, moveToTrash,
+    newFolder, renameFolder, deleteFolder, editingFolder, setEditingFolder,
+  }
 }
 
 export type DeckActions = ReturnType<typeof useDeckActions>

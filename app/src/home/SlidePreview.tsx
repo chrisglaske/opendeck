@@ -44,7 +44,7 @@ export function useDeckPreview(store: DeckStore | null, id: string, updatedAt: n
 export function SlidePreview({ slide, theme, className }: { slide: Slide | null; theme: Theme | null; className?: string }) {
   const [ref, w] = useElementWidth<HTMLDivElement>(240)
   return (
-    <div ref={ref} className={[styles.box, className].filter(Boolean).join(' ')} aria-hidden>
+    <div ref={ref} className={[styles.box, className].filter(Boolean).join(' ')} aria-hidden data-drag-image>
       {slide && theme && <SlideView slide={slide} theme={theme} scale={w / SLIDE_W} interactive={false} />}
     </div>
   )

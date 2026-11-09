@@ -1,5 +1,6 @@
-import { ChevronDown, Download, Plus, Search } from 'lucide-react'
+import { ChevronDown, Download, Plus } from 'lucide-react'
 import { useState } from 'react'
+import { requestSlidesPanel } from '../editor/slides/openRequest'
 import { createDeck } from '../model/factory'
 import type { Deck } from '../model/types'
 import type { DeckStore } from '../storage/deckStore'
@@ -7,12 +8,18 @@ import { useMyTemplates } from '../storage/templates'
 import { createStarterDeck } from '../templates/starters'
 import { Button, Menu } from '../ui'
 import buttonStyles from '../ui/Button.module.css'
+import { AllDecksPage } from './AllDecksPage'
 import { DeckGrid } from './DeckGrid'
+import { FolderPage } from './FolderPage'
 import { RECENT_COUNT } from './library'
 import type { HomeDeck } from './libraryService'
 import { deckHref } from './routes'
 import type { HomeRoute } from './routes'
+import { SearchBox } from './SearchBox'
 import { Sidebar } from './Sidebar'
+import { KitsPage } from './KitsPage'
+import { TemplatesPage } from './TemplatesPage'
+import { TrashPage } from './TrashPage'
 import { StartRow } from './StartRow'
 import { useDeckActions } from './useDeckActions'
 import { useHome } from './useHome'
@@ -38,24 +45,39 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
   const start = {
     onBlank: () => void openNew(createDeck()),
     onStarter: (id: string) => void openNew(createStarterDeck(id)),
-    onBrowseAll: () => {},
+    onBrowseAll: () => {
+      const d = createDeck()
+      requestSlidesPanel(d.id)
+      void openNew(d)
+    },
   }
 
   const decks = data?.decks.filter(live) ?? []
   const pinned = decks.filter((d) => d.entry.pinnedAt !== null).sort((a, b) => (a.entry.pinnedAt ?? 0) - (b.entry.pinnedAt ?? 0))
   const recent = decks.filter((d) => d.entry.pinnedAt === null).slice(0, RECENT_COUNT)
 
+  const isHome = route.view === 'home'
+
   return (
     <div className={styles.page}>
-      <Sidebar route={route} data={data} templateCount={templates.length} />
+      <Sidebar
+        route={route}
+        data={data}
+        templateCount={templates.length}
+        folders={{
+          editing: actions.editingFolder,
+          onNew: () => void actions.newFolder(),
+          onNamed: (id, name) => {
+            actions.setEditingFolder(null)
+            if (name !== null) void actions.renameFolder(id, name)
+          },
+          onDropDeck: actions.moveById,
+        }}
+      />
       <main className={styles.main}>
-        <h1 className={styles.srOnly}>Home</h1>
+        {isHome && <h1 className={styles.srOnly}>Home</h1>}
         <div className={styles.bar}>
-          <label className={styles.search}>
-            <Search size={16} strokeWidth={1.75} aria-hidden />
-            <input type="search" placeholder="Search decks, folders and tags" aria-label="Search decks, folders and tags" />
-            <kbd>/</kbd>
-          </label>
+          <SearchBox data={data} store={store} />
           <span className={styles.grow} />
           <Menu
             label="Import"
@@ -72,7 +94,14 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
           <Button variant="primary" icon={Plus} onClick={start.onBlank}>New deck</Button>
         </div>
 
-        {data && decks.length === 0 && (
+        {data && route.view === 'all' && <AllDecksPage data={data} store={store} actions={actions} now={now} />}
+        {data && route.view === 'tag' && <AllDecksPage data={data} store={store} actions={actions} now={now} tag={route.tag} />}
+        {route.view === 'templates' && <TemplatesPage store={store} onOpenDeck={(d) => void openNew(d)} />}
+        {route.view === 'kits' && <KitsPage />}
+        {data && route.view === 'trash' && <TrashPage data={data} store={store} actions={actions} now={now} />}
+        {data && route.view === 'folder' && <FolderPage key={route.id} id={route.id} data={data} store={store} actions={actions} now={now} />}
+
+        {data && isHome && decks.length === 0 && (
           <section className={styles.first} aria-labelledby="home-first">
             <h2 id="home-first" className={styles.firstTitle}>Make your first deck</h2>
             <p className={styles.firstSub}>Pick a starter and type over it, or start blank. Everything stays on this device.</p>
@@ -80,7 +109,7 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
           </section>
         )}
 
-        {data && decks.length > 0 && (
+        {data && isHome && decks.length > 0 && (
           <>
             <section aria-labelledby="home-start">
               <div className={styles.secHead}><h2 id="home-start">Start something new</h2></div>

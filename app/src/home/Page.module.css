@@ -1,0 +1,266 @@
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+}
+
+.icon {
+  color: var(--accent-text);
+  flex: none;
+}
+
+.title {
+  font: 800 22px/1.2 var(--font-display);
+  letter-spacing: -0.025em;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rename {
+  font: 800 22px/1.2 var(--font-display);
+  letter-spacing: -0.025em;
+  width: min(420px, 100%);
+  margin-left: -7px;
+}
+
+.sub {
+  color: var(--faint);
+  font-size: 12.5px;
+  margin: 2px 0 16px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 26px;
+  padding: 0 4px 0 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-tint);
+  color: var(--accent-text);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.remove:hover {
+  background: var(--surface);
+}
+
+.remove:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.note a {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.more {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+}
+
+.more:hover {
+  background: var(--subtle);
+  color: var(--ink);
+}
+
+.more:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.grow {
+  flex: 1;
+}
+
+.soon {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--r-lg);
+  background: var(--subtle);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.dangerText {
+  color: var(--danger);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 18px;
+  padding: 40px 20px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r-xl);
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.empty b {
+  color: var(--ink);
+  font: 700 15px var(--font-ui);
+}
+
+.emptyIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-xl);
+  background: var(--accent-tint);
+  color: var(--accent-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.headBlock {
+  margin-bottom: 16px;
+}
+
+.subTight {
+  color: var(--faint);
+  font-size: 12.5px;
+  margin: 2px 0 0;
+}
+
+.cardButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.kits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kit {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+}
+
+.kit:hover,
+.kit:focus-within {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-float);
+}
+
+.kitOpen {
+  all: unset;
+  display: block;
+  min-height: 24px;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+/* The whole card opens the kit. */
+.kitOpen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-xl);
+}
+
+.kitOpen:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.kitName {
+  font: 600 14px var(--font-ui);
+  color: var(--ink);
+}
+
+.kitMore {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}
+
+.swatches {
+  display: flex;
+  gap: 6px;
+}
+
+.swatches i {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+}
+
+.fonts {
+  color: var(--muted);
+  font-size: 12.5px;
+}

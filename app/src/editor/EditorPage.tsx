@@ -1,5 +1,9 @@
-import { AppWindow, ArrowLeft, FileQuestion, FileWarning, RefreshCw, Sparkles } from 'lucide-react'
+import { AppWindow, ArrowLeft, FileQuestion, FileWarning, RefreshCw, Sparkles, Trash2, Undo2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { restoreEntry } from '../home/library'
+import { onLibraryMessage, postRestored } from '../home/libraryChannel'
+import { listEntries, listFolders, setEntry } from '../home/libraryService'
+import { failToast } from '../home/useDeckActions'
 import { createAutosaver } from '../storage/autosave'
 import type { Autosaver } from '../storage/autosave'
 import { getDeckStore } from '../storage/appStore'
@@ -22,7 +26,18 @@ type View =
   | { kind: 'corrupt' }
   | { kind: 'newer' }
   | { kind: 'other-tab'; name: string }
+  | { kind: 'trashed'; name: string }
   | { kind: 'ready'; store: EditorStore; autosaver: Autosaver }
+
+const homeLink = (
+  <a href="#/" className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.sm].join(' ')}>
+    <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
+    Back to Home
+  </a>
+)
+
+const isTrashed = async (store: DeckStore, id: string) =>
+  (await listEntries(store)).some((e) => e.deckId === id && e.trashedAt !== null)
 
 const backLink = (
   <a href="#/" className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.sm].join(' ')}>
@@ -37,7 +52,11 @@ const backLink = (
  */
 export default function EditorPage({ deckId, store: storeProp }: { deckId: string; store?: DeckStore }) {
   const [view, setView] = useState<View>({ kind: 'loading' })
-  const session = useRef<{ lock?: HeldLock; autosaver?: Autosaver; offDeck?: () => void; cancelled: boolean }>({ cancelled: false })
+  const session = useRef<{
+    lock?: HeldLock; autosaver?: Autosaver; offDeck?: () => void; offLibrary?: () => void; cancelled: boolean
+  }>({ cancelled: false })
+  /** Bumped to open the deck again (after it is restored from the Trash). */
+  const [attempt, setAttempt] = useState(0)
 
   /** Opens the deck under a lock this tab already holds. */
   const start = useCallback(async (lock: HeldLock) => {
@@ -64,9 +83,22 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
     void lock.lost.then(() => {
       // Another tab took over. Stop writing so its copy wins.
       s.offDeck?.()
+      s.offLibrary?.()
       autosaver.dispose()
-      s.lock = s.autosaver = s.offDeck = undefined
+      s.lock = s.autosaver = s.offDeck = s.offLibrary = undefined
       if (!s.cancelled) setView({ kind: 'other-tab', name: store.getState().deck.name })
+    })
+    // Home moved this deck to the Trash: keep what was typed, then stop editing.
+    s.offLibrary = onLibraryMessage((m) => {
+      if (m.kind !== 'trashed' || m.deckId !== deckId || s.autosaver !== autosaver) return
+      s.offDeck?.()
+      s.offLibrary?.()
+      s.lock = s.autosaver = s.offDeck = s.offLibrary = undefined
+      void autosaver.flush().finally(() => {
+        autosaver.dispose()
+        lock.release()
+        if (!s.cancelled) setView({ kind: 'trashed', name: store.getState().deck.name })
+      })
     })
     setView({ kind: 'ready', store, autosaver })
   }, [deckId, storeProp])
@@ -80,6 +112,12 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
       if (s.cancelled) return
       if (first.kind !== 'ok') {
         setView({ kind: first.kind })
+        return
+      }
+      const trashed = await isTrashed(deckStore, deckId)
+      if (s.cancelled) return
+      if (trashed) {
+        setView({ kind: 'trashed', name: first.deck.name })
         return
       }
       const lock = await acquireDeckLock(deckId)
@@ -106,6 +144,7 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
       window.removeEventListener('beforeunload', onBeforeUnload)
       document.removeEventListener('visibilitychange', onVisibility)
       s.offDeck?.()
+      s.offLibrary?.()
       const { autosaver, lock } = s
       void (async () => {
         await autosaver?.flush()
@@ -113,11 +152,27 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
         lock?.release()
       })()
     }
-  }, [deckId, storeProp, start])
+  }, [deckId, storeProp, start, attempt])
 
   const takeOver = async () => {
     setView({ kind: 'loading' })
     await start(await takeOverDeckLock(deckId))
+  }
+
+  const restore = async () => {
+    const deckStore = storeProp ?? (await getDeckStore())
+    const all = await listEntries(deckStore)
+    const entry = all.find((e) => e.deckId === deckId)
+    if (entry && entry.trashedAt !== null) {
+      const r = await setEntry(deckStore, restoreEntry(entry, await listFolders(deckStore), all))
+      if (!r.ok) {
+        if (r.reason !== 'limit' && r.reason !== 'open-elsewhere') failToast(r.reason)
+        return
+      }
+      postRestored(deckId)
+    }
+    setView({ kind: 'loading' })
+    setAttempt((n) => n + 1)
   }
 
   switch (view.kind) {
@@ -154,6 +209,17 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
           actions={<>{backLink}<Button variant="primary" size="sm" onClick={() => void takeOver()}>Use it here instead</Button></>}
         >
           <p>To keep your work safe, a deck can be edited in one tab at a time.</p>
+        </StateScreen>
+      )
+    case 'trashed':
+      return (
+        <StateScreen
+          icon={Trash2}
+          title="This deck is in the Trash"
+          deckName={view.name}
+          actions={<>{homeLink}<Button variant="primary" size="sm" icon={Undo2} onClick={() => void restore()}>Restore</Button></>}
+        >
+          <p>Restore it to keep working on it.</p>
         </StateScreen>
       )
     case 'ready':

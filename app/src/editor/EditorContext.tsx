@@ -19,3 +19,16 @@ export function useEditor<T>(selector: (s: EditorState) => T): T {
   const store = useEditorStore()
   return useSyncExternalStore(store.subscribe, () => selector(store.getState()))
 }
+
+/** The editor store when there is one; null outside the editor (for example on Home). */
+export function useOptionalEditorStore(): EditorStore | null {
+  return useContext(Ctx)
+}
+
+const noSubscribe = () => () => {}
+
+/** Like `useEditor`, but gives `fallback` outside the editor. */
+export function useOptionalEditor<T>(selector: (s: EditorState) => T, fallback: T): T {
+  const store = useContext(Ctx)
+  return useSyncExternalStore(store ? store.subscribe : noSubscribe, () => (store ? selector(store.getState()) : fallback))
+}

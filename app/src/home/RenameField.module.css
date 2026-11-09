@@ -1,0 +1,14 @@
+.field {
+  display: block;
+  padding: 2px 6px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  outline: none;
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+}

@@ -31,7 +31,8 @@
   flex: 1;
 }
 
-.open {
+.open,
+.title {
   display: block;
   font-weight: 600;
   font-size: 13px;
@@ -93,4 +94,9 @@
 .card:focus-within .more,
 .more:has([aria-expanded='true']) {
   opacity: 1;
+}
+
+.faded > * {
+  filter: saturate(0.5);
+  opacity: 0.75;
 }

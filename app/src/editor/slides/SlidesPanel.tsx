@@ -32,7 +32,7 @@ const IMPORT_ERRORS: Record<TemplateImportError, string> = {
 }
 
 /** Imports template files one after another, then sums up in one toast. */
-async function importTemplates(files: File[]) {
+export async function importTemplates(files: File[]) {
   const store = await getDeckStore()
   const added: string[] = []
   const failed: TemplateImportError[] = []

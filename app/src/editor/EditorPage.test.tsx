@@ -1,5 +1,8 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it } from 'vitest'
+import { emptyEntry, sanitizeEntry, trash } from '../home/library'
+import { postTrashed } from '../home/libraryChannel'
 import EditorPage from './EditorPage'
 import { createMemoryStore, createSessionOnlyStore } from '../storage/deckStore'
 import { createDeck } from '../model/factory'
@@ -59,5 +62,59 @@ describe('EditorPage', () => {
     await store.putDeck(d)
     render(<EditorPage deckId={d.id} store={store} />)
     expect(await screen.findByText('Q3 Board update')).toBeInTheDocument()
+  })
+
+  describe('a deck in the Trash', () => {
+    afterEach(() => { window.location.hash = '' })
+
+    it('shows the Trash screen instead of the editor; Back to Home goes home', async () => {
+      const store = createMemoryStore()
+      const d = createDeck('Old pitch')
+      await store.putDeck(d)
+      await store.putLibrary(trash(emptyEntry(d.id), Date.now()))
+      render(<EditorPage deckId={d.id} store={store} />)
+      expect(await screen.findByRole('heading', { name: 'This deck is in the Trash' })).toBeInTheDocument()
+      expect(screen.getByText('Restore it to keep working on it.')).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Back to Home' })).toHaveAttribute('href', '#/')
+    })
+
+    it('Restore takes it out of the Trash, back in its folder, and opens the editor', async () => {
+      const store = createMemoryStore()
+      const d = createDeck('Old pitch')
+      await store.putDeck(d)
+      await store.putFolder({ id: 'f1', name: 'Work', createdAt: 0 })
+      await store.putLibrary(trash({ ...emptyEntry(d.id), folderId: 'f1' }, Date.now()))
+      render(<EditorPage deckId={d.id} store={store} />)
+      await userEvent.click(await screen.findByRole('button', { name: 'Restore' }))
+      expect(await screen.findByRole('button', { name: 'Rename deck' })).toHaveTextContent('Old pitch')
+      const e = (await store.listLibrary()).map(sanitizeEntry).find((x) => x?.deckId === d.id)
+      expect(e?.trashedAt).toBeNull()
+      expect(e?.folderId).toBe('f1')
+    })
+
+    it('when another tab moves the open deck to the Trash, the pending save is kept and the Trash screen shows', async () => {
+      const store = createMemoryStore()
+      const d = createDeck('Live')
+      await store.putDeck(d)
+      render(<EditorPage deckId={d.id} store={store} />)
+      await userEvent.click(await screen.findByRole('button', { name: 'Rename deck' }))
+      await userEvent.clear(screen.getByRole('textbox', { name: 'Deck name' }))
+      await userEvent.type(screen.getByRole('textbox', { name: 'Deck name' }), 'Renamed{Enter}')
+      await store.putLibrary(trash(emptyEntry(d.id), Date.now()))
+      postTrashed(d.id)
+      expect(await screen.findByRole('heading', { name: 'This deck is in the Trash' })).toBeInTheDocument()
+      await waitFor(async () => expect(((await store.getDeck(d.id)) as { name: string }).name).toBe('Renamed'))
+    })
+
+    it('ignores the Trash message for another deck', async () => {
+      const store = createMemoryStore()
+      const d = createDeck('Live')
+      await store.putDeck(d)
+      render(<EditorPage deckId={d.id} store={store} />)
+      await screen.findByRole('button', { name: 'Rename deck' })
+      postTrashed('someone-else')
+      await new Promise((r) => setTimeout(r, 50))
+      expect(screen.queryByRole('heading', { name: 'This deck is in the Trash' })).toBeNull()
+    })
   })
 })

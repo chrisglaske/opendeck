@@ -15,7 +15,7 @@ import { brandKit, saveKit } from '../../storage/kits'
 import { Button, Checkbox, LargeDialog, TextField, toast } from '../../ui'
 import { nextIndex } from '../../ui/rovingKeys'
 import { exitTextEditing } from '../canvas/textSession'
-import { useEditor, useEditorStore } from '../EditorContext'
+import { useOptionalEditor, useOptionalEditorStore } from '../EditorContext'
 import { FontPicker } from '../pickers/FontPicker'
 import { SAVE_ERROR_TEXT } from '../SaveStatus'
 import { ColorRow } from './ColorRow'
@@ -95,8 +95,9 @@ function Preview({ theme }: { theme: Theme }) {
  * a live preview on the right. Nothing changes until it is saved or Done is pressed.
  */
 export function BrandKitDialog({ mode, start, kit, onClose }: { mode: 'new' | 'edit' | 'deck'; start: Theme; kit?: BrandKit; onClose(): void }) {
-  const store = useEditorStore()
-  const deckName = useEditor((s) => s.deck.name)
+  // Opened from Home there is no deck: a kit is only saved, never applied.
+  const store = useOptionalEditorStore()
+  const deckName = useOptionalEditor((s) => s.deck.name, '')
   const [draft, setDraft] = useState<Theme>(() => structuredClone(start))
   const [name, setName] = useState(mode === 'edit' ? start.name : '')
   const [apply, setApply] = useState(true)
@@ -126,6 +127,7 @@ export function BrandKitDialog({ mode, start, kit, onClose }: { mode: 'new' | 'e
 
   /** Applies a theme to the deck as one undo step, ending any text edit first. */
   const applyToDeck = (t: Theme) => {
+    if (!store) return
     exitTextEditing(store)
     store.apply((d) => applyTheme(d, t))
   }
@@ -133,7 +135,7 @@ export function BrandKitDialog({ mode, start, kit, onClose }: { mode: 'new' | 'e
   const saveAsKit = async (theme: Theme, id: string | undefined, andApply: boolean) => {
     setBusy(true)
     const r = await saveKit(await getDeckStore(), theme, id)
-    if (andApply) applyToDeck(themeFromKit(r.kit))
+    if (andApply && store) applyToDeck(themeFromKit(r.kit))
     toast(r.notSaved ? `Brand kit kept for this tab, but not saved. ${SAVE_ERROR_TEXT[r.notSaved]}` : 'Brand kit saved', r.notSaved ? { durationMs: 8000 } : {})
     onClose()
   }
@@ -172,7 +174,7 @@ export function BrandKitDialog({ mode, start, kit, onClose }: { mode: 'new' | 'e
       </>
     ) : (
       <>
-        <Checkbox checked={apply} onChange={setApply} label="Apply to this deck" />
+        {store && <Checkbox checked={apply} onChange={setApply} label="Apply to this deck" />}
         <span className={styles.spacer} />
         <Button variant="ghost" onClick={onClose}>
           Cancel

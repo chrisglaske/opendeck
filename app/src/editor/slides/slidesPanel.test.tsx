@@ -8,8 +8,12 @@ import { createMemoryStore } from '../../storage/deckStore'
 import { EditorProvider } from '../EditorContext'
 import { EditorShell } from '../EditorShell'
 import { createEditorStore } from '../store'
+import { requestSlidesPanel } from './openRequest'
 
-afterEach(() => localStorage.clear())
+afterEach(() => {
+  localStorage.clear()
+  sessionStorage.clear()
+})
 
 function setup() {
   const deck = createDeck('Q3 Board update')
@@ -32,6 +36,32 @@ const openPanel = () => userEvent.click(screen.getByRole('button', { name: 'Add 
 const headings = () => within(panel()).queryAllByRole('heading').map((h) => h.textContent)
 
 describe('Slides panel', () => {
+  it('opens on its own when Home asked for it (Browse all), once', async () => {
+    const deck = createDeck('From Browse all')
+    requestSlidesPanel(deck.id)
+    const view = render(
+      <EditorProvider store={createEditorStore(deck)}>
+        <EditorShell autosaver={createAutosaver(createMemoryStore())} />
+      </EditorProvider>,
+    )
+    expect(await screen.findByRole('complementary', { name: 'Add slide' })).toBeInTheDocument()
+    view.unmount()
+    render(
+      <EditorProvider store={createEditorStore(deck)}>
+        <EditorShell autosaver={createAutosaver(createMemoryStore())} />
+      </EditorProvider>,
+    )
+    await act(async () => {})
+    expect(screen.queryByRole('complementary', { name: 'Add slide' })).toBeNull()
+  })
+
+  it('a request for another deck does not open it', async () => {
+    requestSlidesPanel('another-deck')
+    setup()
+    await act(async () => {})
+    expect(screen.queryByRole('complementary', { name: 'Add slide' })).toBeNull()
+  })
+
   it('opens from Add slide and from the dock, highlighting both', async () => {
     setup()
     await openPanel()

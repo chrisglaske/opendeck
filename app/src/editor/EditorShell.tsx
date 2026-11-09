@@ -11,6 +11,7 @@ import { ThemePanel } from './theme/ThemePanel'
 import { OpenDeckThemeContext } from './theme/themeEditorRequest'
 import { SaveTemplateDialog } from './slides/SaveTemplateDialog'
 import { SlidesPanel } from './slides/SlidesPanel'
+import { takeSlidesPanelRequest } from './slides/openRequest'
 import { SlidesPanelContext } from './slides/slidesPanelState'
 import { TopBar } from './TopBar'
 import { stepZoom } from './ZoomControl'
@@ -47,6 +48,14 @@ export function EditorShell({ autosaver }: { autosaver: Autosaver }) {
   const [savingSlide, setSavingSlide] = useState<string | null>(null)
   const deckTheme = () => store.getState().deck.theme
   const openDeckTheme = () => setThemeEditor({ mode: 'deck', start: deckTheme() })
+
+  // Home's Browse all opens a new deck with the Slides panel showing.
+  useEffect(() => {
+    if (!takeSlidesPanelRequest(store.getState().deck.id)) return
+    setPanelView('slides')
+    togglePanel(false)
+    // togglePanel only sets state and writes storage, so it needn't be a dependency.
+  }, [store])
 
   // Selecting something switches the panel back to its settings.
   useEffect(() => {
