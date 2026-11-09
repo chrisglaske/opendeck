@@ -178,3 +178,92 @@ describe('templates', () => {
     expect(((await s.listTemplates()) as { name: string }[]).map((t) => t.name)).toEqual(['Newer'])
   })
 })
+
+describe('library, folders and meta', () => {
+  const entry = (deckId: string) => ({ deckId, folderId: null, tags: [], pinnedAt: null, trashedAt: null })
+  it('memory store round-trips library entries, folders and meta', async () => {
+    const s = createMemoryStore()
+    await s.putLibrary(entry('a'))
+    await s.putLibrary({ ...entry('b'), tags: ['x'] })
+    await s.putLibrary({ ...entry('a'), pinnedAt: 3 })
+    expect(await s.listLibrary()).toEqual([{ ...entry('a'), pinnedAt: 3 }, { ...entry('b'), tags: ['x'] }])
+    await s.deleteLibrary('a')
+    expect(await s.listLibrary()).toEqual([{ ...entry('b'), tags: ['x'] }])
+
+    await s.putFolder({ id: 'f1', name: 'Work', createdAt: 1 })
+    expect(await s.listFolders()).toEqual([{ id: 'f1', name: 'Work', createdAt: 1 }])
+    await s.deleteFolder('f1')
+    expect(await s.listFolders()).toEqual([])
+
+    expect(await s.getMeta('v1.copiedIds')).toBeUndefined()
+    await s.putMeta('v1.copiedIds', ['p1'])
+    expect(await s.getMeta('v1.copiedIds')).toEqual(['p1'])
+  })
+
+  it('stores a copy of library entries, not the live object', async () => {
+    const s = createMemoryStore()
+    const e = { ...entry('a'), tags: ['x'] }
+    await s.putLibrary(e)
+    e.tags.push('y')
+    expect(await s.listLibrary()).toEqual([{ ...entry('a'), tags: ['x'] }])
+  })
+
+  it('lists and deletes asset ids, and lists raw deck records', async () => {
+    const s = createMemoryStore()
+    const a = { id: 'img1', blob: new Blob(['x']), type: 'image/png', width: 1, height: 1 }
+    await s.putAsset(a)
+    await s.putAsset({ ...a, id: 'img2' })
+    expect((await s.listAssetIds()).sort()).toEqual(['img1', 'img2'])
+    await s.deleteAsset('img1')
+    expect(await s.listAssetIds()).toEqual(['img2'])
+    const d = createDeck('Raw')
+    await s.putDeck(d)
+    expect(await s.listDecksRaw()).toEqual([d])
+  })
+
+  it('keepUnsaved passes the new methods through', async () => {
+    const base = createMemoryStore()
+    const s = keepUnsaved(base)
+    await s.putLibrary(entry('a'))
+    await s.putFolder({ id: 'f1', name: 'Work', createdAt: 1 })
+    await s.putMeta('k', 1)
+    expect(await base.listLibrary()).toEqual([entry('a')])
+    expect(await s.listLibrary()).toEqual([entry('a')])
+    expect(await s.listFolders()).toEqual([{ id: 'f1', name: 'Work', createdAt: 1 }])
+    expect(await s.getMeta('k')).toBe(1)
+    await s.deleteLibrary('a')
+    await s.deleteFolder('f1')
+    expect(await base.listLibrary()).toEqual([])
+    expect(await base.listFolders()).toEqual([])
+  })
+
+  it('keepUnsaved: a failing putLibrary rejects and keeps nothing in memory', async () => {
+    const base = createMemoryStore()
+    const s = keepUnsaved({ ...base, async putLibrary() { throw new DOMException('full', 'QuotaExceededError') } })
+    await expect(s.putLibrary(entry('a'))).rejects.toThrow('full')
+    expect(await s.listLibrary()).toEqual([])
+  })
+
+  it('keepUnsaved lists kept decks and pictures too, so clean-up never removes them', async () => {
+    const base = createMemoryStore()
+    const s = keepUnsaved({
+      ...base,
+      async putDeck() { throw new DOMException('full', 'QuotaExceededError') },
+      async putAsset() { throw new DOMException('full', 'QuotaExceededError') },
+    })
+    const d = createDeck('Kept')
+    await s.putDeck(d).catch(() => {})
+    await s.putAsset({ id: 'img1', blob: new Blob(['x']), type: 'image/png', width: 1, height: 1 }).catch(() => {})
+    expect(await s.listDecksRaw()).toEqual([d])
+    expect(await s.listAssetIds()).toEqual(['img1'])
+    await s.deleteAsset('img1')
+    expect(await s.getAsset('img1')).toBeNull()
+  })
+
+  it('the session-only store rejects library, folder and meta writes', async () => {
+    const s = createSessionOnlyStore()
+    await expect(s.putLibrary(entry('a'))).rejects.toMatchObject({ name: 'InvalidStateError' })
+    await expect(s.putFolder({ id: 'f', name: 'F', createdAt: 0 })).rejects.toMatchObject({ name: 'InvalidStateError' })
+    await expect(s.putMeta('k', 1)).rejects.toMatchObject({ name: 'InvalidStateError' })
+  })
+})

@@ -1,0 +1,96 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.preview {
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  transition: box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.card:hover .preview,
+.card:focus-within .preview {
+  box-shadow: var(--shadow-float);
+  border-color: var(--line-strong);
+}
+
+.meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 0 2px;
+}
+
+.text {
+  min-width: 0;
+  flex: 1;
+}
+
+.open {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: var(--r-xs);
+}
+
+/* The whole card is the link's click area. */
+.open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+}
+
+.open:focus-visible {
+  outline: none;
+}
+
+.open:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.sub {
+  font-size: 11.5px;
+  color: var(--faint);
+  margin-top: 1px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.pin {
+  color: var(--accent-text);
+  display: inline-flex;
+  padding-top: 2px;
+}
+
+.more {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.card:hover .more,
+.card:focus-within .more,
+.more:has([aria-expanded='true']) {
+  opacity: 1;
+}

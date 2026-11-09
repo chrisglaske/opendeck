@@ -215,8 +215,7 @@ test('saves a slide as a template, exports, deletes and imports it back', async 
 
 test('starts a deck from Workshop', async ({ page }) => {
   await page.goto('./')
-  await page.getByRole('button', { name: 'Start from' }).first().click()
-  await page.getByRole('menuitem', { name: /Workshop/ }).click()
+  await page.getByRole('button', { name: 'Workshop', exact: true }).click()
   await expect(page).toHaveURL(/#\/deck\//)
   await expect(thumbs(page)).toHaveCount(9)
   await expect.poll(async () => (await storedDeck(page))?.name).toBe('Workshop')
@@ -246,10 +245,8 @@ for (const mode of ['light', 'dark'] as const) {
     const axe = () => new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).exclude('[data-slide-root]').analyze()
     await page.goto('./')
     await setMode(page, mode)
-    await page.getByRole('button', { name: 'Start from' }).first().click()
-    await expect(page.getByRole('menu')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Workshop', exact: true })).toBeVisible()
     expect((await axe()).violations).toEqual([])
-    await page.keyboard.press('Escape')
 
     await page.getByRole('button', { name: 'New deck' }).first().click()
     await expect(page.getByRole('listbox', { name: 'Slides' })).toBeVisible()

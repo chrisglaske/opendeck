@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import EditorPage from './editor/EditorPage'
+import HomePage from './home/HomePage'
+import { parseHomeRoute } from './home/routes'
 import { loadStoredFonts } from './fonts/uploadedFonts'
-import DeckListStub from './pages/DeckListStub'
 import DesignSystemPage from './pages/DesignSystemPage'
 import { getDeckStore } from './storage/appStore'
 import { loadKits } from './storage/kits'
@@ -24,7 +25,7 @@ function Page({ hash }: { hash: string }) {
   if (hash === '#/design') return <DesignSystemPage />
   const deck = DECK_ROUTE.exec(hash)
   if (deck) return <EditorPage key={deck[1]} deckId={deck[1]} />
-  return <DeckListStub />
+  return <HomePage route={parseHomeRoute(hash) ?? { view: 'home' }} />
 }
 
 export default function App() {

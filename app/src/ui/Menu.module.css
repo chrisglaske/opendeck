@@ -93,3 +93,44 @@
   font-weight: 600;
   color: var(--faint);
 }
+
+.rowWrap {
+  position: relative;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disabled,
+.disabled .icon {
+  color: var(--faint);
+  cursor: default;
+}
+
+.check {
+  margin-left: auto;
+  flex: none;
+  color: var(--accent-text);
+}
+
+.chev {
+  margin-left: auto;
+  flex: none;
+  color: var(--faint);
+}
+
+.kbd + .chev,
+.kbd + .check {
+  margin-left: 0;
+}
+
+/* A submenu opens beside its row. */
+.sub {
+  top: -6px;
+  left: calc(100% + 6px);
+  width: 200px;
+}

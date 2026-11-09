@@ -36,3 +36,15 @@ export function acquireDeckLock(id: string): Promise<DeckLockResult> {
 export function takeOverDeckLock(id: string): Promise<HeldLock> {
   return request(id, { steal: true }) as Promise<HeldLock>
 }
+
+/** True while any tab has a deck open in the editor. False when the browser has no Web Locks. */
+export async function isAnyDeckOpen(): Promise<boolean> {
+  const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined
+  if (!locks?.query) return false
+  try {
+    const { held = [] } = await locks.query()
+    return held.some((l) => l.name?.startsWith('opendeck-deck:'))
+  } catch {
+    return true // unsure: behave as if one is open
+  }
+}

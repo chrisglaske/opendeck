@@ -1,0 +1,22 @@
+.more {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+  cursor: pointer;
+}
+
+.more:hover {
+  background: var(--subtle);
+}
+
+.more:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

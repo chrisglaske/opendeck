@@ -9,7 +9,14 @@ const OPTIONS: SegmentedOption<ColorMode>[] = [
   { value: 'system', label: 'System', icon: Monitor },
 ]
 
-export default function ModeSwitch() {
+/** Fits a narrow sidebar: sun and moon icons, and "Auto" for following the system. */
+const COMPACT: SegmentedOption<ColorMode>[] = [
+  { value: 'light', label: 'Light', icon: Sun, iconOnly: true },
+  { value: 'dark', label: 'Dark', icon: Moon, iconOnly: true },
+  { value: 'system', label: 'Auto' },
+]
+
+export default function ModeSwitch({ compact = false }: { compact?: boolean }) {
   const { mode, setMode } = useColorMode()
-  return <SegmentedControl label="Appearance" options={OPTIONS} value={mode} onChange={setMode} />
+  return <SegmentedControl label="Appearance" options={compact ? COMPACT : OPTIONS} value={mode} onChange={setMode} />
 }

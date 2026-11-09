@@ -9,7 +9,7 @@ test('New deck opens the editor and the deck survives a reload', async ({ page }
 
   await page.goto('./')
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Untitled deck' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Untitled deck' })).toBeVisible()
 })
 
 test('a deck can be edited in one tab at a time', async ({ page, context }) => {
@@ -33,5 +33,5 @@ test('an unknown deck shows Deck not found with a way back', async ({ page }) =>
   // Links styled as buttons look like buttons, not underlined links.
   await expect(page.getByRole('link', { name: 'Back to decks' })).toHaveCSS('text-decoration-line', 'none')
   await page.getByRole('link', { name: 'Back to decks' }).click()
-  await expect(page.getByRole('heading', { name: 'Your decks' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()
 })

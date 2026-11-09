@@ -35,3 +35,7 @@
 .option:focus-visible {
   box-shadow: var(--focus-ring);
 }
+
+.iconOnly {
+  padding: 5px 8px;
+}

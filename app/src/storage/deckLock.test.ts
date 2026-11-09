@@ -1,10 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { acquireDeckLock, takeOverDeckLock } from './deckLock'
+import { acquireDeckLock, isAnyDeckOpen, takeOverDeckLock } from './deckLock'
 
 /** Minimal in-page Web Locks: exclusive locks with ifAvailable and steal. */
 function fakeLocks() {
   const held = new Map<string, { reject: (e: unknown) => void }>()
   return {
+    async query() {
+      return { held: [...held.keys()].map((name) => ({ name, mode: 'exclusive' })), pending: [] }
+    },
     request(name: string, opts: { ifAvailable?: boolean; steal?: boolean }, cb: (lock: object | null) => Promise<void> | void) {
       if (held.has(name) && opts.ifAvailable) return Promise.resolve(cb(null))
       if (held.has(name) && opts.steal) {
@@ -57,5 +60,23 @@ describe('deck lock', () => {
     expect(a.held).toBe(true)
     if (a.held) a.release()
     expect((await takeOverDeckLock('d1')).held).toBe(true)
+  })
+})
+
+describe('isAnyDeckOpen', () => {
+  it('is true while any deck lock is held', async () => {
+    vi.stubGlobal('navigator', { locks: fakeLocks() })
+    expect(await isAnyDeckOpen()).toBe(false)
+    const a = await acquireDeckLock('d1')
+    expect(await isAnyDeckOpen()).toBe(true)
+    if (a.held) a.release()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(await isAnyDeckOpen()).toBe(false)
+  })
+
+  it('is false without Web Locks', async () => {
+    vi.stubGlobal('navigator', {})
+    expect(await isAnyDeckOpen()).toBe(false)
   })
 })

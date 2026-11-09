@@ -2,8 +2,11 @@ import { newestFirst, summarize } from './deckStore'
 import type { DeckStore, DeckSummary, StoredAsset, StoredFont } from './deckStore'
 
 const DB_NAME = 'opendeck-v2'
-/** 1: decks, assets. 2: adds fonts and brand kits. 3: adds saved templates. */
-const DB_VERSION = 3
+/**
+ * 1: decks, assets. 2: adds fonts and brand kits. 3: adds saved templates.
+ * 4: adds library (folder, tags, pin, Trash per deck), folders and meta.
+ */
+const DB_VERSION = 4
 
 function req<T>(r: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -35,6 +38,9 @@ function openDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains('fonts')) db.createObjectStore('fonts', { keyPath: 'id' })
       if (!db.objectStoreNames.contains('kits')) db.createObjectStore('kits', { keyPath: 'id' })
       if (!db.objectStoreNames.contains('templates')) db.createObjectStore('templates', { keyPath: 'id' })
+      if (!db.objectStoreNames.contains('library')) db.createObjectStore('library', { keyPath: 'deckId' })
+      if (!db.objectStoreNames.contains('folders')) db.createObjectStore('folders', { keyPath: 'id' })
+      if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' })
     }
     r.onsuccess = () => {
       // A newer version opened in another tab: let it upgrade instead of blocking it.
@@ -49,7 +55,9 @@ function openDb(): Promise<IDBDatabase> {
 export async function openIdbStore(): Promise<DeckStore> {
   const db = await openDb()
 
-  async function write(store: 'decks' | 'assets' | 'fonts' | 'kits' | 'templates', value: unknown): Promise<void> {
+  type StoreName = 'decks' | 'assets' | 'fonts' | 'kits' | 'templates' | 'library' | 'folders' | 'meta'
+
+  async function write(store: StoreName, value: unknown): Promise<void> {
     const tx = db.transaction(store, 'readwrite')
     tx.objectStore(store).put(value)
     // Commit right away instead of when the event loop idles: a save started while the page
@@ -57,6 +65,15 @@ export async function openIdbStore(): Promise<DeckStore> {
     tx.commit?.()
     await done(tx)
   }
+
+  async function remove(store: StoreName, key: string): Promise<void> {
+    const tx = db.transaction(store, 'readwrite')
+    tx.objectStore(store).delete(key)
+    tx.commit?.()
+    await done(tx)
+  }
+
+  const all = async (store: StoreName): Promise<unknown[]> => (await req(db.transaction(store).objectStore(store).getAll())) as unknown[]
 
   return {
     async listDecks() {
@@ -99,5 +116,21 @@ export async function openIdbStore(): Promise<DeckStore> {
       tx.objectStore('templates').delete(id)
       await done(tx)
     },
+    listDecksRaw: () => all('decks'),
+    async listAssetIds() {
+      return ((await req(db.transaction('assets').objectStore('assets').getAllKeys())) as IDBValidKey[]).filter((k): k is string => typeof k === 'string')
+    },
+    deleteAsset: (id) => remove('assets', id),
+    listLibrary: () => all('library'),
+    putLibrary: (e) => write('library', e),
+    deleteLibrary: (id) => remove('library', id),
+    listFolders: () => all('folders'),
+    putFolder: (f) => write('folders', f),
+    deleteFolder: (id) => remove('folders', id),
+    async getMeta(key) {
+      const rec = (await req(db.transaction('meta').objectStore('meta').get(key))) as { value?: unknown } | undefined
+      return rec?.value
+    },
+    putMeta: (key, value) => write('meta', { key, value }),
   }
 }

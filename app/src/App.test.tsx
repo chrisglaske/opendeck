@@ -4,9 +4,15 @@ import App from './App'
 
 afterEach(() => { window.location.hash = '' })
 
-it('shows the deck list by default', async () => {
+it('shows Home by default', async () => {
   render(<App />)
-  expect(await screen.findByRole('heading', { name: 'Your decks' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Make your first deck' })).toBeInTheDocument()
+})
+
+it('routes Home views such as #/trash to Home', async () => {
+  window.location.hash = '#/trash'
+  render(<App />)
+  expect(await screen.findByRole('navigation', { name: 'Library' })).toBeInTheDocument()
 })
 
 it('routes #/deck/<id> to the editor', async () => {

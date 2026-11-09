@@ -255,7 +255,7 @@ test('when storage is blocked, a new deck still opens and says it is not saved',
     }
   })
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: 'No decks yet' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()
   await page.getByRole('button', { name: 'New deck' }).first().click()
   await expect(page.getByRole('listbox', { name: 'Slides' })).toBeVisible()
   await page.getByRole('button', { name: 'Shape', exact: true }).click()

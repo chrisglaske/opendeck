@@ -3,6 +3,7 @@ import type { BrandKit } from '../model/brandKit'
 import { sanitizeDeck } from '../model/sanitize'
 import type { Deck } from '../model/types'
 import type { Template } from '../templates/types'
+import type { Folder, LibraryEntry } from '../home/library'
 
 export type DeckSummary = { id: string; name: string; updatedAt: number; slideCount: number }
 export type StoredAsset = { id: string; blob: Blob; type: string; width: number; height: number }
@@ -31,6 +32,21 @@ export interface DeckStore {
   listTemplates(): Promise<unknown[]>
   putTemplate(t: Template): Promise<void>
   deleteTemplate(id: string): Promise<void>
+  /** Raw deck records, for finding which pictures are still used. */
+  listDecksRaw(): Promise<unknown[]>
+  listAssetIds(): Promise<string[]>
+  deleteAsset(id: string): Promise<void>
+  /** How decks are organized on Home. Raw stored data: run each through `sanitizeEntry`. */
+  listLibrary(): Promise<unknown[]>
+  putLibrary(e: LibraryEntry): Promise<void>
+  deleteLibrary(deckId: string): Promise<void>
+  /** Raw stored data: run each through `sanitizeFolder`. */
+  listFolders(): Promise<unknown[]>
+  putFolder(f: Folder): Promise<void>
+  deleteFolder(id: string): Promise<void>
+  /** Small app-wide values (for example which V1 decks were copied). Raw stored data. */
+  getMeta(key: string): Promise<unknown>
+  putMeta(key: string, value: unknown): Promise<void>
   /** True when this deck lives only in this tab because writing it failed. */
   isUnsaved?(id: string): boolean
 }
@@ -71,6 +87,9 @@ export function createMemoryStore(): DeckStore {
   const fonts = new Map<string, StoredFont>()
   const kits = new Map<string, BrandKit>()
   const templates = new Map<string, Template>()
+  const library = new Map<string, LibraryEntry>()
+  const folders = new Map<string, Folder>()
+  const meta = new Map<string, unknown>()
   return {
     async listDecks() {
       return [...decks.values()].map(summarize).filter((s): s is DeckSummary => s !== null).sort(newestFirst)
@@ -114,6 +133,39 @@ export function createMemoryStore(): DeckStore {
     },
     async deleteTemplate(id) {
       templates.delete(id)
+    },
+    async listDecksRaw() {
+      return [...decks.values()].map((d) => structuredClone(d))
+    },
+    async listAssetIds() {
+      return [...assets.keys()]
+    },
+    async deleteAsset(id) {
+      assets.delete(id)
+    },
+    async listLibrary() {
+      return [...library.values()].map((e) => structuredClone(e))
+    },
+    async putLibrary(e) {
+      library.set(e.deckId, structuredClone(e))
+    },
+    async deleteLibrary(deckId) {
+      library.delete(deckId)
+    },
+    async listFolders() {
+      return [...folders.values()].map((f) => ({ ...f }))
+    },
+    async putFolder(f) {
+      folders.set(f.id, { ...f })
+    },
+    async deleteFolder(id) {
+      folders.delete(id)
+    },
+    async getMeta(key) {
+      return meta.has(key) ? structuredClone(meta.get(key)) : undefined
+    },
+    async putMeta(key, value) {
+      meta.set(key, structuredClone(value))
     },
   }
 }
@@ -218,6 +270,28 @@ export function keepUnsaved(store: DeckStore): DeckStore {
       templates.delete(id)
       await store.deleteTemplate(id)
     },
+    // Not caught: picture clean-up must not mistake "couldn't read" for "no decks".
+    async listDecksRaw() {
+      const saved = await store.listDecksRaw()
+      return [...[...decks.values()].map((d) => structuredClone(d)), ...saved.filter((d) => !decks.has(idOf(d)))]
+    },
+    async listAssetIds() {
+      const saved = await store.listAssetIds()
+      return [...new Set([...assets.keys(), ...saved])]
+    },
+    async deleteAsset(id) {
+      assets.delete(id)
+      await store.deleteAsset(id)
+    },
+    // Organizing writes are not kept in memory: a failed one rejects and the screen keeps the old state.
+    listLibrary: () => store.listLibrary(),
+    putLibrary: (e) => store.putLibrary(e),
+    deleteLibrary: (id) => store.deleteLibrary(id),
+    listFolders: () => store.listFolders(),
+    putFolder: (f) => store.putFolder(f),
+    deleteFolder: (id) => store.deleteFolder(id),
+    getMeta: (k) => store.getMeta(k),
+    putMeta: (k, v) => store.putMeta(k, v),
     isUnsaved: (id) => decks.has(id),
   }
 }
@@ -225,7 +299,7 @@ export function keepUnsaved(store: DeckStore): DeckStore {
 /**
  * Used when the browser blocks storage (e.g. some private windows). Decks,
  * images and fonts live in memory for this tab only, and every write rejects so the
- * editor shows "Not saved".
+ * editor shows "Not saved". Organizing changes on Home are refused outright.
  */
 export function createSessionOnlyStore(): DeckStore {
   const notSaved = () => new DOMException('Browser storage is not available', 'InvalidStateError')
@@ -244,6 +318,15 @@ export function createSessionOnlyStore(): DeckStore {
       throw notSaved()
     },
     async putTemplate() {
+      throw notSaved()
+    },
+    async putLibrary() {
+      throw notSaved()
+    },
+    async putFolder() {
+      throw notSaved()
+    },
+    async putMeta() {
       throw notSaved()
     },
   })
