@@ -1,0 +1,288 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "stats",
+    "name": "Three numbers",
+    "group": "numbers",
+    "keywords": [
+      "numbers",
+      "metrics",
+      "data",
+      "kpi",
+      "results"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "stats-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 744,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Revenue grew 32%"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "stats-2",
+          "type": "shape",
+          "x": 134,
+          "y": 410,
+          "w": 499,
+          "h": 475,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "stats-3",
+          "type": "text",
+          "x": 181,
+          "y": 452,
+          "w": 208,
+          "h": 175,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "42k"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 104,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "stat.value[1]",
+          "sample": true
+        },
+        {
+          "id": "stats-4",
+          "type": "text",
+          "x": 180,
+          "y": 794,
+          "w": 468,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "decks created this quarter"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 33,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "stat.label[1]",
+          "sample": true
+        },
+        {
+          "id": "stats-5",
+          "type": "shape",
+          "x": 710,
+          "y": 410,
+          "w": 499,
+          "h": 475,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "stats-6",
+          "type": "text",
+          "x": 757,
+          "y": 452,
+          "w": 299,
+          "h": 175,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "3 min"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 104,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "stat.value[2]",
+          "sample": true
+        },
+        {
+          "id": "stats-7",
+          "type": "text",
+          "x": 756,
+          "y": 794,
+          "w": 468,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "median time to first slide"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 33,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "stat.label[2]",
+          "sample": true
+        },
+        {
+          "id": "stats-8",
+          "type": "shape",
+          "x": 1286,
+          "y": 410,
+          "w": 499,
+          "h": 475,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "stats-9",
+          "type": "text",
+          "x": 1333,
+          "y": 452,
+          "w": 250,
+          "h": 175,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "98%"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 104,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "stat.value[3]",
+          "sample": true
+        },
+        {
+          "id": "stats-10",
+          "type": "text",
+          "x": 1332,
+          "y": 794,
+          "w": 468,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "of V1 decks converted"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 33,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "stat.label[3]",
+          "sample": true
+        },
+        {
+          "id": "stats-11",
+          "type": "logo",
+          "x": 1563,
+          "y": 135,
+          "w": 223,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "role": "decor"
+        }
+      ]
+    }
+  },
+  "assets": []
+}

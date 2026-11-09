@@ -1,0 +1,426 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "team-bios",
+    "name": "Team with bios",
+    "group": "people",
+    "keywords": [
+      "people",
+      "founders",
+      "bios",
+      "leadership"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "team-bios-1",
+          "type": "text",
+          "x": 134,
+          "y": 108,
+          "w": 653,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Who's building it"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "team-bios-2",
+          "type": "shape",
+          "x": 135,
+          "y": 324,
+          "w": 518,
+          "h": 605,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "team-bios-3",
+          "type": "image",
+          "x": 182,
+          "y": 378,
+          "w": 154,
+          "h": 154,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 77,
+          "art": {
+            "kind": "initials",
+            "text": "AR",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "person.photo[1]"
+        },
+        {
+          "id": "team-bios-4",
+          "type": "text",
+          "x": 182,
+          "y": 573,
+          "w": 192,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ana Ruiz"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[1]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-5",
+          "type": "text",
+          "x": 182,
+          "y": 648,
+          "w": 262,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "CEO · ex-Stripe"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "person.role[1]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-6",
+          "type": "text",
+          "x": 183,
+          "y": 724,
+          "w": 422,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Led payments for 40 markets; ran two exits."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.bio[1]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-7",
+          "type": "shape",
+          "x": 697,
+          "y": 324,
+          "w": 518,
+          "h": 605,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "team-bios-8",
+          "type": "image",
+          "x": 745,
+          "y": 378,
+          "w": 154,
+          "h": 154,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 77,
+          "art": {
+            "kind": "initials",
+            "text": "KO",
+            "variant": 1
+          },
+          "sample": true,
+          "role": "person.photo[2]"
+        },
+        {
+          "id": "team-bios-9",
+          "type": "text",
+          "x": 745,
+          "y": 573,
+          "w": 262,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Kwame Osei"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[2]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-10",
+          "type": "text",
+          "x": 745,
+          "y": 648,
+          "w": 265,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "CTO · ex-Figma"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "person.role[2]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-11",
+          "type": "text",
+          "x": 745,
+          "y": 724,
+          "w": 422,
+          "h": 164,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Built the multiplayer engine; open-source maintainer."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.bio[2]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-12",
+          "type": "shape",
+          "x": 1260,
+          "y": 324,
+          "w": 518,
+          "h": 605,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "team-bios-13",
+          "type": "image",
+          "x": 1307,
+          "y": 378,
+          "w": 154,
+          "h": 154,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 77,
+          "art": {
+            "kind": "initials",
+            "text": "MS",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "person.photo[3]"
+        },
+        {
+          "id": "team-bios-14",
+          "type": "text",
+          "x": 1308,
+          "y": 573,
+          "w": 192,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Mei Sato"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[3]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-15",
+          "type": "text",
+          "x": 1307,
+          "y": 648,
+          "w": 260,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Head of design"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "person.role[3]",
+          "sample": true
+        },
+        {
+          "id": "team-bios-16",
+          "type": "text",
+          "x": 1308,
+          "y": 724,
+          "w": 422,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Designed tools used by 3M people."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.bio[3]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

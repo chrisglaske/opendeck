@@ -1,0 +1,366 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "timeline",
+    "name": "Timeline",
+    "group": "timelines",
+    "keywords": [
+      "history",
+      "milestones",
+      "years",
+      "journey"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "timeline-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 655,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "How we got here"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "timeline-2",
+          "type": "line",
+          "x1": 135,
+          "y1": 564.5,
+          "x2": 1786,
+          "y2": 564.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 7,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "timeline-3",
+          "type": "shape",
+          "x": 173,
+          "y": 542,
+          "w": 38,
+          "h": 38,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "timeline-4",
+          "type": "text",
+          "x": 134,
+          "y": 389,
+          "w": 167,
+          "h": 68,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "2023"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 58,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[1]",
+          "sample": true
+        },
+        {
+          "id": "timeline-5",
+          "type": "text",
+          "x": 134,
+          "y": 627,
+          "w": 346,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Founded in a garage in Porto"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[1]",
+          "sample": true
+        },
+        {
+          "id": "timeline-6",
+          "type": "shape",
+          "x": 605,
+          "y": 542,
+          "w": 38,
+          "h": 38,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "timeline-7",
+          "type": "text",
+          "x": 566,
+          "y": 389,
+          "w": 167,
+          "h": 68,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "2024"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 58,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[2]",
+          "sample": true
+        },
+        {
+          "id": "timeline-8",
+          "type": "text",
+          "x": 566,
+          "y": 627,
+          "w": 346,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "First 100 paying teams"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[2]",
+          "sample": true
+        },
+        {
+          "id": "timeline-9",
+          "type": "shape",
+          "x": 1037,
+          "y": 542,
+          "w": 38,
+          "h": 38,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "timeline-10",
+          "type": "text",
+          "x": 999,
+          "y": 389,
+          "w": 166,
+          "h": 68,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "2025"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 58,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[3]",
+          "sample": true
+        },
+        {
+          "id": "timeline-11",
+          "type": "text",
+          "x": 998,
+          "y": 626,
+          "w": 346,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Series A, team of 30"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[3]",
+          "sample": true
+        },
+        {
+          "id": "timeline-12",
+          "type": "shape",
+          "x": 1469,
+          "y": 542,
+          "w": 38,
+          "h": 38,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "timeline-13",
+          "type": "text",
+          "x": 1431,
+          "y": 389,
+          "w": 168,
+          "h": 68,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "2026"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 58,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[4]",
+          "sample": true
+        },
+        {
+          "id": "timeline-14",
+          "type": "text",
+          "x": 1430,
+          "y": 627,
+          "w": 346,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "10,000 teams, 40 countries"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[4]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

@@ -1,0 +1,452 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "steps",
+    "name": "Numbered steps",
+    "group": "text",
+    "keywords": [
+      "how to",
+      "process",
+      "list",
+      "numbered",
+      "instructions"
+    ],
+    "order": 3,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "steps-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 615,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Getting started"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "steps-2",
+          "type": "shape",
+          "x": 134,
+          "y": 410,
+          "w": 115,
+          "h": 115,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "steps-3",
+          "type": "text",
+          "x": 134,
+          "y": 438,
+          "w": 115,
+          "h": 59,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "1"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 38,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "steps-4",
+          "type": "text",
+          "x": 134,
+          "y": 605,
+          "w": 365,
+          "h": 59,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Pick a template"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 46,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "steps-5",
+          "type": "text",
+          "x": 134,
+          "y": 735,
+          "w": 346,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Thirty-seven to choose from."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[1]",
+          "sample": true
+        },
+        {
+          "id": "steps-6",
+          "type": "shape",
+          "x": 557,
+          "y": 410,
+          "w": 115,
+          "h": 115,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "steps-7",
+          "type": "text",
+          "x": 557,
+          "y": 438,
+          "w": 115,
+          "h": 59,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "2"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 38,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "steps-8",
+          "type": "text",
+          "x": 557,
+          "y": 605,
+          "w": 365,
+          "h": 119,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Type over the sample"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 46,
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "steps-9",
+          "type": "text",
+          "x": 557,
+          "y": 735,
+          "w": 346,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Click once, then type."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[2]",
+          "sample": true
+        },
+        {
+          "id": "steps-10",
+          "type": "shape",
+          "x": 979,
+          "y": 410,
+          "w": 115,
+          "h": 115,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "steps-11",
+          "type": "text",
+          "x": 979,
+          "y": 438,
+          "w": 115,
+          "h": 59,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "3"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 38,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "steps-12",
+          "type": "text",
+          "x": 979,
+          "y": 605,
+          "w": 365,
+          "h": 119,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Apply your brand kit"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 46,
+          "role": "item.title[3]",
+          "sample": true
+        },
+        {
+          "id": "steps-13",
+          "type": "text",
+          "x": 979,
+          "y": 735,
+          "w": 346,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Colors, fonts and logo."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[3]",
+          "sample": true
+        },
+        {
+          "id": "steps-14",
+          "type": "shape",
+          "x": 1402,
+          "y": 410,
+          "w": 115,
+          "h": 115,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "steps-15",
+          "type": "text",
+          "x": 1402,
+          "y": 438,
+          "w": 115,
+          "h": 59,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "4"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 38,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "steps-16",
+          "type": "text",
+          "x": 1401,
+          "y": 605,
+          "w": 365,
+          "h": 119,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Present or export"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 46,
+          "role": "item.title[4]",
+          "sample": true
+        },
+        {
+          "id": "steps-17",
+          "type": "text",
+          "x": 1401,
+          "y": 734,
+          "w": 346,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Or share a single file."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[4]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

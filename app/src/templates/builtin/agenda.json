@@ -1,0 +1,422 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "agenda",
+    "name": "Agenda",
+    "group": "sections",
+    "keywords": [
+      "contents",
+      "outline",
+      "overview",
+      "topics",
+      "list"
+    ],
+    "order": 2,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "agenda-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 249,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Today"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "agenda-2",
+          "type": "line",
+          "x1": 845,
+          "y1": 162.5,
+          "x2": 1786,
+          "y2": 162.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 1,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "agenda-3",
+          "type": "text",
+          "x": 845,
+          "y": 194,
+          "w": 77,
+          "h": 60,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "01"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[1]",
+          "sample": true
+        },
+        {
+          "id": "agenda-4",
+          "type": "text",
+          "x": 999,
+          "y": 195,
+          "w": 358,
+          "h": 64,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Where we are"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "agenda-5",
+          "type": "line",
+          "x1": 845,
+          "y1": 324.5,
+          "x2": 1786,
+          "y2": 324.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 1,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "agenda-6",
+          "type": "text",
+          "x": 845,
+          "y": 356,
+          "w": 86,
+          "h": 60,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "02"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[2]",
+          "sample": true
+        },
+        {
+          "id": "agenda-7",
+          "type": "text",
+          "x": 998,
+          "y": 357,
+          "w": 450,
+          "h": 64,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "What we shipped"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "agenda-8",
+          "type": "line",
+          "x1": 845,
+          "y1": 486.5,
+          "x2": 1786,
+          "y2": 486.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 1,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "agenda-9",
+          "type": "text",
+          "x": 845,
+          "y": 518,
+          "w": 85,
+          "h": 60,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "03"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[3]",
+          "sample": true
+        },
+        {
+          "id": "agenda-10",
+          "type": "text",
+          "x": 998,
+          "y": 519,
+          "w": 348,
+          "h": 64,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "The numbers"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "role": "item.title[3]",
+          "sample": true
+        },
+        {
+          "id": "agenda-11",
+          "type": "line",
+          "x1": 845,
+          "y1": 648.5,
+          "x2": 1786,
+          "y2": 648.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 1,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "agenda-12",
+          "type": "text",
+          "x": 845,
+          "y": 680,
+          "w": 86,
+          "h": 60,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "04"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[4]",
+          "sample": true
+        },
+        {
+          "id": "agenda-13",
+          "type": "text",
+          "x": 998,
+          "y": 681,
+          "w": 316,
+          "h": 64,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "What's next"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "role": "item.title[4]",
+          "sample": true
+        },
+        {
+          "id": "agenda-14",
+          "type": "line",
+          "x1": 845,
+          "y1": 810.5,
+          "x2": 1786,
+          "y2": 810.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 1,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "agenda-15",
+          "type": "text",
+          "x": 845,
+          "y": 842,
+          "w": 85,
+          "h": 60,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "05"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[5]",
+          "sample": true
+        },
+        {
+          "id": "agenda-16",
+          "type": "text",
+          "x": 998,
+          "y": 843,
+          "w": 280,
+          "h": 64,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Questions"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 50,
+          "role": "item.title[5]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

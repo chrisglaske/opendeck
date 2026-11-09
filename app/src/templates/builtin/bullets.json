@@ -1,0 +1,130 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "bullets",
+    "name": "Bullets + picture",
+    "group": "text",
+    "keywords": [
+      "list",
+      "points",
+      "photo",
+      "image"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "bullets-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 845,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "What we shipped"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "bullets-2",
+          "type": "text",
+          "x": 134,
+          "y": 367,
+          "w": 845,
+          "h": 278,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Free-form editor with snapping"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Themes that restyle every slide"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Save any slide as a template"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            }
+          ],
+          "autoFit": true,
+          "role": "body",
+          "sample": true
+        },
+        {
+          "id": "bullets-3",
+          "type": "image",
+          "x": 1075,
+          "y": 129,
+          "w": 730,
+          "h": 821,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 27,
+          "art": {
+            "kind": "photo",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "picture[1]"
+        },
+        {
+          "id": "bullets-4",
+          "type": "logo",
+          "x": 1627,
+          "y": 1005,
+          "w": 178,
+          "h": 43,
+          "rotation": 0,
+          "locked": false,
+          "role": "decor"
+        }
+      ]
+    }
+  },
+  "assets": []
+}

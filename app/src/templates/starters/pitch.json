@@ -1,0 +1,17 @@
+{
+  "id": "pitch",
+  "name": "Pitch deck",
+  "order": 0,
+  "slides": [
+    "title-photo",
+    "statement",
+    "image-text",
+    "big-number",
+    "stats",
+    "timeline",
+    "pricing",
+    "team-bios",
+    "quote",
+    "cta"
+  ]
+}

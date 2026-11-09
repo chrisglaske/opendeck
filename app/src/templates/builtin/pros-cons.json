@@ -1,0 +1,530 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "pros-cons",
+    "name": "Pros and cons",
+    "group": "compare",
+    "keywords": [
+      "pros",
+      "cons",
+      "tradeoffs",
+      "decision",
+      "versus"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "pros-cons-1",
+          "type": "text",
+          "x": 134,
+          "y": 108,
+          "w": 512,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Build or buy?"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-2",
+          "type": "text",
+          "x": 135,
+          "y": 324,
+          "w": 151,
+          "h": 67,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Build"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 52,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-3",
+          "type": "text",
+          "x": 998,
+          "y": 324,
+          "w": 118,
+          "h": 67,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Buy"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 52,
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-4",
+          "type": "shape",
+          "x": 134,
+          "y": 464,
+          "w": 46,
+          "h": 46,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pros-cons-5",
+          "type": "text",
+          "x": 134,
+          "y": 468,
+          "w": 46,
+          "h": 45,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "✓"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 29,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-6",
+          "type": "text",
+          "x": 211,
+          "y": 454,
+          "w": 320,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Fits us exactly"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[1]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-7",
+          "type": "shape",
+          "x": 134,
+          "y": 605,
+          "w": 46,
+          "h": 46,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pros-cons-8",
+          "type": "text",
+          "x": 134,
+          "y": 608,
+          "w": 46,
+          "h": 45,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "✓"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 29,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-9",
+          "type": "text",
+          "x": 211,
+          "y": 594,
+          "w": 370,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "No licence costs"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[2]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-10",
+          "type": "shape",
+          "x": 134,
+          "y": 745,
+          "w": 46,
+          "h": 46,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "line"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pros-cons-11",
+          "type": "text",
+          "x": 134,
+          "y": 749,
+          "w": 46,
+          "h": 45,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "–"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 29,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-12",
+          "type": "text",
+          "x": 211,
+          "y": 734,
+          "w": 407,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Six months to ship"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[3]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-13",
+          "type": "shape",
+          "x": 998,
+          "y": 464,
+          "w": 46,
+          "h": 46,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pros-cons-14",
+          "type": "text",
+          "x": 998,
+          "y": 468,
+          "w": 46,
+          "h": 45,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "✓"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 29,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-15",
+          "type": "text",
+          "x": 1075,
+          "y": 454,
+          "w": 334,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Live next week"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[4]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-16",
+          "type": "shape",
+          "x": 998,
+          "y": 605,
+          "w": 46,
+          "h": 46,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pros-cons-17",
+          "type": "text",
+          "x": 998,
+          "y": 608,
+          "w": 46,
+          "h": 45,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "✓"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 29,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-18",
+          "type": "text",
+          "x": 1075,
+          "y": 594,
+          "w": 382,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Support included"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[5]",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-19",
+          "type": "shape",
+          "x": 998,
+          "y": 745,
+          "w": 46,
+          "h": 46,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "line"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pros-cons-20",
+          "type": "text",
+          "x": 998,
+          "y": 749,
+          "w": 46,
+          "h": 45,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "–"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 29,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pros-cons-21",
+          "type": "text",
+          "x": 1075,
+          "y": 734,
+          "w": 277,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Less control"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[6]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

@@ -1,0 +1,154 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "cta",
+    "name": "Call to action",
+    "group": "closing",
+    "keywords": [
+      "contact",
+      "next steps",
+      "button",
+      "ending"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "cta-1",
+          "type": "logo",
+          "x": 135,
+          "y": 108,
+          "w": 267,
+          "h": 65,
+          "rotation": 0,
+          "locked": false,
+          "role": "decor"
+        },
+        {
+          "id": "cta-2",
+          "type": "text",
+          "x": 134,
+          "y": 346,
+          "w": 1344,
+          "h": 121,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ready when you are"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 95,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "cta-3",
+          "type": "text",
+          "x": 134,
+          "y": 562,
+          "w": 960,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Questions, ideas, or want a demo for your team?"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "body",
+          "sample": true
+        },
+        {
+          "id": "cta-4",
+          "type": "shape",
+          "x": 135,
+          "y": 735,
+          "w": 272,
+          "h": 88,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "cta-5",
+          "type": "text",
+          "x": 180,
+          "y": 755,
+          "w": 227,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Book a call"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "text[1]",
+          "sample": true
+        },
+        {
+          "id": "cta-6",
+          "type": "shape",
+          "x": 1306,
+          "y": 216,
+          "w": 461,
+          "h": 648,
+          "rotation": 6,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent2"
+          },
+          "stroke": null,
+          "role": "decor"
+        }
+      ]
+    }
+  },
+  "assets": []
+}

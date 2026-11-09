@@ -1,0 +1,16 @@
+{
+  "id": "tech-talk",
+  "name": "Tech talk",
+  "order": 2,
+  "slides": [
+    "title-center",
+    "speaker",
+    "agenda",
+    "statement",
+    "architecture",
+    "code",
+    "window",
+    "takeaways",
+    "questions"
+  ]
+}

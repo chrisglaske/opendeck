@@ -1,0 +1,97 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "statement",
+    "name": "Big statement",
+    "group": "text",
+    "keywords": [
+      "quote",
+      "headline",
+      "message",
+      "fact"
+    ],
+    "order": 2,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "statement-1",
+          "type": "shape",
+          "x": 134,
+          "y": 173,
+          "w": 115,
+          "h": 13,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "statement-2",
+          "type": "text",
+          "x": 135,
+          "y": 259,
+          "w": 1574,
+          "h": 269,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Half of all decks are rebuilt from scratch every quarter."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 105,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "statement-3",
+          "type": "text",
+          "x": 134,
+          "y": 821,
+          "w": 1152,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Survey of 400 teams, Northwind research, 2026"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "caption",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

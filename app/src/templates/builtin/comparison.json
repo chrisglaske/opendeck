@@ -1,0 +1,235 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "comparison",
+    "name": "Comparison",
+    "group": "compare",
+    "keywords": [
+      "before",
+      "after",
+      "versus",
+      "vs",
+      "contrast"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "comparison-1",
+          "type": "text",
+          "x": 134,
+          "y": 108,
+          "w": 635,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Before and after"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "comparison-2",
+          "type": "shape",
+          "x": 134,
+          "y": 302,
+          "w": 787,
+          "h": 648,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "comparison-3",
+          "type": "shape",
+          "x": 998,
+          "y": 302,
+          "w": 787,
+          "h": 648,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": {
+            "color": {
+              "theme": "accent"
+            },
+            "width": 7,
+            "dash": "solid"
+          },
+          "role": "decor"
+        },
+        {
+          "id": "comparison-4",
+          "type": "text",
+          "x": 192,
+          "y": 356,
+          "w": 192,
+          "h": 67,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Before"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 52,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "comparison-5",
+          "type": "text",
+          "x": 1056,
+          "y": 356,
+          "w": 424,
+          "h": 67,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "With OpenDeck"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 52,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "comparison-6",
+          "type": "text",
+          "x": 192,
+          "y": 497,
+          "w": 672,
+          "h": 253,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "An afternoon per deck"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Off-brand slides"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Files in email"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "role": "item.body[1]",
+          "sample": true
+        },
+        {
+          "id": "comparison-7",
+          "type": "text",
+          "x": 1056,
+          "y": 497,
+          "w": 672,
+          "h": 253,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ten minutes per deck"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            },
+            {
+              "runs": [
+                {
+                  "text": "Brand kit on every slide"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            },
+            {
+              "runs": [
+                {
+                  "text": "One shareable file"
+                }
+              ],
+              "align": "left",
+              "list": "bullet"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "role": "item.body[2]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

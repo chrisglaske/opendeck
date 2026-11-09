@@ -1,0 +1,102 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "section",
+    "name": "Section",
+    "group": "sections",
+    "keywords": [
+      "divider",
+      "chapter",
+      "part",
+      "break"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "accent"
+        }
+      },
+      "elements": [
+        {
+          "id": "section-1",
+          "type": "text",
+          "x": 173,
+          "y": 324,
+          "w": 220,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "PART TWO"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "onAccent"
+          },
+          "opacity": 0.8,
+          "letterSpacing": 0.14,
+          "role": "overline",
+          "sample": true
+        },
+        {
+          "id": "section-2",
+          "type": "text",
+          "x": 173,
+          "y": 432,
+          "w": 1459,
+          "h": 125,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Where we go next"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 98,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "section-3",
+          "type": "shape",
+          "x": 1613,
+          "y": 778,
+          "w": 173,
+          "h": 173,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent2"
+          },
+          "stroke": null,
+          "role": "decor"
+        }
+      ]
+    }
+  },
+  "assets": []
+}

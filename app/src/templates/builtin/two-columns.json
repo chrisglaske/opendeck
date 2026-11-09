@@ -1,0 +1,193 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "two-columns",
+    "name": "Two columns",
+    "group": "text",
+    "keywords": [
+      "columns",
+      "split",
+      "side by side",
+      "reasons"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "two-columns-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 1536,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Why customers stay"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "two-columns-2",
+          "type": "shape",
+          "x": 134,
+          "y": 356,
+          "w": 768,
+          "h": 8,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "two-columns-3",
+          "type": "text",
+          "x": 134,
+          "y": 399,
+          "w": 768,
+          "h": 67,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "It saves real time"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 52,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "two-columns-4",
+          "type": "text",
+          "x": 134,
+          "y": 508,
+          "w": 749,
+          "h": 139,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Teams build a board deck in under ten minutes, down from an afternoon."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[1]",
+          "sample": true
+        },
+        {
+          "id": "two-columns-5",
+          "type": "shape",
+          "x": 1018,
+          "y": 356,
+          "w": 768,
+          "h": 8,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "two-columns-6",
+          "type": "text",
+          "x": 1018,
+          "y": 399,
+          "w": 768,
+          "h": 67,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Nothing leaves the laptop"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 52,
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "two-columns-7",
+          "type": "text",
+          "x": 1017,
+          "y": 508,
+          "w": 749,
+          "h": 139,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Decks stay in the browser. Legal signs off without a security review."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[2]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

@@ -1,0 +1,210 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "photo-grid",
+    "name": "Three pictures",
+    "group": "images",
+    "keywords": [
+      "photos",
+      "gallery",
+      "images",
+      "grid"
+    ],
+    "order": 2,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "photo-grid-1",
+          "type": "text",
+          "x": 135,
+          "y": 108,
+          "w": 712,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Around the studio"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "photo-grid-2",
+          "type": "image",
+          "x": 135,
+          "y": 324,
+          "w": 518,
+          "h": 497,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 27,
+          "art": {
+            "kind": "photo",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "picture[1]"
+        },
+        {
+          "id": "photo-grid-3",
+          "type": "text",
+          "x": 134,
+          "y": 864,
+          "w": 245,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "The workshop"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "photo-grid-4",
+          "type": "image",
+          "x": 697,
+          "y": 324,
+          "w": 518,
+          "h": 497,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 27,
+          "art": {
+            "kind": "photo",
+            "variant": 1
+          },
+          "sample": true,
+          "role": "picture[2]"
+        },
+        {
+          "id": "photo-grid-5",
+          "type": "text",
+          "x": 697,
+          "y": 864,
+          "w": 302,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Morning stand-up"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "photo-grid-6",
+          "type": "image",
+          "x": 1260,
+          "y": 324,
+          "w": 518,
+          "h": 497,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 27,
+          "art": {
+            "kind": "photo",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "picture[3]"
+        },
+        {
+          "id": "photo-grid-7",
+          "type": "text",
+          "x": 1259,
+          "y": 864,
+          "w": 156,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ship day"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.title[3]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

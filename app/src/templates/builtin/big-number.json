@@ -1,0 +1,178 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "big-number",
+    "name": "One big number",
+    "group": "numbers",
+    "keywords": [
+      "metric",
+      "revenue",
+      "highlight",
+      "chart",
+      "growth"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "big-number-1",
+          "type": "text",
+          "x": 134,
+          "y": 151,
+          "w": 1210,
+          "h": 430,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "$4.2M"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 384,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "stat.value[1]",
+          "sample": true
+        },
+        {
+          "id": "big-number-2",
+          "type": "text",
+          "x": 134,
+          "y": 670,
+          "w": 1075,
+          "h": 148,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Annual recurring revenue, up 2.4× in twelve months"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 58,
+          "role": "stat.label[1]",
+          "sample": true
+        },
+        {
+          "id": "big-number-3",
+          "type": "text",
+          "x": 134,
+          "y": 864,
+          "w": 576,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "As of September 30, 2026"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "caption",
+          "sample": true
+        },
+        {
+          "id": "big-number-4",
+          "type": "shape",
+          "x": 1344,
+          "y": 648,
+          "w": 84,
+          "h": 238,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "line"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "big-number-5",
+          "type": "shape",
+          "x": 1459,
+          "y": 573,
+          "w": 84,
+          "h": 313,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "line"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "big-number-6",
+          "type": "shape",
+          "x": 1575,
+          "y": 508,
+          "w": 84,
+          "h": 378,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "line"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "big-number-7",
+          "type": "shape",
+          "x": 1690,
+          "y": 346,
+          "w": 84,
+          "h": 540,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        }
+      ]
+    }
+  },
+  "assets": []
+}

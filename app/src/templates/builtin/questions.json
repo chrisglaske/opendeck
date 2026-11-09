@@ -1,0 +1,84 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "questions",
+    "name": "Questions",
+    "group": "closing",
+    "keywords": [
+      "q&a",
+      "end",
+      "discussion",
+      "ask"
+    ],
+    "order": 2,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "accent"
+        }
+      },
+      "elements": [
+        {
+          "id": "questions-1",
+          "type": "text",
+          "x": 0,
+          "y": 367,
+          "w": 1920,
+          "h": 202,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Questions?"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 158,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "questions-2",
+          "type": "text",
+          "x": 0,
+          "y": 691,
+          "w": 1920,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Slides at northwind.co/talk"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "onAccent"
+          },
+          "opacity": 0.85,
+          "role": "subtitle",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

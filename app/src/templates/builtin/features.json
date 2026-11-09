@@ -1,0 +1,477 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "features",
+    "name": "Feature grid",
+    "group": "compare",
+    "keywords": [
+      "features",
+      "benefits",
+      "icons",
+      "grid"
+    ],
+    "order": 3,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "features-1",
+          "type": "text",
+          "x": 134,
+          "y": 108,
+          "w": 830,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Everything in the box"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "features-2",
+          "type": "shape",
+          "x": 134,
+          "y": 335,
+          "w": 69,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "features-3",
+          "type": "text",
+          "x": 250,
+          "y": 335,
+          "w": 180,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Themes"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "features-4",
+          "type": "text",
+          "x": 250,
+          "y": 410,
+          "w": 384,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Six built-in, plus yours"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[1]",
+          "sample": true
+        },
+        {
+          "id": "features-5",
+          "type": "shape",
+          "x": 697,
+          "y": 335,
+          "w": 69,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "features-6",
+          "type": "text",
+          "x": 812,
+          "y": 335,
+          "w": 227,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Templates"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "features-7",
+          "type": "text",
+          "x": 812,
+          "y": 410,
+          "w": 384,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "37 ready-made slides"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[2]",
+          "sample": true
+        },
+        {
+          "id": "features-8",
+          "type": "shape",
+          "x": 1260,
+          "y": 335,
+          "w": 69,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "features-9",
+          "type": "text",
+          "x": 1375,
+          "y": 335,
+          "w": 155,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Offline"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "item.title[3]",
+          "sample": true
+        },
+        {
+          "id": "features-10",
+          "type": "text",
+          "x": 1375,
+          "y": 411,
+          "w": 384,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Works without a network"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[3]",
+          "sample": true
+        },
+        {
+          "id": "features-11",
+          "type": "shape",
+          "x": 134,
+          "y": 659,
+          "w": 69,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "features-12",
+          "type": "text",
+          "x": 249,
+          "y": 659,
+          "w": 160,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Private"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "item.title[4]",
+          "sample": true
+        },
+        {
+          "id": "features-13",
+          "type": "text",
+          "x": 250,
+          "y": 735,
+          "w": 384,
+          "h": 109,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Nothing leaves the browser"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[4]",
+          "sample": true
+        },
+        {
+          "id": "features-14",
+          "type": "shape",
+          "x": 697,
+          "y": 659,
+          "w": 69,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "features-15",
+          "type": "text",
+          "x": 812,
+          "y": 659,
+          "w": 152,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Export"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "item.title[5]",
+          "sample": true
+        },
+        {
+          "id": "features-16",
+          "type": "text",
+          "x": 812,
+          "y": 734,
+          "w": 384,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "One self-contained file"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[5]",
+          "sample": true
+        },
+        {
+          "id": "features-17",
+          "type": "shape",
+          "x": 1260,
+          "y": 659,
+          "w": 69,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "features-18",
+          "type": "text",
+          "x": 1375,
+          "y": 659,
+          "w": 272,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Open source"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "item.title[6]",
+          "sample": true
+        },
+        {
+          "id": "features-19",
+          "type": "text",
+          "x": 1375,
+          "y": 734,
+          "w": 384,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "AGPL, forever free"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[6]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

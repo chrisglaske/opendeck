@@ -1,0 +1,16 @@
+{
+  "id": "workshop",
+  "name": "Workshop",
+  "order": 3,
+  "slides": [
+    "title",
+    "agenda",
+    "section",
+    "definition",
+    "steps",
+    "photo-grid",
+    "question",
+    "takeaways",
+    "thanks"
+  ]
+}

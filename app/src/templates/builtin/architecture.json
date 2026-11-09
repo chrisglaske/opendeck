@@ -1,0 +1,335 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "architecture",
+    "name": "Architecture",
+    "group": "tech",
+    "keywords": [
+      "diagram",
+      "system",
+      "boxes",
+      "flow"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "architecture-1",
+          "type": "text",
+          "x": 134,
+          "y": 108,
+          "w": 763,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "How it fits together"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "architecture-2",
+          "type": "shape",
+          "x": 134,
+          "y": 389,
+          "w": 384,
+          "h": 194,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 4,
+            "dash": "solid"
+          },
+          "role": "decor"
+        },
+        {
+          "id": "architecture-3",
+          "type": "text",
+          "x": 134,
+          "y": 463,
+          "w": 384,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Browser"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "architecture-4",
+          "type": "shape",
+          "x": 768,
+          "y": 389,
+          "w": 384,
+          "h": 194,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": {
+            "color": {
+              "theme": "accent"
+            },
+            "width": 4,
+            "dash": "solid"
+          },
+          "role": "decor"
+        },
+        {
+          "id": "architecture-5",
+          "type": "text",
+          "x": 768,
+          "y": 463,
+          "w": 384,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Editor"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "architecture-6",
+          "type": "shape",
+          "x": 1402,
+          "y": 259,
+          "w": 384,
+          "h": 173,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 4,
+            "dash": "solid"
+          },
+          "role": "decor"
+        },
+        {
+          "id": "architecture-7",
+          "type": "text",
+          "x": 1402,
+          "y": 323,
+          "w": 384,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "IndexedDB"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "role": "item.title[3]",
+          "sample": true
+        },
+        {
+          "id": "architecture-8",
+          "type": "shape",
+          "x": 1402,
+          "y": 540,
+          "w": 384,
+          "h": 173,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 4,
+            "dash": "solid"
+          },
+          "role": "decor"
+        },
+        {
+          "id": "architecture-9",
+          "type": "text",
+          "x": 1402,
+          "y": 604,
+          "w": 384,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Export file"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "role": "item.title[4]",
+          "sample": true
+        },
+        {
+          "id": "architecture-10",
+          "type": "line",
+          "x1": 538,
+          "y1": 489,
+          "x2": 749,
+          "y2": 489,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "muted"
+            },
+            "width": 6,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "arrow",
+          "role": "decor"
+        },
+        {
+          "id": "architecture-11",
+          "type": "line",
+          "x1": 1174,
+          "y1": 450,
+          "x2": 1379,
+          "y2": 399,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "muted"
+            },
+            "width": 6,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "arrow",
+          "role": "decor"
+        },
+        {
+          "id": "architecture-12",
+          "type": "line",
+          "x1": 1174,
+          "y1": 528,
+          "x2": 1379,
+          "y2": 579,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "muted"
+            },
+            "width": 6,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "arrow",
+          "role": "decor"
+        },
+        {
+          "id": "architecture-13",
+          "type": "text",
+          "x": 134,
+          "y": 821,
+          "w": 1536,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "No server: everything runs and is stored on the device."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "body",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}
