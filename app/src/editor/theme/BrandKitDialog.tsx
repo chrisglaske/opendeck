@@ -72,7 +72,8 @@ function Preview({ theme }: { theme: Theme }) {
   const big = w / SLIDE_W
   const small = (w - gap) / 2 / SLIDE_W
   return (
-    <section className={styles.preview} aria-label="Preview">
+    // Focusable so the preview can be scrolled with the keyboard when the window is short.
+    <section className={styles.preview} aria-label="Preview" tabIndex={0}>
       <div ref={ref} className={styles.previewGrid}>
         <div className={styles.previewBig}>
           <div className={styles.previewSlide} style={{ width: `${w}px`, height: `${(w * 9) / 16}px` }}>

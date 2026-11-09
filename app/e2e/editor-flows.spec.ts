@@ -52,6 +52,8 @@ async function setMode(page: Page, mode: 'light' | 'dark') {
     await page.getByRole('button', { name: /Switch to (light|dark) mode/ }).click()
   }
   await expect(page.locator('html')).toHaveAttribute('data-mode', mode)
+  // Colors fade between modes; check contrast only once they have settled.
+  await page.waitForFunction(() => document.getAnimations().length === 0)
 }
 
 /** Top-level elements on the canvas slide (not the rail thumbnails). */

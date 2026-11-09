@@ -40,7 +40,7 @@ export function Menu({
   trigger: ReactElement<TriggerProps>
   items: MenuItem[]
   label: string
-  /** Which edge of the trigger the menu lines up with; `end` keeps a menu near the right edge on screen. */
+  /** Which edge of the trigger the menu prefers to line up with; it switches when that side would be cut off. */
   align?: 'start' | 'end'
 }) {
   const id = useId()
@@ -50,6 +50,7 @@ export function Menu({
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const [above, setAbove] = useState(false)
+  const [shift, setShift] = useState(0)
 
   const actionable = items.flatMap((item, i) => (item === 'separator' ? [] : [i]))
 
@@ -58,6 +59,7 @@ export function Menu({
   const openMenu = (index = actionable[0] ?? 0) => {
     setActive(index)
     setAbove(false)
+    setShift(0)
     setOpen(true)
   }
   const close = (returnFocus: boolean) => {
@@ -70,6 +72,9 @@ export function Menu({
     if (!open || !menuRef.current) return
     const rect = menuRef.current.getBoundingClientRect()
     if (rect.bottom > window.innerHeight && rect.height > 0) setAbove(true)
+    // Slide sideways just enough to stay inside the box that would cut it off.
+    const clip = clipBounds(menuRef.current)
+    if (rect.width > 0) setShift(Math.max(clip.left - rect.left, Math.min(0, clip.right - rect.right)))
   }, [open])
 
   useEffect(() => {
@@ -158,6 +163,7 @@ export function Menu({
           role="menu"
           aria-label={label}
           className={`${styles.menu} ${above ? styles.above : styles.below} ${align === 'end' ? styles.end : ''}`}
+          style={shift ? { translate: `${shift}px 0` } : undefined}
           onKeyDown={onMenuKeyDown}
         >
           {items.map((item, i) => {
@@ -209,4 +215,18 @@ export function MenuPreview({ items, highlight }: { items: MenuItem[]; highlight
       })}
     </div>
   )
+}
+
+/** Space kept between a slid menu and the edge it would otherwise touch. */
+const EDGE_GAP = 8
+
+/** The horizontal edges of the nearest ancestor that cuts off overflow, or the window. */
+function clipBounds(el: HTMLElement): { left: number; right: number } {
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    if (getComputedStyle(p).overflowX !== 'visible') {
+      const r = p.getBoundingClientRect()
+      return { left: Math.max(r.left, 0) + EDGE_GAP, right: Math.min(r.right, window.innerWidth) - EDGE_GAP }
+    }
+  }
+  return { left: EDGE_GAP, right: window.innerWidth - EDGE_GAP }
 }

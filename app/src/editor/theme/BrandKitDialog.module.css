@@ -73,7 +73,9 @@
   flex-direction: column;
   gap: 2px;
   border-style: dashed;
-  color: var(--muted);
+  /* The slot sits on the slide background, not the app's, so its colors follow that background. */
+  border-color: #b9b4c6;
+  color: #5a5868;
   font: inherit;
   font-size: var(--fs-overline);
   text-align: center;
@@ -353,6 +355,11 @@
   overflow-y: auto;
   padding: 22px;
   background: var(--canvas);
+}
+
+.preview:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
 }
 
 .previewGrid {
