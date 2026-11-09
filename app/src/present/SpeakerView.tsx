@@ -117,7 +117,7 @@ export function SpeakerView({ deck, show, dispatch, status, onShowSlides, onEnd,
             </Button>
             {show.typed ? <span className={s.typed} aria-live="polite">Go to slide {show.typed}</span> : null}
             <span className={s.keys}>
-              <kbd>←</kbd> <kbd>→</kbd> <kbd>Space</kbd> · number + <kbd>Enter</kbd> to jump · <kbd>Esc</kbd> ends
+              <kbd>←</kbd> <kbd>→</kbd> <kbd>Space</kbd> · number + <kbd>Enter</kbd> to jump{file ? null : <> · <kbd>Esc</kbd> ends</>}
             </span>
           </div>
         </section>

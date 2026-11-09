@@ -25,3 +25,9 @@ export function templateFileName(name: string): string {
   const safe = name.replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim()
   return `${safe.replace(/^\.+$/, '') || 'template'}.odtemplate`
 }
+
+/** A file name for a downloaded presentation: the deck's name with only plain characters, ending in .html. */
+export function htmlFileName(name: string): string {
+  const safe = name.replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim()
+  return `${safe.replace(/^\.+$/, '') || 'presentation'}.html`
+}

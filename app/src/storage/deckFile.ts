@@ -46,7 +46,7 @@ function eachElement(els: SlideElement[], fn: (el: SlideElement) => void) {
 }
 
 /** Every stored picture the deck uses: images (not sample art), slide backgrounds and theme logos. */
-function assetIds(d: Deck): string[] {
+export function deckAssetIds(d: Deck): string[] {
   const ids = new Set<string>()
   for (const s of d.slides) {
     eachElement(s.elements, (el) => {
@@ -59,7 +59,8 @@ function assetIds(d: Deck): string[] {
   return [...ids]
 }
 
-function fontFamilies(d: Deck): Set<string> {
+/** Every font family the deck asks for: the theme's two and any set by hand on text. */
+export function deckFontFamilies(d: Deck): Set<string> {
   const out = new Set([d.theme.fonts.heading, d.theme.fonts.body])
   for (const s of d.slides) {
     eachElement(s.elements, (el) => {
@@ -71,11 +72,11 @@ function fontFamilies(d: Deck): Set<string> {
 
 export async function exportDeckFile(store: DeckStore, deck: Deck): Promise<Blob> {
   const assets: FileAsset[] = []
-  for (const id of assetIds(deck)) {
+  for (const id of deckAssetIds(deck)) {
     const a = await exportImageEntry(store, id)
     if (a) assets.push(a)
   }
-  const families = fontFamilies(deck)
+  const families = deckFontFamilies(deck)
   const fonts: DeckFont[] = (await store.listFonts())
     .filter((f) => families.has(f.family))
     .map((f) => ({ family: f.family, weight: f.weight, style: f.style, format: f.format, fileName: f.fileName, data: toBase64(new Uint8Array(f.data)) }))

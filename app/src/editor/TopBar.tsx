@@ -10,6 +10,7 @@ import { SaveStatus } from './SaveStatus'
 import { shortcutLabel } from './shortcuts'
 import styles from './TopBar.module.css'
 import { PresentButton } from './PresentButton'
+import { ShareMenu } from './ShareMenu'
 
 function DeckName() {
   const store = useEditorStore()
@@ -85,6 +86,7 @@ export function TopBar({ autosaver, themeOpen, onToggleTheme }: { autosaver: Aut
       <Button variant="ghost" icon={Palette} aria-pressed={themeOpen} onClick={onToggleTheme}>
         Theme
       </Button>
+      <ShareMenu />
       <PresentButton />
       <ModeToggle />
     </header>

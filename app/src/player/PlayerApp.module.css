@@ -1,0 +1,13 @@
+.root {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
+
+.empty {
+  margin: 0;
+  padding: 48px 24px;
+  text-align: center;
+  font: 16px/1.5 system-ui, sans-serif;
+  color: var(--ink);
+}
