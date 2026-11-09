@@ -2,6 +2,7 @@ import { Archive, FileCode2, FileText, Share } from 'lucide-react'
 import { useState } from 'react'
 import { makeHtmlFile } from '../export/exportHtml'
 import { formatSize } from '../export/htmlFile'
+import { printDeck } from '../export/print'
 import { getDeckStore } from '../storage/appStore'
 import { deckFileName, exportDeckFile } from '../storage/deckFile'
 import { Menu, toast } from '../ui'
@@ -42,6 +43,20 @@ export function ShareMenu() {
     )
   }
 
+  const pdf = async () => {
+    const deck = store.getState().deck
+    if (deck.slides.every((s) => s.hidden)) return toast('All slides in this deck are hidden.')
+    if (busy) return
+    setBusy(true)
+    try {
+      await printDeck(deck)
+    } catch {
+      toast("Couldn't make the file. Try again.")
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const backup = () => {
     const deck = store.getState().deck
     void run(async () => ({ blob: await exportDeckFile(await getDeckStore(), deck), fileName: deckFileName(deck.name) }))
@@ -49,7 +64,7 @@ export function ShareMenu() {
 
   const items: MenuItem[] = [
     { id: 'html', label: 'Download HTML file', description: 'One file that opens in any browser, even offline. Present and speaker view included.', icon: FileCode2, onSelect: html },
-    { id: 'pdf', label: 'Save as PDF', description: "One slide per page, through your browser's print window.", icon: FileText, disabled: true, onSelect: () => {} },
+    { id: 'pdf', label: 'Save as PDF', description: "One slide per page, through your browser's print window.", icon: FileText, onSelect: () => void pdf() },
     'separator',
     { id: 'backup', label: 'Download backup (.odeck)', description: 'To move this deck to another computer, or keep a copy.', icon: Archive, onSelect: backup },
   ]

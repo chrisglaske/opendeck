@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { CSP_POLICY } from '../vite-plugins/csp.ts'
+import { downloadHtml, openEverythingDeck, watchForErrors } from './fixtures/present.ts'
 
 test('no external requests, no CSP violations, fonts and icons bundled', async ({ page }) => {
   const external: string[] = []
@@ -91,4 +92,24 @@ test('uploaded fonts load from local data under the CSP', async ({ page }) => {
   }, url)
   expect(ok).toBe(true)
   expect(csp).toEqual([])
+})
+
+test('presenting and downloading stay inside the CSP and this origin', async ({ page, context }) => {
+  const external: string[] = []
+  await context.route('**/*', (route) => {
+    if (new URL(route.request().url()).hostname !== 'localhost') {
+      external.push(route.request().url())
+      return route.abort()
+    }
+    return route.continue()
+  })
+  const errors = await watchForErrors(context)
+  await openEverythingDeck(page)
+  const [pop] = await Promise.all([page.waitForEvent('popup'), page.getByRole('button', { name: 'Present', exact: true }).click()])
+  await pop.waitForSelector('[data-show-slide] img')
+  await pop.keyboard.press('ArrowRight')
+  await page.getByRole('button', { name: 'End show' }).first().click()
+  await downloadHtml(page, test.info().outputPath('deck.html'))
+  expect(external).toEqual([])
+  expect(errors).toEqual([])
 })

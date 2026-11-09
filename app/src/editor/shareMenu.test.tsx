@@ -9,6 +9,8 @@ import { createEditorStore } from './store'
 
 const makeHtmlFile = vi.hoisted(() => vi.fn())
 const saveBlob = vi.hoisted(() => vi.fn())
+const printDeck = vi.hoisted(() => vi.fn())
+vi.mock('../export/print', () => ({ printDeck }))
 vi.mock('../export/exportHtml', () => ({ makeHtmlFile }))
 vi.mock('./download', async (orig) => ({ ...(await orig<typeof import('./download')>()), saveBlob }))
 
@@ -31,6 +33,7 @@ const open = async () => {
 beforeEach(() => {
   makeHtmlFile.mockReset()
   saveBlob.mockReset()
+  printDeck.mockReset()
 })
 afterEach(() => vi.restoreAllMocks())
 
@@ -66,5 +69,19 @@ describe('ShareMenu', () => {
     await userEvent.click(within(await open()).getByRole('menuitem', { name: /Download HTML file/ }))
     expect(await screen.findByText("Couldn't make the file. Try again.")).toBeInTheDocument()
     expect(saveBlob).not.toHaveBeenCalled()
+  })
+
+  it('opens the print window for Save as PDF', async () => {
+    printDeck.mockResolvedValue(undefined)
+    const store = setup()
+    await userEvent.click(within(await open()).getByRole('menuitem', { name: /Save as PDF/ }))
+    expect(printDeck).toHaveBeenCalledWith(store.getState().deck)
+  })
+
+  it('says so when the print layout could not be made', async () => {
+    printDeck.mockRejectedValue(new Error('nope'))
+    setup()
+    await userEvent.click(within(await open()).getByRole('menuitem', { name: /Save as PDF/ }))
+    expect(await screen.findByText("Couldn't make the file. Try again.")).toBeInTheDocument()
   })
 })

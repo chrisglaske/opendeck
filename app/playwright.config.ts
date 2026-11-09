@@ -20,7 +20,12 @@ export default defineConfig({
       ],
     },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // Presenting and the downloaded file must also work in Firefox and Safari's engine.
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: /present-(window|file)\.spec\.ts/ },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /present-(window|file)\.spec\.ts/ },
+  ],
   webServer: {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173/v2/',

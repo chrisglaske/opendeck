@@ -102,13 +102,13 @@ export async function importImage(
 /** Loads the image data for an asset id; resolves null when the asset is missing. */
 export type AssetLoader = (id: string) => Promise<Blob | null>
 
-const defaultLoader: AssetLoader = async (id) => {
+export const defaultAssetLoader: AssetLoader = async (id) => {
   const store = await getDeckStore()
   return (await store.getAsset(id))?.blob ?? null
 }
 
 /** Lets tests (and later the exporter) supply assets from somewhere other than the app store. */
-export const AssetLoaderContext = createContext<AssetLoader>(defaultLoader)
+export const AssetLoaderContext = createContext<AssetLoader>(defaultAssetLoader)
 
 type Entry = { url: string | null; users: number; done: boolean; listeners: Set<() => void>; released: boolean }
 const cache = new Map<string, Entry>()
