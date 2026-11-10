@@ -128,7 +128,8 @@ test('a V1 deck edited after the switch comes over again from Import → From V1
   await page.evaluate(() => {
     const list = JSON.parse(localStorage.getItem('openDeckDB_v2')!) as { name: string; lastModified: number; data: { slides: { title?: string }[] } }[]
     const acme = list.find((p) => p.name === 'Acme pitch')!
-    acme.lastModified += 60_000
+    // V1 stamps an edit with the time it was made, which is after the copy.
+    acme.lastModified = Date.now() + 1000
     acme.data.slides[0].title = 'Edited in V1 later'
     localStorage.setItem('openDeckDB_v2', JSON.stringify(list))
   })

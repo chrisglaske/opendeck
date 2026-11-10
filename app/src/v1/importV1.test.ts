@@ -321,4 +321,27 @@ describe('V1 decks changed after they were copied', () => {
     await copyNewV1Decks(store, later, NOW)
     expect([...ls.writes, ...later.writes]).toEqual([])
   })
+
+  it('a failed version write after a re-copy never leads to a third copy', async () => {
+    const inner = createMemoryStore()
+    const projects = projectsOf('branded')
+    await firstRunCopy(inner, v1Storage(projects), NOW)
+    let failVersions = true
+    const flaky: DeckStore = {
+      ...inner,
+      async putMeta(key, value) {
+        if (key === V1_META.copiedVersions && failVersions) throw new DOMException('full', 'QuotaExceededError')
+        return inner.putMeta(key, value)
+      },
+    }
+    const later = v1Storage(bumped(projects, 1000))
+    const after = (projects[0].lastModified as number) + 5000
+    expect(await copyNewV1Decks(flaky, later, after)).toEqual({ copied: 1, skipped: 0 })
+    failVersions = false
+    expect(await v1NewCount(inner, later)).toBe(0)
+    await copyNewV1Decks(inner, later, after + 1000)
+    await copyNewV1Decks(inner, later, after + 2000)
+    expect(await inner.listDecks()).toHaveLength(2)
+  })
 })
+

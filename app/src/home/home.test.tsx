@@ -32,6 +32,14 @@ const cardNames = (region: HTMLElement) =>
   within(region).queryAllByRole('listitem').map((li) => li.querySelector('[data-deck-name]')?.textContent)
 
 describe('Home', () => {
+  it('has a Privacy link, so people with decks can change the visitor-count answer', async () => {
+    const { store } = await storeWith([{ name: 'A' }])
+    render(<HomePage route={{ view: 'home' }} store={store} />)
+    await userEvent.click(within(await screen.findByRole('complementary')).getByRole('button', { name: 'Privacy' }))
+    const dialog = screen.getByRole('dialog', { name: 'Privacy' })
+    expect(within(dialog).getByRole('switch', { name: 'Count my visits' })).toBeInTheDocument()
+  })
+
   it('shows Start something new with Blank, the starters and Browse all', async () => {
     const { store } = await storeWith([{ name: 'A' }])
     render(<HomePage route={{ view: 'home' }} store={store} />)

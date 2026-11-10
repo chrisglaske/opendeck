@@ -81,9 +81,10 @@ async function pending(store: DeckStore, ls: Ls, changed: boolean): Promise<{ pr
   const copied = new Set([...(await metaList(store, V1_META.copiedIds)), ...copiesOf.keys()])
   const versions = changed ? await metaRecord<number>(store, V1_META.copiedVersions) : {}
 
+  // The newer of the recorded version and the newest copy's creation time: either write can fail
+  // after a copy is stored, and the copy itself is proof of when it was made.
   const copiedVersion = async (id: string): Promise<number> => {
-    if (Number.isFinite(versions[id])) return versions[id]
-    let newest = -Infinity
+    let newest = Number.isFinite(versions[id]) ? versions[id] : -Infinity
     for (const deckId of copiesOf.get(id) ?? []) {
       const d = (await store.getDeck(deckId).catch(() => null)) as { createdAt?: unknown } | null
       if (typeof d?.createdAt === 'number') newest = Math.max(newest, d.createdAt)

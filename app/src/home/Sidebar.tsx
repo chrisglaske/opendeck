@@ -2,6 +2,7 @@ import { Folder as FolderIcon, FolderPlus, HardDrive, House, LayoutGrid, LayoutT
 import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import type { AnchorHTMLAttributes, ReactNode } from 'react'
+import { PrivacyDialog } from '../landing/PrivacyDialog'
 import { IconButton, Logo, ModeSwitch } from '../ui'
 import { useDeckDrop } from './dnd'
 import { SIDEBAR_TAGS, tagCounts, tagKey } from './library'
@@ -98,6 +99,7 @@ export function Sidebar({
   const firstVisit = data !== null && data.decks.length === 0 && data.folders.length === 0
   const counts = data !== null && !firstVisit
   const tags = tagCounts(liveDecks.map((d) => d.entry))
+  const [privacyOpen, setPrivacyOpen] = useState(false)
   return (
     <aside className={styles.side}>
       <div className={styles.logo}><Logo size={22} /></div>
@@ -150,6 +152,9 @@ export function Sidebar({
       <div className={styles.foot}>
         <ModeSwitch compact />
         <span className={styles.note}><HardDrive size={12} strokeWidth={1.75} aria-hidden />Everything stays on this device</span>
+        {/* The visitor-count answer can be changed here too: people with decks never see the start page. */}
+        <button type="button" className={styles.privacy} onClick={() => setPrivacyOpen(true)}>Privacy</button>
+        <PrivacyDialog open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       </div>
     </aside>
   )
