@@ -1,7 +1,16 @@
-import { render, screen } from '@testing-library/react'
-import { afterEach, expect, it } from 'vitest'
+import { act, render, screen, within } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
 import App from './App'
 import { markHasDecks } from './storage/visit'
+
+const outdated = vi.hoisted(() => ({ listeners: new Set<() => void>() }))
+vi.mock('./storage/idbStore', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./storage/idbStore')>()),
+  onStorageOutdated: (cb: () => void) => {
+    outdated.listeners.add(cb)
+    return () => outdated.listeners.delete(cb)
+  },
+}))
 
 afterEach(() => { window.location.hash = '' })
 
@@ -49,4 +58,21 @@ it('routes #/computer to the "needs a computer" note', async () => {
   window.location.hash = '#/computer'
   render(<App />)
   expect(await screen.findByRole('heading', { name: "OpenDeck's editor needs a computer." })).toBeInTheDocument()
+})
+
+it('a tab whose storage was upgraded elsewhere says so, until reloaded', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true })
+  try {
+    window.location.hash = '#/home'
+    render(<App />)
+    expect(outdated.listeners.size).toBe(1)
+    act(() => outdated.listeners.forEach((cb) => cb()))
+    const region = screen.getByRole('status')
+    expect(within(region).getByText('OpenDeck was updated in another tab. Reload to keep saving.')).toBeInTheDocument()
+    expect(within(region).getByRole('button', { name: 'Reload' })).toBeInTheDocument()
+    act(() => vi.advanceTimersByTime(60_000))
+    expect(within(region).getByText('OpenDeck was updated in another tab. Reload to keep saving.')).toBeInTheDocument()
+  } finally {
+    vi.useRealTimers()
+  }
 })

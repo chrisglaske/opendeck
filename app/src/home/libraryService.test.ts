@@ -8,8 +8,10 @@ import { emptyEntry, TRASH_MS, trash } from './library'
 import type { LibraryEntry } from './library'
 import {
   createFolder, deleteFolder, deleteForGood, duplicateDeck, loadHome, purgeDue, purgeUnusedAssets, renameDeck,
-  renameFolder, setEntry,
+  renameFolder, updateEntry,
 } from './libraryService'
+import { withAssetLock } from '../storage/assets'
+import { moveToFolder, pin } from './library'
 
 const openElsewhere = new Set<string>()
 const editorOpen = { value: false }
@@ -74,12 +76,30 @@ describe('loadHome', () => {
   })
 })
 
-describe('setEntry', () => {
+describe('updateEntry', () => {
   it('reports why a write failed', async () => {
     const { store, d } = await setup()
-    const broken: DeckStore = { ...store, async putLibrary() { throw full() } }
-    expect(await setEntry(broken, emptyEntry(d.id))).toEqual({ ok: false, reason: 'quota' })
-    expect(await setEntry(store, emptyEntry(d.id))).toEqual({ ok: true })
+    const broken: DeckStore = { ...store, async updateLibrary() { throw full() } }
+    expect(await updateEntry(broken, d.id, (e) => e)).toEqual({ ok: false, reason: 'quota' })
+    expect(await updateEntry(store, d.id, (e) => e)).toEqual({ ok: true, entry: emptyEntry(d.id) })
+  })
+
+  it('a change from a stale tab keeps fields another tab wrote', async () => {
+    const { store, d } = await setup()
+    await store.putLibrary(emptyEntry(d.id))
+    const staleInTabA = (await loadHome(store)).decks[0].entry
+    // Tab B moves the deck into a folder.
+    const f = await createFolder(store, 'F')
+    if (!f.ok) throw new Error('folder')
+    await updateEntry(store, d.id, (e) => moveToFolder(e, f.folder.id))
+    // Tab A, still showing the old entry, pins the deck.
+    expect(staleInTabA.folderId).toBeNull()
+    const r = await updateEntry(store, d.id, (e) => {
+      const p = pin(e, [], 1000)
+      return p.ok ? p.entry : e
+    })
+    expect(r).toEqual({ ok: true, entry: expect.objectContaining({ pinnedAt: 1000, folderId: f.folder.id }) })
+    expect((await loadHome(store)).decks[0].entry).toMatchObject({ pinnedAt: 1000, folderId: f.folder.id })
   })
 })
 
@@ -192,6 +212,31 @@ describe('deleteForGood and clean-up', () => {
     editorOpen.value = true
     expect(await purgeUnusedAssets(store)).toBe(0)
     expect(await store.listAssetIds()).toContain('just-uploaded')
+  })
+
+  it('purge waits for a picture write in progress', async () => {
+    const tails = new Map<string, Promise<unknown>>()
+    const locks = {
+      request(name: string, fn: () => Promise<unknown>) {
+        const run = (tails.get(name) ?? Promise.resolve()).then(fn)
+        tails.set(name, run.catch(() => {}))
+        return run
+      },
+    }
+    Object.defineProperty(navigator, 'locks', { value: locks, configurable: true })
+    try {
+      const store = createMemoryStore()
+      const writing = withAssetLock(async () => {
+        await store.putAsset(asset('x'))
+        await new Promise((r) => setTimeout(r, 0))
+        await store.putDeck(deckWithPictures('Imported', ['x']))
+      })
+      const purging = purgeUnusedAssets(store)
+      await Promise.all([writing, purging])
+      expect(await store.getAsset('x')).toBeTruthy()
+    } finally {
+      Reflect.deleteProperty(navigator, 'locks')
+    }
   })
 
   it('removes nothing when the decks cannot be read', async () => {

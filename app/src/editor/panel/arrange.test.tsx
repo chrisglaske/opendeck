@@ -72,6 +72,25 @@ describe('Arrange tab', () => {
     expect(el(s, a.id)).toMatchObject({ w: 200, h: 100 })
   })
 
+  it('a huge number is clamped', async () => {
+    const s = setup([shape(10, 10)])
+    const id = els(s)[0].id
+    await openArrange()
+    await typeInto('X position', '1e300')
+    expect(el(s, id).x).toBe(100000)
+    await typeInto('X position', '-1e300')
+    expect(el(s, id).x).toBe(-100000)
+    await typeInto('Width', '1e300')
+    expect(el(s, id).w).toBe(100000)
+    await typeInto('Height', '0')
+    expect(el(s, id).h).toBeGreaterThanOrEqual(1)
+    // Not a number at all (1e400 reads as Infinity): ignored.
+    await typeInto('Y position', '1e400')
+    expect(el(s, id).y).toBe(10)
+    const e = el(s, id)
+    for (const v of [e.x, e.y, e.w, e.h, e.rotation]) expect(Number.isFinite(v)).toBe(true)
+  })
+
   it('wraps the rotation into 0–359', async () => {
     const a = shape(100, 100)
     const s = setup([a])

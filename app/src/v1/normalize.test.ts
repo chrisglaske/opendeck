@@ -14,7 +14,8 @@ const NAMES = ['all-types', 'edited', 'branded', 'organized', 'legacy', 'demo-un
 function masked(v: unknown): unknown {
   return JSON.parse(JSON.stringify(v), (_key, value) => {
     if (typeof value === 'string' && /^slide_\d+_\d+_\d+$/.test(value)) return '<made-up slide id>'
-    if (typeof value === 'string' && /^proj_\d+_\d+$/.test(value)) return '<made-up project id>'
+    // V1 makes up a time-based project id; ours is a hash of the project, so it is the same on every read.
+    if (typeof value === 'string' && /^proj_(\d+|v1_[0-9a-f]{8})_\d+$/.test(value)) return '<made-up project id>'
     return value
   })
 }
@@ -31,6 +32,22 @@ describe('normalizeV1Projects', () => {
       }
     }
     expect(masked(ours)).toEqual(masked(v1))
+  })
+
+  it('a project without an id gets the same made-up id on every read', () => {
+    const raw = [{ name: 'A', data: { slides: [] } }, { name: 'B', data: { slides: [] } }]
+    vi.useFakeTimers({ now: 1_000 })
+    const first = normalizeV1Projects(JSON.parse(JSON.stringify(raw)))
+    vi.setSystemTime(2_000)
+    const second = normalizeV1Projects(JSON.parse(JSON.stringify(raw)))
+    vi.useRealTimers()
+    expect(first.map((p) => p.id)).toEqual(second.map((p) => p.id))
+    expect(first[0].id).not.toBe(first[1].id)
+  })
+
+  it('a project without lastModified gets 0, so it never looks newer than a copy', () => {
+    const [p] = normalizeV1Projects([{ id: 'x', name: 'A', data: { slides: [] } }])
+    expect(p.lastModified).toBe(0)
   })
 
   it('keeps the first project when ids repeat', () => {

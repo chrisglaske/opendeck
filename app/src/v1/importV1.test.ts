@@ -229,3 +229,96 @@ describe('V1 deck files', () => {
     expect(await store.getMeta(V1_META.copiedIds)).toBeUndefined()
   })
 })
+
+describe('copy bookkeeping', () => {
+  it('Try again after a failed bookkeeping write copies nothing twice', async () => {
+    const inner = createMemoryStore()
+    let failOnce = true
+    const flaky: DeckStore = {
+      ...inner,
+      async putMeta(key, value) {
+        if (key === V1_META.copiedIds && failOnce) {
+          failOnce = false
+          throw new DOMException('full', 'QuotaExceededError')
+        }
+        return inner.putMeta(key, value)
+      },
+    }
+    const ls = v1Storage(projectsOf('branded'))
+    await copyNewV1Decks(flaky, ls, NOW)
+    expect(await inner.listDecks()).toHaveLength(1)
+    expect(await v1NewCount(inner, ls)).toBe(0)
+    expect(await copyNewV1Decks(inner, ls, NOW)).toEqual({ copied: 0, skipped: 0 })
+    expect(await inner.listDecks()).toHaveLength(1)
+  })
+})
+
+describe('V1 decks changed after they were copied', () => {
+  const bumped = (projects: Record<string, unknown>[], by: number) =>
+    projects.map((p) => ({ ...p, lastModified: (p.lastModified as number) + by }))
+
+  it('re-copies a changed deck once', async () => {
+    const store = createMemoryStore()
+    const projects = projectsOf('branded')
+    await firstRunCopy(store, v1Storage(projects), NOW)
+    const [original] = await decks(store)
+    const later = v1Storage(bumped(projects, 1000))
+    expect(await v1NewCount(store, later)).toBe(1)
+    expect(await copyNewV1Decks(store, later, NOW + 5000)).toEqual({ copied: 1, skipped: 0 })
+    const all = await decks(store)
+    expect(all).toHaveLength(2)
+    expect(all.map((d) => d.name)).toEqual(['Branded deck', 'Branded deck'])
+    expect(await store.getDeck(original.id)).toEqual(original)
+    const fresh = (await listEntries(store)).find((e) => e.deckId !== original.id)!
+    expect(fresh).toMatchObject({ fromV1Unopened: true, v1Id: projects[0].id })
+    expect(await v1NewCount(store, later)).toBe(0)
+    expect(await copyNewV1Decks(store, later, NOW + 6000)).toEqual({ copied: 0, skipped: 0 })
+    expect(later.writes).toEqual([])
+  })
+
+  it('an unchanged deck is never re-copied', async () => {
+    const store = createMemoryStore()
+    const ls = everything()
+    await firstRunCopy(store, ls, NOW)
+    expect(await v1NewCount(store, ls)).toBe(0)
+    expect(await copyNewV1Decks(store, ls, NOW)).toEqual({ copied: 0, skipped: 0 })
+  })
+
+  it('the first-run copy never re-copies', async () => {
+    const store = createMemoryStore()
+    const projects = projectsOf('branded')
+    await copyNewV1Decks(store, v1Storage(projects), NOW)
+    await firstRunCopy(store, v1Storage(bumped(projects, 1000)), NOW)
+    expect(await store.listDecks()).toHaveLength(1)
+  })
+
+  it('decks copied before versions were recorded count as changed only when V1 is newer than the copy', async () => {
+    const store = createMemoryStore()
+    const projects = projectsOf('branded')
+    const copiedAt = (projects[0].lastModified as number) + 10_000
+    await firstRunCopy(store, v1Storage(projects), copiedAt)
+    await store.putMeta(V1_META.copiedVersions, undefined)
+    expect(await v1NewCount(store, v1Storage(bumped(projects, 5_000)))).toBe(0)
+    expect(await v1NewCount(store, v1Storage(bumped(projects, 20_000)))).toBe(1)
+  })
+
+  it('a deck copied but missing from the copied list counts as copied', async () => {
+    const store = createMemoryStore()
+    const projects = projectsOf('branded')
+    const ls = v1Storage(projects)
+    await copyNewV1Decks(store, ls, (projects[0].lastModified as number) + 10_000)
+    await store.putMeta(V1_META.copiedIds, [])
+    await store.putMeta(V1_META.copiedVersions, {})
+    expect(await v1NewCount(store, ls)).toBe(0)
+  })
+
+  it('V1 storage is never written', async () => {
+    const store = createMemoryStore()
+    const projects = projectsOf('branded')
+    const ls = v1Storage(projects)
+    await firstRunCopy(store, ls, NOW)
+    const later = v1Storage(bumped(projects, 1000))
+    await copyNewV1Decks(store, later, NOW)
+    expect([...ls.writes, ...later.writes]).toEqual([])
+  })
+})

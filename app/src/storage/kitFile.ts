@@ -4,6 +4,7 @@
  * sanitized, every image and font is checked by its bytes, and nothing already stored is replaced.
  */
 import { importFontData } from '../fonts/uploadedFonts'
+import { withAssetLock } from './assets'
 import type { BrandKit } from '../model/brandKit'
 import { sanitizeTheme } from '../model/sanitize'
 import type { SaveErrorReason } from './autosave'
@@ -38,7 +39,12 @@ export async function exportKitFile(store: DeckStore, kit: BrandKit): Promise<Bl
 }
 
 /** Adds a brand kit from a file. Always a new kit; existing kits, images and fonts are never replaced. */
-export async function importKitFile(
+export function importKitFile(store: DeckStore, file: File): ReturnType<typeof importKitFileLocked> {
+  // Pictures are stored before the record that uses them; clean-up in another tab waits.
+  return withAssetLock(() => importKitFileLocked(store, file))
+}
+
+async function importKitFileLocked(
   store: DeckStore, file: File,
 ): Promise<{ ok: true; kit: BrandKit; notSaved?: SaveErrorReason } | { ok: false; reason: KitImportError }> {
   if (file.size > KIT_MAX_BYTES) return { ok: false, reason: 'too-large' }

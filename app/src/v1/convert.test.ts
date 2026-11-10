@@ -114,7 +114,8 @@ describe('convertV1Project over every fixture', () => {
       expect(r.ok && r.repaired, p.name).toBe(0)
       expect(deck.name).toBe(p.name)
       expect(deck.slides).toHaveLength(p.data.slides.length)
-      expect(deck.updatedAt).toBe(p.lastModified)
+      // A project V1 stored without a time shows as last edited when it was copied.
+      expect(deck.updatedAt).toBe(p.lastModified || NOW)
       expect(deck.createdAt).toBe(NOW)
     }
   })

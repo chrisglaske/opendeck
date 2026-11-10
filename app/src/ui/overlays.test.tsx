@@ -139,6 +139,18 @@ describe('toast', () => {
     }
   })
 
+  it('a toast with no time limit stays until it is acted on', () => {
+    vi.useFakeTimers()
+    try {
+      render(<ToastHost />)
+      act(() => toast('Reload to keep saving.', { actionLabel: 'Reload', durationMs: Infinity }))
+      act(() => vi.advanceTimersByTime(60 * 60 * 1000))
+      expect(screen.getByText('Reload to keep saving.')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('pauses while its action has keyboard focus', () => {
     vi.useFakeTimers()
     try {

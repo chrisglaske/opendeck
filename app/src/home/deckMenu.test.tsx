@@ -243,7 +243,8 @@ describe('deck menu', () => {
     const store = createMemoryStore()
     const d = createDeck('Pitch')
     await store.putDeck(d)
-    const broken: DeckStore = { ...store, async putLibrary() { throw new DOMException('full', 'QuotaExceededError') } }
+    const full = () => new DOMException('full', 'QuotaExceededError')
+    const broken: DeckStore = { ...store, async putLibrary() { throw full() }, async updateLibrary() { throw full() } }
     render(<><HomePage route={{ view: 'home' }} store={broken} /><ToastHost /></>)
     await screen.findByRole('region', { name: 'Recent' })
     await userEvent.click(within(await openMenu('Pitch')).getByRole('menuitem', { name: 'Move to Trash' }))

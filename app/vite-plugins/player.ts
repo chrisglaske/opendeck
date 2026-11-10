@@ -43,8 +43,16 @@ export async function bundlePlayer(): Promise<PlayerBundle> {
   const css = files.filter((f) => f.fileName.endsWith('.css')).map(text).join('\n')
   const other = files.filter((f) => f.type === 'asset' && !f.fileName.endsWith('.css'))
   if (other.length) throw new Error(`The player must not need extra files: ${other.map((f) => f.fileName).join(', ')}`)
-  // Inlined in a <script>, so it must never close that tag early.
-  return { js: js.replace(/<\/script/gi, '<\\/script'), css }
+  return { js: inlineSafeJs(js), css }
+}
+
+/**
+ * The player is inlined in a <script>, so it must never close that tag early, and must not
+ * contain `<!--`, which can change how the browser reads the rest of the script.
+ */
+export function inlineSafeJs(js: string): string {
+  if (js.includes('<!--')) throw new Error('The player script must not contain "<!--"')
+  return js.replace(/<\/script/gi, '<\\/script')
 }
 
 /**

@@ -26,6 +26,9 @@ import { useEditorStore } from '../EditorContext'
 import { LayerList } from './LayerList'
 import styles from './Panel.module.css'
 
+/** Typed positions and sizes stay within this, so no number grows past what a slide can use. */
+const MAX_COORD = 100_000
+
 export const ALIGN_BUTTONS: { edge: AlignEdge; label: string; icon: LucideIcon }[] = [
   { edge: 'left', label: 'Align left', icon: AlignStartVertical },
   { edge: 'hcenter', label: 'Align center', icon: AlignCenterVertical },
@@ -74,10 +77,10 @@ export function ArrangeTab({ slide, ids }: { slide: Slide; ids: string[] }) {
       <section>
         <h3 className={styles.heading}>Position &amp; size</h3>
         <div className={styles.grid2}>
-          <NumberField label="X position" prefix="X" value={Math.round(box.x)} onChange={(x) => setBox({ x })} />
-          <NumberField label="Y position" prefix="Y" value={Math.round(box.y)} onChange={(y) => setBox({ y })} />
-          <NumberField label="Width" prefix="W" min={minSize} value={Math.round(box.w)} onChange={(w) => setBox({ w })} />
-          <NumberField label="Height" prefix="H" min={minSize} value={Math.round(box.h)} onChange={(h) => setBox({ h })} />
+          <NumberField label="X position" prefix="X" min={-MAX_COORD} max={MAX_COORD} value={Math.round(box.x)} onChange={(x) => setBox({ x })} />
+          <NumberField label="Y position" prefix="Y" min={-MAX_COORD} max={MAX_COORD} value={Math.round(box.y)} onChange={(y) => setBox({ y })} />
+          <NumberField label="Width" prefix="W" min={minSize} max={MAX_COORD} value={Math.round(box.w)} onChange={(w) => setBox({ w })} />
+          <NumberField label="Height" prefix="H" min={minSize} max={MAX_COORD} value={Math.round(box.h)} onChange={(h) => setBox({ h })} />
         </div>
         <div className={styles.row}>
           {single && single.el.type !== 'line' ? (

@@ -24,6 +24,19 @@ function done(tx: IDBTransaction): Promise<void> {
   })
 }
 
+const outdatedListeners = new Set<() => void>()
+
+/**
+ * Calls `cb` when a newer OpenDeck in another tab upgrades the database: this tab's connection
+ * is closed then, so it can no longer save until it is reloaded. Returns an unsubscribe function.
+ */
+export function onStorageOutdated(cb: () => void): () => void {
+  outdatedListeners.add(cb)
+  return () => {
+    outdatedListeners.delete(cb)
+  }
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') {
@@ -43,8 +56,12 @@ function openDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' })
     }
     r.onsuccess = () => {
-      // A newer version opened in another tab: let it upgrade instead of blocking it.
-      r.result.onversionchange = () => r.result.close()
+      // A newer version opened in another tab: let it upgrade instead of blocking it, and say
+      // that this tab can't save any more.
+      r.result.onversionchange = () => {
+        r.result.close()
+        for (const cb of outdatedListeners) cb()
+      }
       resolve(r.result)
     }
     r.onerror = () => reject(r.error)
@@ -123,6 +140,28 @@ export async function openIdbStore(): Promise<DeckStore> {
     deleteAsset: (id) => remove('assets', id),
     listLibrary: () => all('library'),
     putLibrary: (e) => write('library', e),
+    async updateLibrary(deckId, change) {
+      const tx = db.transaction('library', 'readwrite')
+      const os = tx.objectStore('library')
+      const got = os.get(deckId)
+      let next: ReturnType<typeof change> | undefined
+      let failed: unknown
+      got.onsuccess = () => {
+        try {
+          next = change(got.result)
+          os.put(next)
+          tx.commit?.()
+        } catch (e) {
+          failed = e
+          tx.abort()
+        }
+      }
+      await done(tx).catch((e) => {
+        throw failed ?? e
+      })
+      if (!next) throw new DOMException('Library entry not written', 'AbortError')
+      return next
+    },
     deleteLibrary: (id) => remove('library', id),
     listFolders: () => all('folders'),
     putFolder: (f) => write('folders', f),

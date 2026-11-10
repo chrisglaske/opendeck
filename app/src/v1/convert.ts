@@ -191,7 +191,7 @@ export function convertV1Project(p: V1Project, now: number): ConvertedDeck {
     // V1's per-slide transitions aren't carried over; every converted deck fades.
     transition: 'fade',
     createdAt: now,
-    updatedAt: p.lastModified,
+    updatedAt: p.lastModified || now,
   }
   return {
     deck,

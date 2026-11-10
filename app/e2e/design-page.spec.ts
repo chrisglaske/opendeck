@@ -11,6 +11,8 @@ test.describe('design-system page', () => {
     test(`no axe violations in ${mode.toLowerCase()} mode`, async ({ page }) => {
       await page.getByRole('radio', { name: mode }).click()
       await expect(page.locator('html')).toHaveAttribute('data-mode', mode.toLowerCase())
+      // Colours ease into the new mode; measure contrast once they have settled.
+      await page.waitForFunction(() => document.getAnimations().length === 0)
       const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
       expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([])
     })

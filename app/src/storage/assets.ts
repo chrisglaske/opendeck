@@ -5,6 +5,18 @@ import { errorReason } from './autosave'
 import type { SaveErrorReason } from './autosave'
 import type { DeckStore } from './deckStore'
 
+// ── Picture writes and clean-up ────────────────────────────────────────
+
+/**
+ * Runs `fn` while holding the picture lock, shared by every tab. Picture clean-up holds it, and
+ * so does any step that stores pictures and then the record that uses them, so clean-up never
+ * runs in between. Without Web Locks, `fn` simply runs.
+ */
+export function withAssetLock<T>(fn: () => Promise<T>): Promise<T> {
+  const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined
+  return locks ? locks.request('opendeck-assets', fn) : fn()
+}
+
 // ── Importing images ───────────────────────────────────────────────────
 
 /** Image types OpenDeck accepts. SVG is left out on purpose: it can carry script. */

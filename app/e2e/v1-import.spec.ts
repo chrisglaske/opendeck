@@ -119,6 +119,35 @@ test('From V1 picks up a deck made in V1 after the first copy', async ({ page })
   expect((await all(page, 'decks')).length).toBe(7)
 })
 
+test('a V1 deck edited after the switch comes over again from Import → From V1', async ({ page }) => {
+  await seedV1(page)
+  await page.goto('./')
+  await notice(page).getByRole('button', { name: 'Got it' }).click()
+  await expect.poll(async () => (await all(page, 'decks')).length).toBe(6)
+
+  await page.evaluate(() => {
+    const list = JSON.parse(localStorage.getItem('openDeckDB_v2')!) as { name: string; lastModified: number; data: { slides: { title?: string }[] } }[]
+    const acme = list.find((p) => p.name === 'Acme pitch')!
+    acme.lastModified += 60_000
+    acme.data.slides[0].title = 'Edited in V1 later'
+    localStorage.setItem('openDeckDB_v2', JSON.stringify(list))
+  })
+  await page.getByRole('button', { name: 'Import' }).click()
+  await page.getByRole('menuitem', { name: /From V1/ }).click()
+  await expect(page.getByRole('status').filter({ hasText: '1 deck copied from V1' })).toBeVisible()
+  await expect.poll(async () => (await all(page, 'decks')).length).toBe(7)
+
+  const acmes = (await all<StoredDeck>(page, 'decks')).filter((d) => d.name === 'Acme pitch')
+  expect(acmes).toHaveLength(2)
+  expect(acmes.filter((d) => JSON.stringify(d.slides).includes('Edited in V1 later'))).toHaveLength(1)
+  await page.goto('./#/all')
+  await expect(page.locator('main [data-deck-name]', { hasText: /^Acme pitch$/ })).toHaveCount(2)
+
+  // Nothing new after that.
+  await page.getByRole('button', { name: 'Import' }).click()
+  await expect(page.getByRole('menuitem', { name: /From V1/ })).toBeDisabled()
+})
+
 test('without V1 data there is no notice and no From V1', async ({ page }) => {
   await page.goto('./')
   await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()

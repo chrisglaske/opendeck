@@ -3,7 +3,8 @@ import { LoadErrorBoundary } from './app/LoadErrorBoundary'
 import { START_HASHES } from './app/startGate'
 import { StartRoute } from './app/StartRoute'
 import { parseHomeRoute } from './home/routes'
-import { ToastHost } from './ui'
+import { onStorageOutdated } from './storage/idbStore'
+import { toast, ToastHost } from './ui'
 
 const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'))
 const EditorPage = lazy(() => import('./editor/EditorPage'))
@@ -36,6 +37,17 @@ export default function App() {
   useEffect(() => {
     void import('./app/startup').then((m) => m.runStartup(), () => {})
   }, [])
+  useEffect(
+    () =>
+      onStorageOutdated(() =>
+        toast('OpenDeck was updated in another tab. Reload to keep saving.', {
+          actionLabel: 'Reload',
+          onAction: () => window.location.reload(),
+          durationMs: Infinity,
+        }),
+      ),
+    [],
+  )
   return (
     <>
       <LoadErrorBoundary resetKey={hash}>

@@ -1,5 +1,6 @@
 import { newId } from '../model/ids'
 import type { Deck, SlideElement } from '../model/types'
+import { withAssetLock } from '../storage/assets'
 import { errorReason } from '../storage/autosave'
 import type { SaveErrorReason } from '../storage/autosave'
 import { acquireDeckLock, isAnyDeckOpen } from '../storage/deckLock'
@@ -35,10 +36,16 @@ export async function loadHome(store: DeckStore): Promise<HomeData> {
   return { decks, folders }
 }
 
-export async function setEntry(store: DeckStore, e: LibraryEntry): Promise<ActionResult> {
+/**
+ * Changes one deck's entry, starting from what is stored now (not from what this screen last
+ * loaded), so fields another tab wrote meanwhile are kept. Returns the entry as stored.
+ */
+export async function updateEntry(
+  store: DeckStore, deckId: string, change: (current: LibraryEntry) => LibraryEntry,
+): Promise<{ ok: true; entry: LibraryEntry } | Failed> {
   try {
-    await store.putLibrary(e)
-    return { ok: true }
+    const entry = await store.updateLibrary(deckId, (raw) => change(sanitizeEntry(raw) ?? emptyEntry(deckId)))
+    return { ok: true, entry }
   } catch (err) {
     return fail(err)
   }
@@ -147,7 +154,13 @@ export async function purgeDue(store: DeckStore, now: number): Promise<void> {
  * When any of those can't be read, nothing is removed. Nothing is removed either while a deck is
  * open in an editor: it may have stored a new picture and not yet saved the deck that uses it.
  */
-export async function purgeUnusedAssets(store: DeckStore): Promise<number> {
+export function purgeUnusedAssets(store: DeckStore): Promise<number> {
+  // Holds the picture lock: a deck being imported on Home stores its pictures first and the deck
+  // after, and must not lose them in between.
+  return withAssetLock(() => purgeLocked(store))
+}
+
+async function purgeLocked(store: DeckStore): Promise<number> {
   if (await isAnyDeckOpen()) return 0
   let used: Set<string>
   let ids: string[]

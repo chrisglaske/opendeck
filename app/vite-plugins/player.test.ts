@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { bundlePlayer } from './player.ts'
+import { bundlePlayer, inlineSafeJs } from './player.ts'
+
+describe('inlineSafeJs', () => {
+  it('escapes closing script tags', () => {
+    expect(inlineSafeJs('a("</script>")')).toBe('a("<\\/script>")')
+  })
+
+  it('refuses a player that contains <!--', () => {
+    expect(() => inlineSafeJs('a("<!--<script>")')).toThrow(/<!--/)
+  })
+})
 
 describe('bundlePlayer', () => {
   it('builds one script and one stylesheet with no outside URLs', async () => {

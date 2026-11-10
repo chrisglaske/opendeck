@@ -100,6 +100,16 @@ function normalizeSlide(slide: unknown, index: number): V1Slide {
   return out as V1Slide
 }
 
+/** FNV-1a (32-bit) as hex: a stable stand-in id for a project V1 stored without one. */
+function fnv1a(text: string): string {
+  let h = 0x811c9dc5
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
+  }
+  return (h >>> 0).toString(16).padStart(8, '0')
+}
+
 /**
  * V1's projects after V1's own migrations, without writing anything back. Projects with an id
  * seen earlier in the list are left out (the first one wins).
@@ -112,9 +122,10 @@ export function normalizeV1Projects(raw: unknown): V1Project[] {
       const p: Obj = { ...project }
       const data: Obj = isObject(p.data) ? { ...p.data } : {}
 
-      p.id = str(p.id, 'proj_' + Date.now() + '_' + projectIndex)
+      p.id = str(p.id, 'proj_v1_' + fnv1a(JSON.stringify({ name: p.name, slides: data.slides })) + '_' + projectIndex)
       p.name = str(p.name, 'Untitled Presentation')
-      p.lastModified = Number.isFinite(p.lastModified) ? p.lastModified : Date.now()
+      // 0 rather than V1's Date.now(): a time that changes on every read would make the deck look edited.
+      p.lastModified = Number.isFinite(p.lastModified) ? p.lastModified : 0
       p.tags = arr(p.tags).map((t) => str(t, '')).filter(Boolean)
 
       data.slides = arr(data.slides).map((s, i) => normalizeSlide(s, i))

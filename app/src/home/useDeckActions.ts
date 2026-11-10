@@ -11,7 +11,7 @@ import { toast } from '../ui'
 import { moveToFolder, pin, restoreEntry, setTags, trash, unpin, UNDO_MS } from './library'
 import type { LibraryEntry } from './library'
 import { postChanged, postRestored, postTrashed } from './libraryChannel'
-import { createFolder, deleteFolder as deleteFolderInStore, deleteForGood, duplicateDeck, renameDeck, renameFolder as renameFolderInStore, setEntry } from './libraryService'
+import { createFolder, deleteFolder as deleteFolderInStore, deleteForGood, duplicateDeck, renameDeck, renameFolder as renameFolderInStore, updateEntry } from './libraryService'
 import type { HomeData, HomeDeck } from './libraryService'
 
 /** The first sentence of the editor's "Not saved" reason: why storage refused. */
@@ -41,25 +41,31 @@ export function useDeckActions({
   dataRef.current = data
   const entries = () => dataRef.current?.decks.map((d) => d.entry) ?? []
 
-  /** Shows `next` right away and saves it; puts `prev` back if the save fails. */
-  const apply = useCallback(async (prev: LibraryEntry, next: LibraryEntry): Promise<boolean> => {
+  /**
+   * Shows `change` applied to what's on screen right away, then saves it applied to what is
+   * stored (another tab may have changed other fields meanwhile) and shows that; puts `prev` back
+   * if the save fails.
+   */
+  const apply = useCallback(async (prev: LibraryEntry, change: (e: LibraryEntry) => LibraryEntry): Promise<boolean> => {
     if (!store) return false
-    setData((d) => withEntry(d, next))
-    const r = await setEntry(store, next)
+    setData((d) => withEntry(d, change(prev)))
+    const r = await updateEntry(store, prev.deckId, change)
     if (r.ok) {
-      postChanged(next.deckId)
+      setData((d) => withEntry(d, r.entry))
+      postChanged(prev.deckId)
       return true
     }
     setData((d) => withEntry(d, prev))
-    if (r.reason !== 'limit' && r.reason !== 'open-elsewhere') failToast(r.reason)
+    failToast(r.reason)
     return false
   }, [store, setData])
 
   const togglePin = (deck: HomeDeck) => {
-    if (deck.entry.pinnedAt !== null) return void apply(deck.entry, unpin(deck.entry))
-    const r = pin(deck.entry, entries(), Date.now())
+    if (deck.entry.pinnedAt !== null) return void apply(deck.entry, unpin)
+    const now = Date.now()
+    const r = pin(deck.entry, entries(), now)
     if (!r.ok) return toast('You can pin up to 4 decks. Unpin one first.')
-    void apply(deck.entry, r.entry)
+    void apply(deck.entry, (e) => (e.pinnedAt !== null ? e : { ...e, pinnedAt: now }))
   }
 
   const rename = async (deck: HomeDeck, name: string) => {
@@ -93,7 +99,7 @@ export function useDeckActions({
     }
   }
 
-  const move = (deck: HomeDeck, folderId: string | null) => void apply(deck.entry, moveToFolder(deck.entry, folderId))
+  const move = (deck: HomeDeck, folderId: string | null) => void apply(deck.entry, (e) => moveToFolder(e, folderId))
 
   const moveToNewFolder = async (deck: HomeDeck) => {
     if (!store) return
@@ -102,7 +108,7 @@ export function useDeckActions({
     setData((d) => ({ ...d, folders: [...d.folders, r.folder] }))
     postChanged(r.folder.id)
     setEditingFolder(r.folder.id)
-    await apply(deck.entry, moveToFolder(deck.entry, r.folder.id))
+    await apply(deck.entry, (e) => moveToFolder(e, r.folder.id))
     return r.folder
   }
 
@@ -152,12 +158,13 @@ export function useDeckActions({
 
   const changeTags = (deck: HomeDeck, tags: string[]) => {
     const current = dataRef.current?.decks.find((x) => x.id === deck.id)?.entry ?? deck.entry
-    return apply(current, setTags(current, tags))
+    return apply(current, (e) => setTags(e, tags))
   }
 
   const moveToTrash = async (deck: HomeDeck) => {
     const before = deck.entry
-    if (!(await apply(before, trash(before, Date.now())))) return
+    const now = Date.now()
+    if (!(await apply(before, (e) => trash(e, now)))) return
     postTrashed(deck.id)
     toast(`“${deck.name}” moved to Trash`, {
       actionLabel: 'Undo',
@@ -165,8 +172,13 @@ export function useDeckActions({
       onAction: () => {
         const now = dataRef.current?.decks.find((x) => x.id === deck.id)?.entry
         if (!now || now.trashedAt === null) return
-        const back = restoreEntry({ ...before, trashedAt: now.trashedAt, restore: now.restore }, dataRef.current?.folders ?? [], entries())
-        void apply(now, { ...back, tags: before.tags }).then((ok) => ok && postRestored(deck.id))
+        const folders = dataRef.current?.folders ?? []
+        const all = entries()
+        const undo = (cur: LibraryEntry) => {
+          if (cur.trashedAt === null) return cur
+          return { ...restoreEntry({ ...before, trashedAt: cur.trashedAt, restore: cur.restore }, folders, all), tags: before.tags }
+        }
+        void apply(now, undo).then((ok) => ok && postRestored(deck.id))
       },
     })
   }
@@ -174,7 +186,9 @@ export function useDeckActions({
   const restore = async (deck: HomeDeck) => {
     const now = dataRef.current?.decks.find((x) => x.id === deck.id)?.entry ?? deck.entry
     if (now.trashedAt === null) return
-    if (await apply(now, restoreEntry(now, dataRef.current?.folders ?? [], entries()))) postRestored(deck.id)
+    const folders = dataRef.current?.folders ?? []
+    const all = entries()
+    if (await apply(now, (cur) => (cur.trashedAt === null ? cur : restoreEntry(cur, folders, all)))) postRestored(deck.id)
   }
 
   /** Deletes decks for good. Decks open in another tab are kept, and a toast says so. */

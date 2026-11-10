@@ -39,6 +39,11 @@ export interface DeckStore {
   /** How decks are organized on Home. Raw stored data: run each through `sanitizeEntry`. */
   listLibrary(): Promise<unknown[]>
   putLibrary(e: LibraryEntry): Promise<void>
+  /**
+   * Reads one deck's entry (raw, `undefined` when there is none) and writes `change`'s result in
+   * the same transaction, so a change made from a stale screen keeps what other tabs wrote.
+   */
+  updateLibrary(deckId: string, change: (raw: unknown) => LibraryEntry): Promise<LibraryEntry>
   deleteLibrary(deckId: string): Promise<void>
   /** Raw stored data: run each through `sanitizeFolder`. */
   listFolders(): Promise<unknown[]>
@@ -148,6 +153,12 @@ export function createMemoryStore(): DeckStore {
     },
     async putLibrary(e) {
       library.set(e.deckId, structuredClone(e))
+    },
+    async updateLibrary(deckId, change) {
+      const current = library.get(deckId)
+      const next = change(current === undefined ? undefined : structuredClone(current))
+      library.set(deckId, structuredClone(next))
+      return structuredClone(next)
     },
     async deleteLibrary(deckId) {
       library.delete(deckId)
@@ -289,6 +300,7 @@ export function keepUnsaved(store: DeckStore): DeckStore {
     // Organizing writes are not kept in memory: a failed one rejects and the screen keeps the old state.
     listLibrary: () => store.listLibrary(),
     putLibrary: (e) => store.putLibrary(e),
+    updateLibrary: (id, change) => store.updateLibrary(id, change),
     deleteLibrary: (id) => store.deleteLibrary(id),
     listFolders: () => store.listFolders(),
     putFolder: (f) => store.putFolder(f),
@@ -324,6 +336,9 @@ export function createSessionOnlyStore(): DeckStore {
       throw notSaved()
     },
     async putLibrary() {
+      throw notSaved()
+    },
+    async updateLibrary() {
       throw notSaved()
     },
     async putFolder() {

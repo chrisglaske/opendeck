@@ -4,6 +4,7 @@
  * already stored is replaced. A picture that can't be used becomes a sample picture instead.
  */
 import { newId } from '../model/ids'
+import { withAssetLock } from './assets'
 import type { ImageEl, SlideElement } from '../model/types'
 import { sanitizeTemplateData, TEMPLATE_FORMAT, TEMPLATE_VERSION } from '../templates/templateData'
 import type { Template } from '../templates/types'
@@ -48,7 +49,12 @@ export async function exportTemplateFile(store: DeckStore, t: Template): Promise
 }
 
 /** Adds a template from a file. Always a new template; stored templates and pictures are never replaced. */
-export async function importTemplateFile(
+export function importTemplateFile(store: DeckStore, file: File): ReturnType<typeof importTemplateFileLocked> {
+  // Pictures are stored before the record that uses them; clean-up in another tab waits.
+  return withAssetLock(() => importTemplateFileLocked(store, file))
+}
+
+async function importTemplateFileLocked(
   store: DeckStore, file: File,
 ): Promise<{ ok: true; template: Template; notSaved?: SaveErrorReason } | { ok: false; reason: TemplateImportError }> {
   if (file.size > TEMPLATE_MAX_BYTES) return { ok: false, reason: 'too-large' }

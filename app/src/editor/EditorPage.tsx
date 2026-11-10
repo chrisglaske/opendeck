@@ -2,7 +2,7 @@ import { AppWindow, ArrowLeft, FileQuestion, FileWarning, RefreshCw, Sparkles, T
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { restoreEntry } from '../home/library'
 import { onLibraryMessage, postRestored } from '../home/libraryChannel'
-import { listEntries, listFolders, setEntry } from '../home/libraryService'
+import { listEntries, listFolders, updateEntry } from '../home/libraryService'
 import { homeHref } from '../home/routes'
 import { failToast } from '../home/useDeckActions'
 import { createAutosaver } from '../storage/autosave'
@@ -202,9 +202,10 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
     const all = await listEntries(deckStore)
     const entry = all.find((e) => e.deckId === deckId)
     if (entry && entry.trashedAt !== null) {
-      const r = await setEntry(deckStore, restoreEntry(entry, await listFolders(deckStore), all))
+      const folders = await listFolders(deckStore)
+      const r = await updateEntry(deckStore, deckId, (cur) => (cur.trashedAt === null ? cur : restoreEntry(cur, folders, all)))
       if (!r.ok) {
-        if (r.reason !== 'limit' && r.reason !== 'open-elsewhere') failToast(r.reason)
+        failToast(r.reason)
         return
       }
       postRestored(deckId)

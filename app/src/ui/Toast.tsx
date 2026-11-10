@@ -48,20 +48,23 @@ function ToastItem({ toast: t, onDismiss }: { toast: ToastData; onDismiss(): voi
   const dismissRef = useRef(onDismiss)
   dismissRef.current = onDismiss
 
+  // A toast with no time limit (durationMs: Infinity) stays until it is acted on or dismissed.
+  const timed = Number.isFinite(remaining.current)
   const hold = (why: 'hover' | 'focus') => {
-    if (holds.current.size === 0) {
+    if (holds.current.size === 0 && timed) {
       window.clearTimeout(timer.current)
       remaining.current -= Date.now() - startedAt.current
     }
     holds.current.add(why)
   }
   const release = (why: 'hover' | 'focus') => {
-    if (!holds.current.delete(why) || holds.current.size > 0) return
+    if (!holds.current.delete(why) || holds.current.size > 0 || !timed) return
     startedAt.current = Date.now()
     timer.current = window.setTimeout(() => dismissRef.current(), remaining.current)
   }
 
   useEffect(() => {
+    if (!timed) return
     startedAt.current = Date.now()
     timer.current = window.setTimeout(() => dismissRef.current(), remaining.current)
     return () => window.clearTimeout(timer.current)

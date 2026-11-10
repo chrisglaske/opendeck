@@ -5,6 +5,7 @@
  * Folder, tags and pin stay in the library and are not part of the file.
  */
 import { importFontData } from '../fonts/uploadedFonts'
+import { withAssetLock } from './assets'
 import { emptyEntry } from '../home/library'
 import { withNewIds } from '../home/libraryService'
 import { newId } from '../model/ids'
@@ -91,7 +92,12 @@ const isV1Project = (raw: unknown): boolean =>
  * Adds a deck from a file: a V2 deck file, or a V1 project handed to `convertV1`. Always a new
  * deck with a new, empty library entry (no folder, not pinned).
  */
-export async function importDeckFile(store: DeckStore, file: File, convertV1: ConvertV1, now: number): Promise<DeckImportResult> {
+export function importDeckFile(store: DeckStore, file: File, convertV1: ConvertV1, now: number): Promise<DeckImportResult> {
+  // Pictures are stored before the record that uses them; clean-up in another tab waits.
+  return withAssetLock(() => importDeckFileLocked(store, file, convertV1, now))
+}
+
+async function importDeckFileLocked(store: DeckStore, file: File, convertV1: ConvertV1, now: number): Promise<DeckImportResult> {
   if (file.size > DECK_FILE_MAX_BYTES) return { ok: false, reason: 'too-large' }
   let raw: unknown
   try {
