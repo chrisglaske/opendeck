@@ -1,12 +1,12 @@
 {
-  "name": "opendeck-v2",
+  "name": "opendeck",
   "private": true,
   "version": "3.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:site": "npm run build && node scripts/app-page.mjs && node scripts/copy-v1.mjs",
+    "build:site": "npm run build && node scripts/check-public.mjs && node scripts/app-page.mjs && node scripts/copy-v1.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",

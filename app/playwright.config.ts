@@ -28,7 +28,7 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /present-(window|file)\.spec\.ts/ },
   ],
   webServer: {
-    command: 'VITE_CF_BEACON_TOKEN=e2e-token npm run build:site && npm run preview -- --port 4173 --strictPort',
+    command: 'VITE_CF_BEACON_TOKEN=e2e-token VITE_DESIGN_PAGE=1 npm run build:site && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173/app/',
     reuseExistingServer: false,
     timeout: 120_000,

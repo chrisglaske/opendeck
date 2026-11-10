@@ -5,11 +5,14 @@ import { parseHomeRoute } from './home/routes'
 import { onStorageOutdated } from './storage/idbStore'
 import { toast, ToastHost } from './ui'
 
-const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'))
 const EditorPage = lazy(() => import('./editor/EditorPage'))
 const HomePage = lazy(() => import('./home/HomePage'))
 const LandingPage = lazy(() => import('./landing/LandingPage'))
 const NeedsComputer = lazy(() => import('./landing/NeedsComputer'))
+// The development component gallery; both values are build-time constants, so the public
+// build (no VITE_DESIGN_PAGE=1) drops this chunk entirely.
+const DesignSystemPage =
+  import.meta.env.DEV || import.meta.env.VITE_DESIGN_PAGE === '1' ? lazy(() => import('./pages/DesignSystemPage')) : null
 
 /** The start page's title, from the page itself; the app's tabs just say OpenDeck. */
 const SITE_TITLE = document.title
@@ -52,7 +55,7 @@ function SitePage({ hash }: { hash: string }) {
 /** At `/app/`: Home and the editor. */
 function Page({ hash }: { hash: string }) {
   if (START_HASHES.includes(hash)) return <HomePage route={{ view: 'home' }} />
-  if (hash === '#/design') return <DesignSystemPage />
+  if (hash === '#/design' && DesignSystemPage) return <DesignSystemPage />
   if (hash === '#/computer') return <NeedsComputer />
   const deck = DECK_ROUTE.exec(hash)
   if (deck) return <EditorPage key={deck[1]} deckId={deck[1]} />
