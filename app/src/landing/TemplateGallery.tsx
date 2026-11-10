@@ -10,6 +10,7 @@ import { getDeckStore } from '../storage/appStore'
 import type { DeckStore } from '../storage/deckStore'
 import { builtinTemplate } from '../templates/builtins'
 import { slideFromTemplate } from '../templates/instantiate'
+import { storeWithin } from './storeWithin'
 import { GALLERY } from './gallery'
 import { isSmallScreen } from './smallScreen'
 import { deckFromTemplate } from './startDeck'
@@ -33,7 +34,10 @@ export function TemplateGallery({ store }: { store?: DeckStore }) {
     busy.current = true
     const d = make()
     before?.(d)
-    void (store ? Promise.resolve(store) : getDeckStore()).then((s) => openNewDeck(s, d))
+    void storeWithin(() => (store ? Promise.resolve(store) : getDeckStore())).then((s) => {
+      if (s) void openNewDeck(s, d)
+      else busy.current = false // storage never answered: let the next click try again
+    })
   }
   return (
     <>

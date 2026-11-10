@@ -31,5 +31,10 @@ export function itemKey(role: string): string {
 export function asOwnElement<T extends SlideElement>(el: T): T {
   const { role: _r, aside: _a, sample: _s, ...rest } = el as SlideElement & { sample?: true }
   if (rest.type === 'group') return { ...rest, children: rest.children.map(asOwnElement) } as unknown as T
+  // A copy of a sample picture is an empty frame for the person's own photo, not more drawn sample art.
+  if (rest.type === 'image' && rest.art) {
+    const { art: _art, ...plain } = rest
+    return plain as unknown as T
+  }
   return rest as unknown as T
 }

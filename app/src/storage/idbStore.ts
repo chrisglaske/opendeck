@@ -167,7 +167,21 @@ export async function openIdbStore(): Promise<DeckStore> {
     deleteLibrary: (id) => remove('library', id),
     listFolders: () => all('folders'),
     putFolder: (f) => write('folders', f),
-    deleteFolder: (id) => remove('folders', id),
+    async deleteFolder(id) {
+      // One transaction: the folder goes and its decks are taken out of it together, or neither.
+      const tx = db.transaction(['folders', 'library'], 'readwrite')
+      tx.objectStore('folders').delete(id)
+      const lib = tx.objectStore('library')
+      const cur = lib.openCursor()
+      cur.onsuccess = () => {
+        const c = cur.result
+        if (!c) return
+        const v = c.value as { folderId?: unknown } | null
+        if (v && typeof v === 'object' && v.folderId === id) c.update({ ...v, folderId: null })
+        c.continue()
+      }
+      await done(tx)
+    },
     async getMeta(key) {
       const rec = (await req(db.transaction('meta').objectStore('meta').get(key))) as { value?: unknown } | undefined
       return rec?.value

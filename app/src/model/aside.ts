@@ -21,7 +21,9 @@ export function parkElements(els: SlideElement[]): SlideElement[] {
     const b = bounds(el)
     let out: SlideElement
     if (el.type === 'text') {
-      out = { ...moveElement(el, ASIDE_X - b.x, y - b.y), w: Math.min(el.w, ASIDE_W) }
+      const w = Math.min(el.w, ASIDE_W)
+      // Narrower text wraps onto more lines: the same text area needs a taller box, or the next item would overlap.
+      out = { ...moveElement(el, ASIDE_X - b.x, y - b.y), w, h: Math.ceil((el.h * el.w) / w) }
     } else if (b.w > ASIDE_W) {
       const k = ASIDE_W / b.w
       out = scaleInto(el, b, { x: ASIDE_X, y, w: ASIDE_W, h: b.h * k })

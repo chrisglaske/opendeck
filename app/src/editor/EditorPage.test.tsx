@@ -153,6 +153,22 @@ describe('EditorPage', () => {
       await waitFor(async () => expect(((await store.getDeck(d.id)) as { name: string }).name).toBe('Renamed'))
     })
 
+    it('a deck trashed just after the first Trash check still ends up on the Trash screen', async () => {
+      const store = createMemoryStore()
+      const d = createDeck('Racy')
+      await store.putDeck(d)
+      const realList = store.listLibrary.bind(store)
+      let calls = 0
+      store.listLibrary = async () => {
+        const rows = await realList()
+        // Home trashes the deck (and its message is sent) right after the editor's own check.
+        if (calls++ === 0) await store.putLibrary(trash(emptyEntry(d.id), Date.now()))
+        return rows
+      }
+      render(<EditorPage deckId={d.id} store={store} />)
+      expect(await screen.findByRole('heading', { name: 'This deck is in the Trash' })).toBeInTheDocument()
+    })
+
     it('ignores the Trash message for another deck', async () => {
       const store = createMemoryStore()
       const d = createDeck('Live')

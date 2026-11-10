@@ -16,6 +16,22 @@ export function openSlidesWindow(): Window | null {
   }
 }
 
+/** Gives a pop-up the uploaded fonts (it has its own font set). */
+export function addPopupFonts(win: Window, fonts: readonly FontSource[]) {
+  const doc = win.document
+  const FontFaceCtor = (win as Window & { FontFace?: typeof FontFace }).FontFace
+  for (const f of fonts) {
+    if (!FontFaceCtor) break
+    try {
+      const face = new FontFaceCtor(f.family, f.data.slice(0), { weight: f.weight, style: f.style })
+      doc.fonts.add(face)
+      void face.load?.().catch(() => {})
+    } catch {
+      // A face the browser won't take here falls back like a missing font.
+    }
+  }
+}
+
 /**
  * Readies a pop-up for this page to draw into: the same stylesheets, light/dark mode and
  * uploaded fonts as here, and the given title. Returns the element to render into.
@@ -29,17 +45,7 @@ export function preparePopup(win: Window, title: string, fonts: readonly FontSou
   doc.title = title
   const mode = document.documentElement.dataset.mode
   if (mode) doc.documentElement.dataset.mode = mode
-  const FontFaceCtor = (win as Window & { FontFace?: typeof FontFace }).FontFace
-  for (const f of fonts) {
-    if (!FontFaceCtor) break
-    try {
-      const face = new FontFaceCtor(f.family, f.data.slice(0), { weight: f.weight, style: f.style })
-      doc.fonts.add(face)
-      void face.load?.().catch(() => {})
-    } catch {
-      // A face the browser won't take here falls back like a missing font.
-    }
-  }
+  addPopupFonts(win, fonts)
   doc.body.style.margin = '0'
   doc.body.style.background = '#000'
   const mount = doc.createElement('div')

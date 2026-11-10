@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { importAndOpen } from '../home/importDeck'
 import { getDeckStore } from '../storage/appStore'
 import { Button, Logo } from '../ui'
+import { storeWithin } from './storeWithin'
 import { goMakeDeck, scrollToSection } from './smallScreen'
 import styles from './LandingPage.module.css'
 
@@ -29,7 +30,7 @@ export function TopBar() {
         onChange={(e) => {
           const f = e.target.files?.[0]
           e.target.value = ''
-          if (f) void getDeckStore().then((store) => importAndOpen(store, f))
+          if (f) void storeWithin(getDeckStore).then((store) => { if (store) void importAndOpen(store, f) })
         }}
       />
       <Button variant="primary" onClick={goMakeDeck}>Make a deck</Button>

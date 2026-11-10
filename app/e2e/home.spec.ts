@@ -141,6 +141,46 @@ test('dragging a card onto a folder moves the deck there', async ({ page }) => {
   await expect(page.locator('main [data-deck-name]')).toHaveText(['Pitch deck'])
 })
 
+test('deleting a folder in a real browser takes its decks out of it and removes the folder in one step', async ({ page }) => {
+  await startDeck(page, 'Pitch deck')
+  await page.getByRole('button', { name: 'New folder' }).click()
+  const name = page.getByRole('textbox', { name: 'Folder name' })
+  await name.fill('Clients')
+  await name.press('Enter')
+  await expect.poll(async () => (await all<{ name: string }>(page, 'folders')).length).toBe(1)
+  const [folder] = await all<{ id: string }>(page, 'folders')
+  const library = page.getByRole('navigation', { name: 'Library' })
+  await card(page, 'Pitch deck').first().dragTo(library.getByRole('link', { name: /^Clients/ }))
+  await expect.poll(async () => (await entryFor(page, 'Pitch deck'))?.folderId).toBe(folder.id)
+  await library.getByRole('link', { name: /^Clients/ }).click()
+  await page.getByRole('button', { name: 'Folder actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete folder' }).click()
+  await expect.poll(async () => (await all<unknown>(page, 'folders')).length).toBe(0)
+  expect((await entryFor(page, 'Pitch deck'))?.folderId).toBeNull()
+  await expect(card(page, 'Pitch deck').first()).toBeVisible()
+})
+
+test('pictures nothing uses are cleaned up when Home opens, and used ones stay', async ({ page }) => {
+  await startDeck(page, 'Pitch deck')
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const r = indexedDB.open('opendeck-v2')
+        r.onsuccess = () => {
+          const db = r.result
+          const tx = db.transaction('assets', 'readwrite')
+          tx.objectStore('assets').put({ id: 'orphan-pic', blob: new Blob(['x'], { type: 'image/png' }), type: 'image/png', width: 1, height: 1 })
+          tx.oncomplete = () => { db.close(); resolve() }
+          tx.onerror = () => reject(tx.error)
+        }
+      }),
+  )
+  expect((await all<{ id: string }>(page, 'assets')).map((a) => a.id)).toContain('orphan-pic')
+  await page.goto('./')
+  await expect.poll(async () => (await all<{ id: string }>(page, 'assets')).map((a) => a.id)).not.toContain('orphan-pic')
+  await expect(card(page, 'Pitch deck').first()).toBeVisible()
+})
+
 test('search works from the keyboard: / focuses it, arrows move, Enter opens, Esc clears', async ({ page }) => {
   await startDeck(page, 'Pitch deck')
   await startDeck(page, 'Tech talk')

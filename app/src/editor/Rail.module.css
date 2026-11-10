@@ -87,6 +87,7 @@
 
 .thumb[aria-selected='true'] .mini {
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .thumb[aria-selected='true'] .num {
@@ -94,8 +95,30 @@
   font-weight: 600;
 }
 
+/* The slide being edited: a heavier ring, a tinted halo and a filled number, so it reads at a glance. */
 .current .mini {
-  box-shadow: 0 0 0 2px var(--accent-tint);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px var(--accent-tint);
+}
+
+.current .num {
+  align-self: flex-start;
+  width: 18px;
+  margin-top: 2px;
+  padding: 1px 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  text-align: center;
+}
+
+.thumb:focus-visible .mini {
+  box-shadow: var(--focus-ring);
+}
+
+.current:focus-visible .mini {
+  box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px var(--accent-tint), var(--focus-ring);
 }
 
 .thumb[data-hidden] .miniSlide {

@@ -188,6 +188,12 @@ describe('sanitizeDeck', () => {
   it('drops images with no asset id', () => {
     expect(firstEls(withEls([{ ...createImage('a', { w: 1, h: 1 }), assetId: 5 }]))).toEqual([])
   })
+
+  it('keeps an empty picture frame (a copy of a sample picture) when a deck is saved and opened again', () => {
+    const els = firstEls(withEls([createImage('', { w: 10, h: 10 })]))
+    expect(els).toHaveLength(1)
+    expect(els[0]).toMatchObject({ type: 'image', assetId: '' })
+  })
 })
 
 describe('theme additions', () => {
