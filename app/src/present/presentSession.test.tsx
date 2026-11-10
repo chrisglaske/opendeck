@@ -172,6 +172,25 @@ describe('PresentSession full screen', () => {
     expect(win.document.body.textContent).toContain('Notes for c')
   })
 
+  it('when opening the speaker view takes the slides out of full screen (Safari), says to press F', () => {
+    vi.spyOn(window, 'open').mockReturnValue(win)
+    render(<PresentSession deck={deck()} start={full()} onEnd={() => {}} />)
+    Object.defineProperty(document, 'fullscreenElement', { value: document.documentElement, configurable: true })
+    key(window, 's')
+    expect(screen.queryByText('Press F for full screen again')).toBeNull()
+    Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true })
+    act(() => { document.dispatchEvent(new Event('fullscreenchange')) })
+    expect(screen.getByText('Press F for full screen again')).toBeInTheDocument()
+  })
+
+  it('leaving full screen with Esc does not show that hint', () => {
+    render(<PresentSession deck={deck()} start={full()} onEnd={() => {}} />)
+    Object.defineProperty(document, 'fullscreenElement', { value: document.documentElement, configurable: true })
+    Object.defineProperty(document, 'fullscreenElement', { value: null, configurable: true })
+    act(() => { document.dispatchEvent(new Event('fullscreenchange')) })
+    expect(screen.queryByText('Press F for full screen again')).toBeNull()
+  })
+
   it('the first Esc only leaves full screen; the next one ends', () => {
     const onEnd = vi.fn()
     render(<PresentSession deck={deck()} start={full()} onEnd={onEnd} />)

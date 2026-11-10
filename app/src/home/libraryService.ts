@@ -217,13 +217,14 @@ export async function deleteFolder(store: DeckStore, id: string): Promise<Action
   const moved: LibraryEntry[] = []
   try {
     for (const e of inside) {
-      await store.putLibrary({ ...e, folderId: null })
+      const r = await updateEntry(store, e.deckId, (cur) => ({ ...cur, folderId: null }))
+      if (!r.ok) throw r
       moved.push(e)
     }
     await store.deleteFolder(id)
     return { ok: true }
   } catch (err) {
-    for (const e of moved) await store.putLibrary(e).catch(() => {})
-    return fail(err)
+    for (const e of moved) await updateEntry(store, e.deckId, (cur) => ({ ...cur, folderId: e.folderId }))
+    return (err as Failed | null)?.ok === false ? (err as Failed) : fail(err)
   }
 }

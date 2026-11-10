@@ -45,6 +45,20 @@ describe('normalizeV1Projects', () => {
     expect(first[0].id).not.toBe(first[1].id)
   })
 
+  it('removing an earlier project does not change the made-up id of the ones after it', () => {
+    const a = { name: 'A', data: { slides: [] } }
+    const b = { name: 'B', data: { slides: [] } }
+    const withBoth = normalizeV1Projects(JSON.parse(JSON.stringify([a, b])))
+    const withoutA = normalizeV1Projects(JSON.parse(JSON.stringify([b])))
+    expect(withoutA[0].id).toBe(withBoth[1].id)
+  })
+
+  it('two identical projects without ids still get different made-up ids', () => {
+    const same = { name: 'Same', data: { slides: [] } }
+    const [x, y] = normalizeV1Projects(JSON.parse(JSON.stringify([same, same])))
+    expect(x.id).not.toBe(y.id)
+  })
+
   it('a project without lastModified gets 0, so it never looks newer than a copy', () => {
     const [p] = normalizeV1Projects([{ id: 'x', name: 'A', data: { slides: [] } }])
     expect(p.lastModified).toBe(0)

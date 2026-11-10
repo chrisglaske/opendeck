@@ -1,14 +1,15 @@
 import { AlertTriangle, CheckCircle2, LoaderCircle } from 'lucide-react'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import type { Autosaver, SaveStatus as Status } from '../storage/autosave'
+import type { Autosaver, SaveErrorReason, SaveStatus as Status } from '../storage/autosave'
 import styles from './SaveStatus.module.css'
 
 /** "Saving…" only appears when a save takes longer than this, so it doesn't flicker. */
 const SAVING_DELAY_MS = 500
 
-export const SAVE_ERROR_TEXT: Record<'quota' | 'unavailable' | 'unknown', string> = {
+export const SAVE_ERROR_TEXT: Record<SaveErrorReason, string> = {
   quota: "Your browser's storage for OpenDeck is full. Your changes are safe in this tab while it stays open. We'll keep trying.",
   unavailable: "Your browser isn't letting OpenDeck save (this happens in some private windows). Your changes are safe in this tab while it stays open. We'll keep trying.",
+  deleted: "This deck was deleted in another tab, so it can't be saved here.",
   unknown: "Something went wrong while saving. Your changes are safe in this tab while it stays open. We'll keep trying.",
 }
 

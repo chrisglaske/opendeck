@@ -1,11 +1,19 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { emptyEntry, sanitizeEntry, trash } from '../home/library'
 import { postTrashed } from '../home/libraryChannel'
 import EditorPage from './EditorPage'
 import { createMemoryStore, createSessionOnlyStore } from '../storage/deckStore'
 import { createDeck } from '../model/factory'
+
+const outdated = vi.hoisted(() => ({ cbs: new Set<() => void>() }))
+vi.mock('../storage/idbStore', () => ({
+  onStorageOutdated: (cb: () => void) => {
+    outdated.cbs.add(cb)
+    return () => outdated.cbs.delete(cb)
+  },
+}))
 
 describe('EditorPage', () => {
   it('shows a not-found state for an unknown deck', async () => {
@@ -54,6 +62,31 @@ describe('EditorPage', () => {
     render(<EditorPage deckId={e.id} store={blocked} />)
     expect(await screen.findByText('Not saved')).toBeInTheDocument()
     expect(leave()).toBe(true)
+  })
+
+  it('when OpenDeck is updated in another tab, an edit still waiting to be saved is written first', async () => {
+    const store = createMemoryStore()
+    const d = createDeck('Before')
+    await store.putDeck(d)
+    render(<EditorPage deckId={d.id} store={store} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Rename deck' }))
+    await userEvent.keyboard('{Control>}a{/Control}After{Enter}')
+    // The 600 ms wait is still running; the other tab's upgrade is about to close the connection.
+    for (const cb of outdated.cbs) cb()
+    expect(((await store.getDeck(d.id)) as { name: string }).name).toBe('After')
+  })
+
+  it('when the page is being hidden, an edit still waiting to be saved starts writing in that same moment', async () => {
+    const store = createMemoryStore()
+    const d = createDeck('Before')
+    await store.putDeck(d)
+    const puts: string[] = []
+    const spy = { ...store, putDeck: (x: typeof d) => { puts.push(x.name); return store.putDeck(x) } }
+    render(<EditorPage deckId={d.id} store={spy} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Rename deck' }))
+    await userEvent.keyboard('{Control>}a{/Control}After{Enter}')
+    window.dispatchEvent(new Event('pagehide'))
+    expect(puts).toEqual(['After'])
   })
 
   it('opens a deck', async () => {

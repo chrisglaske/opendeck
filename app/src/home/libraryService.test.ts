@@ -293,13 +293,13 @@ describe('folders', () => {
     expect(await store.listLibrary()).toEqual([{ ...emptyEntry(d.id), tags: ['t'] }])
   })
 
-  it('a failing putLibrary leaves the folder in place', async () => {
+  it('a failing library write leaves the folder in place', async () => {
     const { store, d } = await setup()
     const r = await createFolder(store, 'Work')
     if (!r.ok) throw new Error('failed')
     const e: LibraryEntry = { ...emptyEntry(d.id), folderId: r.folder.id }
     await store.putLibrary(e)
-    const broken: DeckStore = { ...store, async putLibrary() { throw full() } }
+    const broken: DeckStore = { ...store, async updateLibrary() { throw full() } }
     expect(await deleteFolder(broken, r.folder.id)).toEqual({ ok: false, reason: 'quota' })
     expect(await store.listFolders()).toEqual([r.folder])
     expect(await store.listLibrary()).toEqual([e])

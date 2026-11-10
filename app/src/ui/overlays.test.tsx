@@ -160,6 +160,20 @@ describe('toast', () => {
     }
   })
 
+  it('later toasts never push out one with no time limit', () => {
+    vi.useFakeTimers()
+    try {
+      render(<ToastHost />)
+      act(() => toast('Reload to keep saving.', { actionLabel: 'Reload', durationMs: Infinity }))
+      for (const m of ['One', 'Two', 'Three', 'Four']) act(() => toast(m))
+      expect(screen.getByText('Reload to keep saving.')).toBeInTheDocument()
+      expect(screen.queryByText('One')).toBeNull()
+      expect(screen.getByText('Four')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('pauses while its action has keyboard focus', () => {
     vi.useFakeTimers()
     try {

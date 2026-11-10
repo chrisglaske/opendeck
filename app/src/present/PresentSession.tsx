@@ -41,6 +41,10 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
   const [mode, setMode] = useState(start.mode)
   const [popup, setPopup] = useState<Popup | null>(null)
   const [closed, setClosed] = useState(false)
+  // Safari puts a new window inside the full-screen space, which ends full screen here. After
+  // S did that, say how to get it back.
+  const [fullAgain, setFullAgain] = useState(false)
+  const speakerFromFullAt = useRef(0)
   const [blocked, setBlocked] = useState(false)
   const modeRef = useRef(mode)
   modeRef.current = mode
@@ -130,6 +134,7 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
         fullscreen(from.document.documentElement)
       } else if (intent === 'speaker') {
         if (modeRef.current !== 'fullscreen' || popupRef.current) return
+        speakerFromFullAt.current = document.fullscreenElement ? Date.now() : 0
         const win = openSlidesWindow()
         if (win) attach(win)
       } else dispatch({ kind: intent } as ShowAction)
@@ -139,6 +144,22 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
     targets.forEach((t) => t.addEventListener('keydown', onKey as EventListener))
     return () => targets.forEach((t) => t.removeEventListener('keydown', onKey as EventListener))
   }, [popup, dispatch, end, attach])
+
+  useEffect(() => {
+    const onChange = () => {
+      if (document.fullscreenElement || !speakerFromFullAt.current) return
+      const recent = Date.now() - speakerFromFullAt.current < 3000
+      speakerFromFullAt.current = 0
+      if (recent && modeRef.current === 'fullscreen') setFullAgain(true)
+    }
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+  useEffect(() => {
+    if (!fullAgain) return
+    const t = setTimeout(() => setFullAgain(false), 4000)
+    return () => clearTimeout(t)
+  }, [fullAgain])
 
   const reopen = () => {
     const win = openSlidesWindow()
@@ -177,6 +198,7 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
     return (
       <>
         <div className={s.here}>{stage}</div>
+        <p role="status" className={s.hint} data-visible={fullAgain}>{fullAgain ? 'Press F for full screen again' : ''}</p>
         {popup ? createPortal(<SpeakerView deck={deck} show={show} dispatch={dispatch} onEnd={end} />, popup.mount) : null}
       </>
     )

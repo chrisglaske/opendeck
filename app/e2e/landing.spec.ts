@@ -124,7 +124,7 @@ test.describe('on a phone', () => {
 })
 
 test.describe('Move anything demo', () => {
-  const card = (page: import('@playwright/test').Page) => page.getByRole('button', { name: /^Demo card\./ })
+  const card = (page: import('@playwright/test').Page) => page.getByRole('group', { name: /^Demo card\./ })
   const num = async (page: import('@playwright/test').Page, a: string) => Number(await card(page).getAttribute(`data-${a}`))
 
   test('moves, snaps to the centre and resets', async ({ page }) => {
@@ -143,6 +143,18 @@ test.describe('Move anything demo', () => {
     expect((await num(page, 'x')) + (await num(page, 'w')) / 2).toBe(960)
     await page.getByRole('button', { name: 'Reset' }).click()
     expect(await num(page, 'x')).toBe(startX)
+  })
+
+  test('the resize corner can be hit by a finger (44 px around it)', async ({ page }) => {
+    await page.goto('/')
+    await card(page).scrollIntoViewIfNeeded()
+    const hit = await page.evaluate(() => {
+      const h = document.querySelector('[data-demo-handle]')!.getBoundingClientRect()
+      const cx = h.x + h.width / 2
+      const cy = h.y + h.height / 2
+      return [[20, 20], [-20, 20], [20, -20]].map(([dx, dy]) => document.elementFromPoint(cx + dx, cy + dy)?.hasAttribute('data-demo-handle') ?? false)
+    })
+    expect(hit).toEqual([true, true, true])
   })
 
   test('works by keyboard', async ({ page }) => {

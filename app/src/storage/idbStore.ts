@@ -59,8 +59,10 @@ function openDb(): Promise<IDBDatabase> {
       // A newer version opened in another tab: let it upgrade instead of blocking it, and say
       // that this tab can't save any more.
       r.result.onversionchange = () => {
-        r.result.close()
+        // Listeners first: they may start a last write, which close() lets finish. They must
+        // start it synchronously; a transaction can't be opened after close().
         for (const cb of outdatedListeners) cb()
+        r.result.close()
       }
       resolve(r.result)
     }

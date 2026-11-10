@@ -31,7 +31,16 @@ export function ToastHost() {
   const [isHeld, setHeld] = useState(held)
 
   useEffect(() => {
-    const add = (t: ToastData) => setToasts((list) => [...list, t].slice(-MAX_TOASTS))
+    // Over the limit, the oldest toast that times out goes first; one with no time limit stays.
+    const add = (t: ToastData) => setToasts((list) => {
+      const next = [...list, t]
+      while (next.length > MAX_TOASTS) {
+        const i = next.findIndex((x) => Number.isFinite(x.durationMs ?? 5000))
+        if (i < 0 || i === next.length - 1) break
+        next.splice(i, 1)
+      }
+      return next
+    })
     listeners.add(add)
     holdListeners.add(setHeld)
     setHeld(held)

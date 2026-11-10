@@ -31,6 +31,14 @@ describe('importFontFiles', () => {
     spy.mockRestore()
   })
 
+  it('reports a file the browser cannot read, and still adds the others', async () => {
+    const unreadable = woff2('Locked.woff2')
+    vi.spyOn(unreadable, 'arrayBuffer').mockRejectedValueOnce(new DOMException('gone', 'NotReadableError'))
+    const res = await importFontFiles(createMemoryStore(), [unreadable, woff2('AcmeSans-Regular.woff2')])
+    expect(res).toContainEqual({ ok: false, fileName: 'Locked.woff2', reason: 'unreadable' })
+    expect(res).toContainEqual({ ok: true, family: 'Acme Sans', faces: ['400'], bytes: 64 })
+  })
+
   it('groups Regular and Bold into one family and stores both', async () => {
     const store = createMemoryStore()
     const res = await importFontFiles(store, [woff2('AcmeSans-Bold.woff2'), woff2('AcmeSans-Regular.woff2')])

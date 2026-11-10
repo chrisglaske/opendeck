@@ -2,6 +2,8 @@
  * Switching a slide to another layout. The person's content (anything with a role that isn't an
  * untouched sample) moves to the matching spot in the new layout; their own elements (no role)
  * stay exactly where they are; content the new layout has no spot for is parked beside the slide.
+ * Locked items are never moved or unlocked: they stay as they are, and a locked item with a role
+ * takes the place of the new layout's spot for that role.
  */
 import { parkElements } from '../model/aside'
 import { coverCrop } from '../model/geometry'
@@ -45,22 +47,29 @@ function fill(spot: SlideElement, from: SlideElement, natural: NaturalSize): Sli
 }
 
 export function switchLayout(slide: Slide, t: Template, natural: NaturalSize = () => undefined): { slide: Slide; kept: number } {
-  const own = slide.elements.filter((e) => !e.role)
+  const own = slide.elements.filter((e) => !e.role || e.locked)
+  const free = slide.elements.filter((e) => !e.locked)
   // Content parked by an earlier switch comes first, in the order it sits beside the slide.
   const byParkedPlace = (a: SlideElement, b: SlideElement) => top(a) - top(b)
   const content = [
-    ...slide.elements.filter((e) => isContent(e) && e.aside).sort(byParkedPlace),
-    ...slide.elements.filter((e) => isContent(e) && !e.aside),
+    ...free.filter((e) => isContent(e) && e.aside).sort(byParkedPlace),
+    ...free.filter((e) => isContent(e) && !e.aside),
   ]
+  const claimed = slide.elements.filter((e) => e.locked && e.role && e.role !== 'decor')
+  const isClaimed = (spot: SlideElement) => claimed.some((c) => c.role === spot.role && c.type === spot.type)
   const used = new Set<SlideElement>()
 
-  const made = slideFromTemplate(t).elements.map((spot) => {
+  const made = slideFromTemplate(t).elements.flatMap((spot) => {
+    if (isClaimed(spot)) return []
+    return [place(spot)]
+  })
+  function place(spot: SlideElement): SlideElement {
     if (!spot.role || spot.role === 'decor' || !MOVES.has(spot.type)) return spot
     const from = content.find((c) => !used.has(c) && c.role === spot.role && c.type === spot.type)
     if (!from) return spot
     used.add(from)
     return fill(spot, from, natural)
-  })
+  }
 
   const left = content.filter((c) => !used.has(c)).map(({ aside: _a, ...rest }) => rest as SlideElement)
   const kept = new Set(left.map((e) => itemKey(e.role!))).size

@@ -9,7 +9,7 @@
 import { emptyEntry, setTags } from '../home/library'
 import type { LibraryEntry } from '../home/library'
 import { postChanged } from '../home/libraryChannel'
-import { createFolder, listEntries, listFolders } from '../home/libraryService'
+import { createFolder, listEntries, listFolders, updateEntry } from '../home/libraryService'
 import { coverCrop } from '../model/geometry'
 import type { ImageEl, Slide, SlideElement } from '../model/types'
 import { withAssetLock } from '../storage/assets'
@@ -262,11 +262,15 @@ export function firstRunCopy(store: DeckStore, ls: Ls, now: number): Promise<voi
 
 /** Clears the "From V1" chip once the deck has been opened. */
 export async function clearFromV1(store: DeckStore, deckId: string): Promise<void> {
-  const e = (await listEntries(store)).find((x) => x.deckId === deckId)
-  if (!e?.fromV1Unopened) return
-  const { fromV1Unopened: _f, ...rest } = e
-  await store.putLibrary(rest)
-  postChanged(deckId)
+  let had = false
+  // Changes the stored entry itself, so what another tab changed meanwhile is kept.
+  const r = await updateEntry(store, deckId, (cur) => {
+    had = !!cur.fromV1Unopened
+    if (!had) return cur
+    const { fromV1Unopened: _f, ...rest } = cur
+    return rest
+  })
+  if (r.ok && had) postChanged(deckId)
 }
 
 /** V1's custom present-mode header text and badge, by V2 deck id. */

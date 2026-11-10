@@ -116,13 +116,21 @@ function fnv1a(text: string): string {
  */
 export function normalizeV1Projects(raw: unknown): V1Project[] {
   const seen = new Set<string>()
+  // Made-up ids count how many identical projects came before, not the list position, so
+  // deleting an earlier project in V1 doesn't change the ids of the ones after it.
+  const lookalikes = new Map<string, number>()
   return arr(raw)
     .filter(isObject)
-    .map((project, projectIndex) => {
+    .map((project) => {
       const p: Obj = { ...project }
       const data: Obj = isObject(p.data) ? { ...p.data } : {}
 
-      p.id = str(p.id, 'proj_v1_' + fnv1a(JSON.stringify({ name: p.name, slides: data.slides })) + '_' + projectIndex)
+      if (typeof p.id !== 'string') {
+        const hash = fnv1a(JSON.stringify({ name: p.name, slides: data.slides }))
+        const n = lookalikes.get(hash) ?? 0
+        lookalikes.set(hash, n + 1)
+        p.id = 'proj_v1_' + hash + '_' + n
+      }
       p.name = str(p.name, 'Untitled Presentation')
       // 0 rather than V1's Date.now(): a time that changes on every read would make the deck look edited.
       p.lastModified = Number.isFinite(p.lastModified) ? p.lastModified : 0

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createShape, createSlide, createText } from '../model/factory'
 import { group } from '../model/ops'
 import { createDeck } from '../model/factory'
@@ -97,5 +97,20 @@ describe('pasting template elements', () => {
     const marks = (e: SlideElement): string[] =>
       [...['role', 'sample', 'aside'].filter((k) => k in e), ...(e.type === 'group' ? e.children.flatMap(marks) : [])]
     expect(parsed.flatMap(marks)).toEqual([])
+  })
+})
+
+describe('pasting onto a slide that is nearly full', () => {
+  it('compares each element once, not once per step', () => {
+    const base = createShape('rect')
+    const fillers = Array.from({ length: 3000 }, (_, i) => ({ ...createShape('rect'), x: 5000 + i, w: 10 + i }))
+    // 100 copies already stacked at 24 px steps, listed after the fillers: the worst case.
+    const stacked = Array.from({ length: 100 }, (_, k) => ({ ...base, id: 'c' + k, x: base.x + k * 24, y: base.y + k * 24 }))
+    const spy = vi.spyOn(JSON, 'stringify')
+    const placement = pastePlacement([base], [...fillers, ...stacked])
+    const calls = spy.mock.calls.length
+    spy.mockRestore()
+    expect(placement).toEqual({ dx: 2400, dy: 2400 })
+    expect(calls).toBeLessThan(200_000)
   })
 })

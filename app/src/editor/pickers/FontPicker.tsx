@@ -75,8 +75,8 @@ function UploadCards({ upload }: { upload: Upload }) {
           <div key={r.fileName} className={s.fontError} role="alert">
             <CircleAlert size={15} strokeWidth={1.75} aria-hidden />
             <span>
-              <b>{r.reason === 'too-large' ? `"${r.fileName}" is over 2 MB.` : `"${r.fileName}" isn't a font.`}</b>{' '}
-              <span>Use a .woff2, .woff, .ttf or .otf file up to 2 MB.</span>
+              <b>{r.reason === 'too-large' ? `"${r.fileName}" is over 2 MB.` : r.reason === 'unreadable' ? `"${r.fileName}" couldn't be read.` : `"${r.fileName}" isn't a font.`}</b>{' '}
+              <span>{r.reason === 'unreadable' ? 'Check that the file is still there and try again.' : 'Use a .woff2, .woff, .ttf or .otf file up to 2 MB.'}</span>
             </span>
           </div>
         ),
@@ -120,7 +120,8 @@ export function FontPicker({
 
   const groups = useMemo<Group[]>(() => {
     const have = new Set(uploaded.families)
-    const extra = [...new Set([...inUse, value])].filter((f) => f && !isFontAvailable(f, have))
+    // While the saved fonts are still loading, nothing is called missing yet.
+    const extra = uploaded.loading ? [] : [...new Set([...inUse, value])].filter((f) => f && !isFontAvailable(f, have))
     const q = query.trim().toLowerCase()
     const match = (f: string) => !q || f.toLowerCase().includes(q)
     const top = [...uploaded.families.map((family) => ({ family, missing: false })), ...extra.map((family) => ({ family, missing: true }))]
@@ -132,7 +133,7 @@ export function FontPicker({
       if (items.length) out.push({ label: FONT_CATEGORY_LABELS[c], items })
     }
     return out
-  }, [uploaded.families, inUse, value, query])
+  }, [uploaded.families, uploaded.loading, inUse, value, query])
 
   const close = () => {
     setOpen(false)
