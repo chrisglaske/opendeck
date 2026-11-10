@@ -21,10 +21,12 @@ import s from './QuickBar.module.css'
  */
 export function simpleBarFor(slide: Slide, ids: string[], single: SlideElement | null, count: number): BarContent | null {
   // A locked item stays where it is: it can be filled in, but not duplicated or deleted.
-  if (count > 1) return { label: 'Selection options', body: <ManyBar count={count} locked={selectionInfo(slide, ids).allLocked} /> }
+  if (count > 1) return { label: 'Selection options', body: <ManyBar count={count} locked={selectionInfo(slide, ids).held} /> }
   if (!single) return null
   const id = slide.id
-  const locked = single.locked
+  // The lock may come from a group around the item, or from an item inside a group.
+  const locked = selectionInfo(slide, ids).held
+  single = { ...single, locked }
   if (single.type === 'text') return { label: 'Text options', body: <TextBar slideId={id} el={single} /> }
   if (single.type === 'image') return { label: 'Image options', body: <ImageBar slideId={id} el={single} /> }
   if (single.type === 'shape') return { label: 'Shape options', body: <ShapeBar slideId={id} el={single} /> }

@@ -59,6 +59,14 @@ describe('editing mode switch', () => {
     expect(note()).not.toBeInTheDocument()
   })
 
+  it('a press elsewhere hides the note for now but does not dismiss it for good', async () => {
+    const { remount } = setup()
+    await userEvent.click(document.body)
+    expect(note()).not.toBeInTheDocument()
+    remount()
+    expect(note()).toBeInTheDocument()
+  })
+
   it('using the switch dismisses the note', async () => {
     setup()
     await userEvent.click(screen.getByRole('radio', { name: 'Advanced' }))

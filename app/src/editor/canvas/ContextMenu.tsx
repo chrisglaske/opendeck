@@ -43,7 +43,7 @@ export function ElementMenu({ x, y, onClose }: { x: number; y: number; onClose()
   const remove: MenuItem = { id: 'delete', label: 'Delete', icon: Trash2, shortcut: '⌫', danger: true, onSelect: cmd.remove }
 
   // Simple: a short menu; a locked item stays where it is, so it can only be copied.
-  const simpleItems: MenuItem[] = info.allLocked ? [copy] : [copy, duplicate, 'separator', front, back, 'separator', remove]
+  const simpleItems: MenuItem[] = info.held ? [copy] : [copy, duplicate, 'separator', front, back, 'separator', remove]
   if (simple) return <ContextMenu x={x} y={y} items={simpleItems} label="Element actions" onClose={onClose} />
 
   const items: MenuItem[] = [

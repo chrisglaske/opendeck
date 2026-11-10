@@ -45,6 +45,9 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
   const { simple } = useEditorMode()
 
   return (
+    <>
+    {/* The marks below are hidden from screen readers; this says what they can't. */}
+    <span role="status" className={s.srOnly}>{simple && locked ? 'Locked. Unlock it in Advanced.' : ''}</span>
     <div className={s.overlay} aria-hidden="true">
       {hover && (
         <Outline el={hover.el} scale={scale} className={s.hover} kind="hover">
@@ -135,6 +138,7 @@ export function Overlay({ scale, hoverId, visuals, onResize, onRotate, onEndpoin
         </div>
       )}
     </div>
+    </>
   )
 }
 

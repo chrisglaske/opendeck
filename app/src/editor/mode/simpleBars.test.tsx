@@ -189,3 +189,43 @@ describe('switching modes', () => {
     for (const re of [/^Font:/, /^Underline$/, /^Link$/, /^More actions$/]) expect(has(names, re), String(re)).toBe(true)
   })
 })
+
+describe('Simple mode and locks that come from a group', () => {
+  function lockedGroupDeck() {
+    const a = createImage('a1', { w: 40, h: 20 })
+    const b = createImage('a2', { w: 40, h: 20 })
+    const slide = { ...createSlide(), elements: [a, b] }
+    const deck = { ...createDeck('x'), slides: [slide] }
+    const g = group(deck, slide.id, [a.id, b.id])
+    const gid = g.groupId
+    const locked = { ...g.deck, slides: [{ ...g.deck.slides[0], elements: g.deck.slides[0].elements.map((e) => (e.id === gid ? { ...e, locked: true } : e)) }] }
+    return { deck: locked, slideId: slide.id, gid, childId: a.id }
+  }
+
+  it('a picture inside a locked group shows no Delete, Fit or Crop in its bar', () => {
+    const { deck, slideId, childId } = lockedGroupDeck()
+    const store = createEditorStore(deck)
+    render(
+      <EditorProvider store={store}>
+        <EditorShell autosaver={createAutosaver(createMemoryStore())} />
+      </EditorProvider>,
+    )
+    act(() => store.select({ slideId, ids: [childId] }))
+    const names = barNames('Image options')
+    expect(has(names, /^Replace/)).toBe(true)
+    expect(has(names, /^Delete/)).toBe(false)
+    expect(has(names, /^Crop/)).toBe(false)
+  })
+
+  it('a group holding a locked item cannot be deleted in Simple', async () => {
+    const a = createShape('rect')
+    const b = { ...createShape('rect'), locked: true }
+    const slide = { ...createSlide(), elements: [a, b] }
+    const g = group({ ...createDeck('x'), slides: [slide] }, slide.id, [a.id, b.id])
+    const store = createEditorStore(g.deck)
+    const { elementCommands } = await import('../commands')
+    store.select({ slideId: slide.id, ids: [g.groupId] })
+    elementCommands(store).remove()
+    expect(store.getState().deck.slides[0].elements.map((e) => e.id)).toEqual([g.groupId])
+  })
+})

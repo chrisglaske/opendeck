@@ -28,7 +28,8 @@ export function Popover({
   role?: 'dialog' | 'menu'
   /** Under the anchor (flipping above when needed), or beside it on the right. */
   placement?: 'below' | 'right'
-  onClose(): void
+  /** `outside` for a press outside it, `escape` for the Esc key. */
+  onClose(reason?: 'outside' | 'escape'): void
   children: ReactNode
   className?: string
   /** Extra custom properties, e.g. the deck theme colors for swatches. */
@@ -69,7 +70,7 @@ export function Popover({
     const onDown = (e: PointerEvent) => {
       const t = e.target as Node
       if (ref.current?.contains(t) || anchor?.contains(t)) return
-      close.current()
+      close.current('outside')
     }
     document.addEventListener('pointerdown', onDown, true)
     return () => document.removeEventListener('pointerdown', onDown, true)
@@ -79,7 +80,7 @@ export function Popover({
     if (e.key !== 'Escape') return
     e.preventDefault()
     e.stopPropagation()
-    close.current()
+    close.current('escape')
   }
 
   return createPortal(

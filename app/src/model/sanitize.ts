@@ -410,8 +410,14 @@ function cleanTheme(c: Ctx, v: unknown): Theme {
 
 export function sanitizeDeck(raw: unknown): SanitizeResult {
   if (!isObj(raw) || raw.format !== 'opendeck') return { ok: false, reason: 'not-a-deck' }
-  if (typeof raw.version === 'number' && raw.version > DECK_VERSION) return { ok: false, reason: 'newer-version' }
+  // A version written as text ("99") is read as the number it spells; anything else that isn't
+  // a number can't be told apart from a future format, so it is never repaired and overwritten.
+  const version = typeof raw.version === 'string' && raw.version.trim() !== '' ? Number(raw.version) : raw.version
+  if (raw.version !== undefined && (typeof version !== 'number' || Number.isNaN(version))) return { ok: false, reason: 'not-a-deck' }
+  if (typeof version === 'number' && version > DECK_VERSION) return { ok: false, reason: 'newer-version' }
   const c = new Ctx()
+  // The deck's own id is claimed before any slide or element can take it.
+  const deckId = c.id(raw.id)
   if (raw.version !== DECK_VERSION) c.fix()
   let slides: Slide[] = []
   if (Array.isArray(raw.slides)) {
@@ -423,7 +429,7 @@ export function sanitizeDeck(raw: unknown): SanitizeResult {
   const deck: Deck = {
     format: 'opendeck',
     version: DECK_VERSION,
-    id: c.id(raw.id),
+    id: deckId,
     name: c.str(raw.name, 'Untitled deck', LIMITS.name),
     theme: cleanTheme(c, raw.theme),
     slides,

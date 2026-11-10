@@ -108,6 +108,16 @@ describe('openDeck', () => {
     await s.putDeck({ ...d, version: 99 } as never)
     expect(await openDeck(s, d.id)).toEqual({ kind: 'newer' })
   })
+  it('reports a deck whose stored id is not the one asked for as corrupt, so it is never written back as a copy', async () => {
+    const s = createMemoryStore()
+    const d = createDeck()
+    await s.putDeck({ ...d, id: 'other' } as never)
+    // Stored under 'other', asked for as 'other' but carrying an id that differs from the key.
+    const raw = (await s.getDeck('other')) as Record<string, unknown>
+    raw.id = 'not a safe id!'
+    await s.putDeck(raw as never)
+    expect(await openDeck({ ...s, getDeck: async () => raw }, 'other')).toEqual({ kind: 'corrupt' })
+  })
   it('reports a corrupt deck', async () => {
     const s = createMemoryStore()
     await s.putDeck({ id: 'bad', format: 'nope' } as never)

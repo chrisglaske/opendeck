@@ -139,6 +139,13 @@ describe('groups', () => {
     expect(r.ids).toEqual(['a', 'b'])
     r.ids.forEach((id, i) => expectRect(bounds(el(r.deck, id)), expected[i]))
   })
+  it('ungrouping a locked group leaves its items locked', () => {
+    let d = group(deckWith([rect('a', 0, 0), rect('b', 200, 0)]), 's0', ['a', 'b']).deck
+    const gid = d.slides[0].elements[0].id
+    d = updateElements(d, 's0', [gid], (e) => ({ ...e, locked: true }))
+    const r = ungroup(d, 's0', gid)
+    expect(r.ids.map((id) => (el(r.deck, id) as ShapeEl).locked)).toEqual([true, true])
+  })
   it('moving a child refits the group box', () => {
     const d = group(deckWith([rect('a', 0, 0), rect('b', 200, 0)]), 's0', ['a', 'b']).deck
     const gid = d.slides[0].elements[0].id

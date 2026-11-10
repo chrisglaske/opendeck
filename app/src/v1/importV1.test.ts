@@ -362,3 +362,23 @@ describe('V1 decks changed after they were copied', () => {
   })
 })
 
+
+describe('picture lock while copying from V1', () => {
+  it('stores the pictures and the deck while holding the shared picture lock', async () => {
+    const held = new Set<string>()
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      locks: { request: async (name: string, fn: () => Promise<unknown>) => { held.add(name); try { return await fn() } finally { held.delete(name) } } },
+    })
+    const inner = createMemoryStore()
+    const seen: boolean[] = []
+    const watched: DeckStore = {
+      ...inner,
+      putAsset: (a) => { seen.push(held.has('opendeck-assets')); return inner.putAsset(a) },
+      putDeck: (d) => { seen.push(held.has('opendeck-assets')); return inner.putDeck(d) },
+    }
+    await copyNewV1Decks(watched, v1Storage(projectsOf('branded')), NOW)
+    expect(seen.length).toBeGreaterThan(0)
+    expect(seen.every(Boolean)).toBe(true)
+  })
+})

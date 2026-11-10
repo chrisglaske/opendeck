@@ -62,6 +62,21 @@ describe('sanitizeDeck', () => {
     expect(sanitizeDeck({ ...createDeck(), version: 99 })).toEqual({ ok: false, reason: 'newer-version' })
   })
 
+  it('treats a future version written as text like any newer version, and a version that is not a number as not a deck', () => {
+    expect(sanitizeDeck({ ...createDeck(), version: '99' })).toEqual({ ok: false, reason: 'newer-version' })
+    for (const version of [null, true, {}, [], 'abc']) {
+      expect(sanitizeDeck({ ...createDeck(), version }), String(version)).toEqual({ ok: false, reason: 'not-a-deck' })
+    }
+  })
+
+  it('keeps the deck id when a slide or element uses the same id', () => {
+    const d = createDeck()
+    d.slides[0] = { ...d.slides[0], id: d.id }
+    const r = sanitizeDeck(d)
+    expect(r.ok && r.deck.id).toBe(d.id)
+    expect(r.ok && r.deck.slides[0].id).not.toBe(d.id)
+  })
+
   it('never carries unknown keys along', () => {
     const d = { ...createDeck(), evil: 1 } as Record<string, unknown>
     ;(d.slides as Record<string, unknown>[])[0].extra = 'x'

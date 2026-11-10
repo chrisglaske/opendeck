@@ -20,6 +20,8 @@ export function selectionInfo(slide: Slide, ids: string[]) {
     canGroup: topLevel.length >= 2 && topLevel.length === ids.length,
     canUngroup: slide.elements.some((e) => e.type === 'group' && ids.includes(e.id)),
     allLocked: items.length > 0 && items.every((i) => i.el.locked),
+    /** Nothing selected can be moved or deleted in Simple: locked itself, inside a locked group, or holding a locked item. */
+    held: items.length > 0 && items.every((i) => i.locked),
   }
 }
 

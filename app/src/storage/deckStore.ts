@@ -66,7 +66,8 @@ export async function openDeck(store: DeckStore, id: string): Promise<OpenDeckRe
   const raw = await store.getDeck(id)
   if (raw === null || raw === undefined) return { kind: 'missing' }
   const r = sanitizeDeck(raw)
-  if (r.ok) return { kind: 'ok', deck: r.deck, repaired: r.repaired }
+  // A record whose id isn't the key it was asked for under would be saved back as a second deck.
+  if (r.ok) return r.deck.id === id ? { kind: 'ok', deck: r.deck, repaired: r.repaired } : { kind: 'corrupt' }
   return { kind: r.reason === 'newer-version' ? 'newer' : 'corrupt' }
 }
 

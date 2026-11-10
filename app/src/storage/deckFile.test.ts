@@ -175,3 +175,25 @@ describe('deck files', () => {
     expect(r.ok && r.notSaved).toBe('quota')
   })
 })
+
+describe('picture lock', () => {
+  it('an imported deck stores its pictures and the deck while holding the shared picture lock', async () => {
+    const held = new Set<string>()
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      locks: { request: async (name: string, fn: () => Promise<unknown>) => { held.add(name); try { return await fn() } finally { held.delete(name) } } },
+    })
+    const src = await sourceStore()
+    const blob = await exportDeckFile(src, pitchDeck())
+    const dest = createMemoryStore()
+    const seen: Record<string, boolean> = {}
+    const watched = {
+      ...dest,
+      putAsset: (a: Parameters<typeof dest.putAsset>[0]) => { seen.asset = held.has('opendeck-assets'); return dest.putAsset(a) },
+      putDeck: (d: Deck) => { seen.deck = held.has('opendeck-assets'); return dest.putDeck(d) },
+    }
+    const r = await importDeckFile(watched, new File([blob], 'x.odeck'), noV1, NOW)
+    expect(r.ok).toBe(true)
+    expect(seen).toEqual({ asset: true, deck: true })
+  })
+})
