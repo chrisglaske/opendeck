@@ -32,6 +32,13 @@ const cardNames = (region: HTMLElement) =>
   within(region).queryAllByRole('listitem').map((li) => li.querySelector('[data-deck-name]')?.textContent)
 
 describe('Home', () => {
+  it('the logo goes to the start page', async () => {
+    const { store } = await storeWith([{ name: 'A' }])
+    render(<HomePage route={{ view: 'home' }} store={store} />)
+    const logo = within(await screen.findByRole('complementary')).getByRole('link', { name: 'OpenDeck start page' })
+    expect(logo).toHaveAttribute('href', '/')
+  })
+
   it('has a Privacy link, so people with decks can change the visitor-count answer', async () => {
     const { store } = await storeWith([{ name: 'A' }])
     render(<HomePage route={{ view: 'home' }} store={store} />)

@@ -4,9 +4,7 @@ import type { Locator, Page } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 
 /* Simple and Advanced editing from the person's side. No stored mode, so the real default (Simple) applies. */
-test.use({
-  storageState: { cookies: [], origins: [{ origin: 'http://localhost:4173', localStorage: [{ name: 'opendeck.v2.hasDecks', value: '1' }] }] },
-})
+test.use({ storageState: { cookies: [], origins: [] } })
 
 const fixture = (name: string) => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url))
 

@@ -155,7 +155,7 @@ test.describe('the landing page', () => {
       w.__csp = []
       document.addEventListener('securitypolicyviolation', (e) => w.__csp.push(`${e.violatedDirective} ${e.blockedURI}`))
     })
-    await page.goto('./')
+    await page.goto('/')
     await expect(page.getByRole('heading', { name: 'Good-looking decks, without the fuss.' })).toBeVisible()
     for (const radio of await page.getByRole('radiogroup', { name: 'Try a theme' }).getByRole('radio').all()) await radio.click()
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))

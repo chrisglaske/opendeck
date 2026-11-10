@@ -219,3 +219,15 @@
   outline-offset: 2px;
   border-radius: var(--r-xs);
 }
+
+.logoLink {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--r-xs);
+}
+
+.logoLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

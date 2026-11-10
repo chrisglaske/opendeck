@@ -5,9 +5,9 @@ export default defineConfig({
   fullyParallel: true,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:4173/',
+    // The app lives at /app/; the start page at the site root is tested with absolute paths.
+    baseURL: 'http://localhost:4173/app/',
     // Existing specs test every control, so they run in Advanced; the editing-modes spec opts out.
-    // They also start at Home: the visit hint skips the landing page shown to new visitors.
     storageState: {
       cookies: [],
       origins: [
@@ -16,7 +16,6 @@ export default defineConfig({
           localStorage: [
             { name: 'opendeck.v2.editorMode', value: 'advanced' },
             { name: 'opendeck.v2.modeNoteSeen', value: '1' },
-            { name: 'opendeck.v2.hasDecks', value: '1' },
           ],
         },
       ],
@@ -30,7 +29,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'VITE_CF_BEACON_TOKEN=e2e-token npm run build:site && npm run preview -- --port 4173 --strictPort',
-    url: 'http://localhost:4173/',
+    url: 'http://localhost:4173/app/',
     reuseExistingServer: false,
     timeout: 120_000,
   },

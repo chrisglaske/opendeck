@@ -39,3 +39,12 @@
 .iconOnly {
   padding: 5px 8px;
 }
+
+.fill {
+  display: flex;
+}
+
+.fill .option {
+  flex: 1 1 0;
+  justify-content: center;
+}

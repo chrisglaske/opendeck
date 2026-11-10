@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-/* The site as deployed: the app at the root, the old version at /v1/. */
+/* The site as deployed: the start page at the root, the app at /app/, the old version at /v1/. */
 
 test('the root shows the landing page to a new visitor', async ({ browser }) => {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } })
@@ -10,6 +10,13 @@ test('the root shows the landing page to a new visitor', async ({ browser }) => 
   // The build's Content Security Policy is in place.
   await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveCount(1)
   await context.close()
+})
+
+test('the app at /app/ has a plain title and asks not to be indexed', async ({ page }) => {
+  await page.goto('/app/')
+  await expect(page).toHaveTitle('OpenDeck')
+  await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', 'noindex')
+  await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveCount(1)
 })
 
 test('the favicon is served from the root', async ({ request }) => {
@@ -33,7 +40,7 @@ test('the V1 notice opens the old version at /v1/', async ({ page, context }) =>
     const project = { id: 'proj_site', name: 'Site deck', lastModified: 1, tags: [], folderId: null, data: { slides: [{ type: 'intro', title: 'Hello' }] } }
     localStorage.setItem('openDeckDB_v2', JSON.stringify([project]))
   })
-  await page.goto('/')
+  await page.goto('/app/')
   const notice = page.getByRole('dialog', { name: /^Your \d+ decks? (is|are) here, in the new design$/ })
   const [old] = await Promise.all([context.waitForEvent('page'), notice.getByRole('button', { name: 'Open the old version' }).click()])
   await old.waitForLoadState()

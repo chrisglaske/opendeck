@@ -102,7 +102,9 @@ export function Sidebar({
   const [privacyOpen, setPrivacyOpen] = useState(false)
   return (
     <aside className={styles.side}>
-      <div className={styles.logo}><Logo size={22} /></div>
+      <div className={styles.logo}>
+        <a href="/" className={styles.logoLink} aria-label="OpenDeck start page"><Logo size={22} /></a>
+      </div>
       <nav aria-label="Library" className={styles.navs}>
         <NavLink to={{ view: 'home' }} current={route} icon={House}>Home</NavLink>
         <DropLink

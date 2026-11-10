@@ -11,8 +11,11 @@ export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  fill = false,
 }: {
   label: string
+  /** Stretch to the container's width, with every option the same size. */
+  fill?: boolean
   options: SegmentedOption<T>[]
   value: T
   onChange(v: T): void
@@ -29,7 +32,7 @@ export function SegmentedControl<T extends string>({
   }
 
   return (
-    <div role="radiogroup" aria-label={label} className={styles.seg}>
+    <div role="radiogroup" aria-label={label} className={[styles.seg, fill && styles.fill].filter(Boolean).join(' ')} data-fill={fill || undefined}>
       {options.map((o, i) => {
         const Icon = o.icon
         return (

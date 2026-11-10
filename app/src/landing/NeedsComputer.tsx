@@ -10,7 +10,7 @@ export default function NeedsComputer() {
         <div className={styles.ill} aria-hidden><b /></div>
         <h1 className={styles.h}>OpenDeck's editor needs a computer.</h1>
         <p className={styles.p}>Open opendeck.work on a laptop or desktop to make a deck. Everything you make stays on that computer.</p>
-        <a className={styles.back} href="#/">← Back to the start</a>
+        <a className={styles.back} href="/">← Back to the start</a>
       </main>
     </div>
   )

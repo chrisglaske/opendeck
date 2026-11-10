@@ -4,49 +4,47 @@ import type { Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { everythingDeckFile } from './fixtures/everything-deck.ts'
 
-/* The start address from a new visitor's side: no stored hint, so the landing page decides. */
+/* The start page at the site root, from a new visitor's side. The app itself lives at /app/. */
 test.use({ storageState: { cookies: [], origins: [] } })
 
 const LANDING = 'Good-looking decks, without the fuss.'
 
 test('new visitor sees the landing', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('/')
   await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
 })
 
-test('existing user without hint goes to Home', async ({ page }) => {
+test('a returning visitor still sees the landing at the root, and the logo on Home leads back to it', async ({ page }) => {
   await page.goto('./#/home')
   await page.getByRole('button', { name: 'New deck' }).first().click()
-  await expect(page).toHaveURL(/#\/deck\//)
-  await page.evaluate(() => localStorage.removeItem('opendeck.v2.hasDecks'))
-  await page.addInitScript(() => {
-    const seen: string[] = []
-    ;(window as unknown as { __h1s: string[] }).__h1s = seen
-    const look = () => {
-      const t = document.querySelector('h1')?.textContent
-      if (t) seen.push(t)
-      requestAnimationFrame(look)
-    }
-    requestAnimationFrame(look)
-  })
-  await page.goto('./')
-  await expect(page.getByRole('region', { name: 'Recent' })).toBeVisible()
-  expect(await page.evaluate(() => (window as unknown as { __h1s: string[] }).__h1s)).not.toContain(LANDING)
-  expect(await page.evaluate(() => localStorage.getItem('opendeck.v2.hasDecks'))).toBe('1')
+  await expect(page).toHaveURL(/\/app\/#\/deck\//)
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+  await page.goto('./#/home')
+  await page.getByRole('link', { name: 'OpenDeck start page' }).click()
+  await expect(page).toHaveURL('http://localhost:4173/')
+  await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
 })
 
-test('V1 visitor goes to Home', async ({ page }) => {
+test('app addresses at the root move to /app/, keeping the deck', async ({ page }) => {
+  await page.goto('/#/home')
+  await expect(page).toHaveURL('http://localhost:4173/app/#/home')
+  await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()
+})
+
+test('a V1 visitor sees the landing at the root, and their decks in the app', async ({ page }) => {
   const v1 = JSON.parse(readFileSync(new URL('../src/v1/fixtures/edited.json', import.meta.url), 'utf8')) as { openDeckDB_v2: string }
   await page.addInitScript((db) => {
     if (localStorage.getItem('openDeckDB_v2') === null) localStorage.setItem('openDeckDB_v2', db)
   }, v1.openDeckDB_v2)
-  await page.goto('./')
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+  await page.getByRole('banner').getByRole('button', { name: 'Make a deck' }).click()
   await expect(page.getByRole('dialog', { name: /^Your \d+ decks? (is|are) here, in the new design$/ })).toBeVisible()
-  await expect(page.getByRole('heading', { name: LANDING })).toHaveCount(0)
 })
 
 test('chips restyle the slide', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('/')
   const chip = page.getByRole('radiogroup', { name: 'Try a theme' }).getByRole('radio', { name: 'Midnight' })
   await chip.click()
   await expect(chip).toHaveAttribute('aria-checked', 'true')
@@ -54,18 +52,18 @@ test('chips restyle the slide', async ({ page }) => {
   await expect.poll(() => bg.evaluate((el) => (el as HTMLElement).style.getPropertyValue('--t-bg'))).toBe('#0E1320')
 })
 
-test('Open a file imports, and the start address then shows Home', async ({ page }) => {
-  await page.goto('./')
+test('Open a file imports and opens the deck in the app', async ({ page }) => {
+  await page.goto('/')
   await page.locator('input[aria-label="Deck file"]').setInputFiles(everythingDeckFile())
-  await expect(page).toHaveURL(/#\/deck\//)
-  await page.goto('./')
+  await expect(page).toHaveURL(/\/app\/#\/deck\//)
+  await page.goto('./#/home')
   await expect(page.getByRole('region', { name: 'Recent' })).toBeVisible()
 })
 
 test('Make a deck opens the start grid', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('/')
   await page.getByRole('banner').getByRole('button', { name: 'Make a deck' }).click()
-  await expect(page).toHaveURL(/#\/home$/)
+  await expect(page).toHaveURL(/\/app\/#\/home$/)
   await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()
 })
 
@@ -90,20 +88,19 @@ function storedDeck(page: import('@playwright/test').Page, id: string) {
   )
 }
 
-test('a template click opens that slide in its theme, and the start address then shows Home', async ({ page }) => {
-  await page.goto('./')
+test('a template click opens that slide in its theme, in the app', async ({ page }) => {
+  await page.goto('/')
   await page.getByRole('button', { name: 'Quote · Pitch, use this template' }).click()
   await expect(page).toHaveURL(/#\/deck\//)
   const id = page.url().split('/').pop()!
   await expect.poll(async () => (await storedDeck(page, id))?.theme.id).toBe('sage')
   expect((await storedDeck(page, id))!.slides.map((s) => s.layout)).toEqual(['builtin:quote'])
   await expect(page.getByRole('listbox', { name: 'Slides' }).getByRole('option')).toHaveCount(1)
-  await page.goto('./')
-  await expect(page.getByRole('region', { name: 'Recent' })).toBeVisible()
+  expect(new URL(page.url()).pathname).toBe('/app/')
 })
 
 test('See all templates opens the Slides panel', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('/')
   await page.getByRole('button', { name: 'See all templates' }).click()
   await expect(page).toHaveURL(/#\/deck\//)
   await expect(page.getByRole('complementary', { name: 'Add slide' })).toBeVisible()
@@ -113,7 +110,7 @@ test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
   test('Make a deck shows the "needs a computer" note, with a way back', async ({ page }) => {
-    await page.goto('./')
+    await page.goto('/')
     await page.getByRole('banner').getByRole('button', { name: 'Make a deck' }).click()
     await expect(page.getByRole('heading', { name: "OpenDeck's editor needs a computer." })).toBeVisible()
     await page.getByRole('link', { name: '← Back to the start' }).click()
@@ -121,7 +118,7 @@ test.describe('on a phone', () => {
   })
 
   test('shows three templates', async ({ page }) => {
-    await page.goto('./')
+    await page.goto('/')
     await expect(page.getByRole('button', { name: /use this template$/ }).filter({ visible: true })).toHaveCount(3)
   })
 })
@@ -131,7 +128,7 @@ test.describe('Move anything demo', () => {
   const num = async (page: import('@playwright/test').Page, a: string) => Number(await card(page).getAttribute(`data-${a}`))
 
   test('moves, snaps to the centre and resets', async ({ page }) => {
-    await page.goto('./')
+    await page.goto('/')
     await card(page).scrollIntoViewIfNeeded()
     const startX = await num(page, 'x')
     const frame = (await card(page).locator('..').boundingBox())!
@@ -149,7 +146,7 @@ test.describe('Move anything demo', () => {
   })
 
   test('works by keyboard', async ({ page }) => {
-    await page.goto('./')
+    await page.goto('/')
     const startX = await num(page, 'x')
     const startH = await num(page, 'h')
     await card(page).focus()
@@ -165,7 +162,7 @@ test.describe('Move anything demo', () => {
     test.use({ hasTouch: true })
 
     test('drags with a finger', async ({ page }) => {
-      await page.goto('./')
+      await page.goto('/')
       await card(page).scrollIntoViewIfNeeded()
       const startX = await num(page, 'x')
       const box = (await card(page).boundingBox())!
@@ -201,7 +198,7 @@ test.describe('visitor counts', () => {
 
   test('nothing from Cloudflare before Allow, one counter after', async ({ page }) => {
     const hits = await watchCloudflare(page)
-    await page.goto('./')
+    await page.goto('/')
     await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
     await scrollThrough(page)
     expect(hits).toEqual([])
@@ -215,7 +212,7 @@ test.describe('visitor counts', () => {
 
   test('No thanks loads nothing, ever', async ({ page }) => {
     const hits = await watchCloudflare(page)
-    await page.goto('./')
+    await page.goto('/')
     await card(page).getByRole('button', { name: 'No thanks' }).click()
     await expect(card(page)).toHaveCount(0)
     await page.reload()
@@ -226,7 +223,7 @@ test.describe('visitor counts', () => {
 
   test('the answer can be changed later from Privacy', async ({ page }) => {
     const hits = await watchCloudflare(page)
-    await page.goto('./')
+    await page.goto('/')
     await card(page).getByRole('button', { name: 'No thanks' }).click()
     await page.getByRole('contentinfo').getByRole('button', { name: 'Privacy' }).click()
     const toggle = page.getByRole('dialog', { name: 'Privacy' }).getByRole('switch', { name: 'Count my visits' })
@@ -239,7 +236,7 @@ test.describe('visitor counts', () => {
   })
 
   test('the footer mode switch changes and remembers the look', async ({ page }) => {
-    await page.goto('./')
+    await page.goto('/')
     await page.getByRole('contentinfo').getByRole('radio', { name: 'Dark' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark')
     expect(await page.evaluate(() => localStorage.getItem('opendeck.v2.colorMode'))).toBe('dark')
@@ -251,7 +248,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     test.use({ viewport })
 
     test('the consent card never covers the footer links', async ({ page }) => {
-      await page.goto('./')
+      await page.goto('/')
       await expect(page.getByRole('contentinfo')).toBeVisible()
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
       await expect.poll(() => page.evaluate(() => Math.ceil(window.scrollY + innerHeight) >= document.body.scrollHeight)).toBe(true)
@@ -273,7 +270,7 @@ test('the landing page stays light and never loads the editor or Home', async ({
   page.on('response', async (r) => {
     if (r.request().resourceType() === 'script') scripts.push({ url: r.url(), bytes: (await r.body()).length })
   })
-  await page.goto('./')
+  await page.goto('/')
   await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
   await page.waitForLoadState('networkidle')
   const kb = scripts.reduce((n, s) => n + s.bytes, 0) / 1024
@@ -289,7 +286,7 @@ test('nothing on the landing page jumps while it loads', async ({ page }) => {
       for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__shift += e.value
     }).observe({ type: 'layout-shift', buffered: true })
   })
-  await page.goto('./')
+  await page.goto('/')
   await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
   await page.waitForTimeout(500)
@@ -308,13 +305,13 @@ for (const mode of ['light', 'dark'] as const) {
       test.use({ viewport, colorScheme: mode })
 
       test('the landing page, the Privacy dialog and the "needs a computer" note', async ({ page }) => {
-        await page.goto('./')
+        await page.goto('/')
         await expect(page.getByRole('region', { name: 'Visitor counts' })).toBeVisible()
         await checkAxe(page, 'landing')
         await page.getByRole('contentinfo').getByRole('button', { name: 'Privacy' }).click()
         await expect(page.getByRole('dialog', { name: 'Privacy' })).toBeVisible()
         await checkAxe(page, 'privacy')
-        await page.goto('./#/computer')
+        await page.goto('/#/computer')
         await expect(page.getByRole('heading', { name: "OpenDeck's editor needs a computer." })).toBeVisible()
         await checkAxe(page, 'computer')
       })
@@ -324,7 +321,7 @@ for (const mode of ['light', 'dark'] as const) {
 
 test('with reduced motion, a theme change swaps at once', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('./')
+  await page.goto('/')
   const frame = page.locator('main [data-slide-layer]').first().locator('..')
   await frame.evaluate((el) => {
     const w = window as unknown as { __layers: number }
@@ -342,7 +339,7 @@ test('with reduced motion, a theme change swaps at once', async ({ page }) => {
 })
 
 test('after a look around, Make a deck still works offline', async ({ page, context }) => {
-  await page.goto('./')
+  await page.goto('/')
   await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
   await page.mouse.wheel(0, 600)
   await page.waitForLoadState('networkidle')

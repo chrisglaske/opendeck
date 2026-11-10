@@ -2,7 +2,6 @@ import { SAVE_ERROR_TEXT } from '../editor/SaveStatus'
 import { importDeckFile } from '../storage/deckFile'
 import type { DeckImportResult } from '../storage/deckFile'
 import type { DeckStore } from '../storage/deckStore'
-import { markHasDecks } from '../storage/visit'
 import { toast } from '../ui'
 import { convertV1File } from '../v1/importV1'
 import { postChanged } from './libraryChannel'
@@ -27,7 +26,6 @@ export async function importAndOpen(store: DeckStore, file: File): Promise<DeckI
     return r
   }
   if (r.notSaved) toast(`Deck kept for this tab, but not saved. ${SAVE_ERROR_TEXT[r.notSaved]}`, { durationMs: 8000 })
-  markHasDecks()
   postChanged(r.deckId)
   window.location.hash = deckHref(r.deckId)
   return r

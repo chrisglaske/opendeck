@@ -12,12 +12,16 @@ it('clicking Dark applies and remembers dark mode', async () => {
   expect(localStorage.getItem(MODE_STORAGE_KEY)).toBe('dark')
 })
 
-it('the compact switch shows only icons for Light and Dark and the word Auto, and still works', async () => {
+it('the compact switch shows three equal icons (Light, Dark, Auto) that fill the width, and still works', async () => {
   render(<ModeSwitch compact />)
-  const light = screen.getByRole('radio', { name: 'Light' })
-  expect(light).not.toHaveTextContent('Light')
-  expect(screen.getByRole('radio', { name: 'Dark' })).not.toHaveTextContent('Dark')
-  expect(screen.getByRole('radio', { name: 'Auto' })).toHaveTextContent('Auto')
-  await userEvent.click(light)
+  const group = screen.getByRole('radiogroup', { name: 'Appearance' })
+  expect(group).toHaveAttribute('data-fill', 'true')
+  for (const name of ['Light', 'Dark', 'Auto']) {
+    const radio = screen.getByRole('radio', { name })
+    expect(radio).not.toHaveTextContent(name)
+    expect(radio).toHaveAttribute('title', name)
+    expect(radio.querySelector('svg')).not.toBeNull()
+  }
+  await userEvent.click(screen.getByRole('radio', { name: 'Light' }))
   expect(localStorage.getItem(MODE_STORAGE_KEY)).toBe('light')
 })
