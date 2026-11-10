@@ -1,11 +1,20 @@
+import { useState } from 'react'
+import { ConsentCard } from './ConsentCard'
 import { FeatureStrip } from './FeatureStrip'
+import { Footer } from './Footer'
 import { Hero } from './Hero'
+import { MoveDemo } from './MoveDemo'
+import { PresentShare } from './PresentShare'
+import { PrivacyDialog } from './PrivacyDialog'
 import { TemplateGallery } from './TemplateGallery'
 import { TopBar } from './TopBar'
+import { WhyPrivate } from './WhyPrivate'
 import styles from './LandingPage.module.css'
 
 /** The start page for new visitors: what OpenDeck is, shown with real slides. */
 export default function LandingPage() {
+  const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [answered, setAnswered] = useState(false)
   return (
     <div className={styles.page}>
       <div className={styles.glow} aria-hidden />
@@ -21,7 +30,13 @@ export default function LandingPage() {
             <TemplateGallery />
           </div>
         </section>
+        <MoveDemo />
+        <PresentShare />
+        <WhyPrivate />
       </main>
+      <Footer onPrivacy={() => setPrivacyOpen(true)} />
+      {privacyOpen && <PrivacyDialog open onClose={() => setPrivacyOpen(false)} onAnswer={() => setAnswered(true)} />}
+      <ConsentCard hidden={answered} />
     </div>
   )
 }

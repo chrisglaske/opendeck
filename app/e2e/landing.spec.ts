@@ -123,3 +123,142 @@ test.describe('on a phone', () => {
     await expect(page.getByRole('button', { name: /use this template$/ }).filter({ visible: true })).toHaveCount(3)
   })
 })
+
+test.describe('Move anything demo', () => {
+  const card = (page: import('@playwright/test').Page) => page.getByRole('button', { name: /^Demo card\./ })
+  const num = async (page: import('@playwright/test').Page, a: string) => Number(await card(page).getAttribute(`data-${a}`))
+
+  test('moves, snaps to the centre and resets', async ({ page }) => {
+    await page.goto('./')
+    await card(page).scrollIntoViewIfNeeded()
+    const startX = await num(page, 'x')
+    const frame = (await card(page).locator('..').boundingBox())!
+    const box = (await card(page).boundingBox())!
+    // Drag the card's centre onto the frame's centre.
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(frame.x + frame.width / 2 + 3, frame.y + frame.height / 2 - 40, { steps: 8 })
+    await expect(page.locator('[data-guide="vertical"]')).toBeVisible()
+    await page.mouse.up()
+    await expect(page.locator('[data-guide]')).toHaveCount(0)
+    expect((await num(page, 'x')) + (await num(page, 'w')) / 2).toBe(960)
+    await page.getByRole('button', { name: 'Reset' }).click()
+    expect(await num(page, 'x')).toBe(startX)
+  })
+
+  test('works by keyboard', async ({ page }) => {
+    await page.goto('./')
+    const startX = await num(page, 'x')
+    const startH = await num(page, 'h')
+    await card(page).focus()
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.press('ArrowLeft')
+    expect(await num(page, 'x')).toBe(startX - 60)
+    await page.keyboard.press('Shift+ArrowDown')
+    expect(await num(page, 'h')).toBe(startH + 20)
+  })
+
+  test.describe('with touch', () => {
+    test.use({ hasTouch: true })
+
+    test('drags with a finger', async ({ page }) => {
+      await page.goto('./')
+      await card(page).scrollIntoViewIfNeeded()
+      const startX = await num(page, 'x')
+      const box = (await card(page).boundingBox())!
+      const [x, y] = [box.x + box.width / 2, box.y + box.height / 2]
+      const cdp = await page.context().newCDPSession(page)
+      const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', cx: number) =>
+        cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x: cx, y }] })
+      await touch('touchStart', x)
+      for (let i = 1; i <= 6; i++) await touch('touchMove', x - i * 15)
+      await touch('touchEnd', x - 90)
+      expect(await num(page, 'x')).toBeLessThan(startX)
+    })
+  })
+})
+
+test.describe('visitor counts', () => {
+  async function watchCloudflare(page: import('@playwright/test').Page) {
+    const hits: string[] = []
+    for (const pattern of ['https://static.cloudflareinsights.com/**', 'https://cloudflareinsights.com/**']) {
+      await page.route(pattern, (route) => {
+        hits.push(route.request().url())
+        return route.fulfill({ contentType: 'text/javascript', body: '' })
+      })
+    }
+    return hits
+  }
+  const card = (page: import('@playwright/test').Page) => page.getByRole('region', { name: 'Visitor counts' })
+  async function scrollThrough(page: import('@playwright/test').Page) {
+    await expect(page.getByRole('contentinfo')).toBeVisible()
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForLoadState('networkidle')
+  }
+
+  test('nothing from Cloudflare before Allow, one counter after', async ({ page }) => {
+    const hits = await watchCloudflare(page)
+    await page.goto('./')
+    await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+    await scrollThrough(page)
+    expect(hits).toEqual([])
+    await card(page).getByRole('button', { name: 'Allow' }).click()
+    await expect.poll(() => hits.length).toBe(1)
+    expect(hits[0]).toBe('https://static.cloudflareinsights.com/beacon.min.js')
+    await page.reload()
+    await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+    await expect(card(page)).toHaveCount(0)
+  })
+
+  test('No thanks loads nothing, ever', async ({ page }) => {
+    const hits = await watchCloudflare(page)
+    await page.goto('./')
+    await card(page).getByRole('button', { name: 'No thanks' }).click()
+    await expect(card(page)).toHaveCount(0)
+    await page.reload()
+    await scrollThrough(page)
+    await expect(card(page)).toHaveCount(0)
+    expect(hits).toEqual([])
+  })
+
+  test('the answer can be changed later from Privacy', async ({ page }) => {
+    const hits = await watchCloudflare(page)
+    await page.goto('./')
+    await card(page).getByRole('button', { name: 'No thanks' }).click()
+    await page.getByRole('contentinfo').getByRole('button', { name: 'Privacy' }).click()
+    const toggle = page.getByRole('dialog', { name: 'Privacy' }).getByRole('switch', { name: 'Count my visits' })
+    await expect(toggle).toHaveAttribute('aria-checked', 'false')
+    await toggle.click()
+    await expect.poll(() => hits.length).toBe(1)
+    await page.getByRole('button', { name: 'Done' }).click()
+    await page.getByRole('contentinfo').getByRole('button', { name: 'Privacy' }).click()
+    await expect(toggle).toHaveAttribute('aria-checked', 'true')
+  })
+
+  test('the footer mode switch changes and remembers the look', async ({ page }) => {
+    await page.goto('./')
+    await page.getByRole('contentinfo').getByRole('radio', { name: 'Dark' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark')
+    expect(await page.evaluate(() => localStorage.getItem('opendeck.v2.colorMode'))).toBe('dark')
+  })
+})
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test.describe(`at ${viewport.width}px`, () => {
+    test.use({ viewport })
+
+    test('the consent card never covers the footer links', async ({ page }) => {
+      await page.goto('./')
+      await expect(page.getByRole('contentinfo')).toBeVisible()
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+      await expect.poll(() => page.evaluate(() => Math.ceil(window.scrollY + innerHeight) >= document.body.scrollHeight)).toBe(true)
+      const card = (await page.getByRole('region', { name: 'Visitor counts' }).boundingBox())!
+      for (const name of ['GitHub', 'Privacy', 'AGPL-3.0']) {
+        const b = (await page.getByRole('contentinfo').getByRole(name === 'Privacy' ? 'button' : 'link', { name }).boundingBox())!
+        const overlaps = b.x < card.x + card.width && card.x < b.x + b.width && b.y < card.y + card.height && card.y < b.y + b.height
+        expect(overlaps, name).toBe(false)
+      }
+    })
+  })
+}

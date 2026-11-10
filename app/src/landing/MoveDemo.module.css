@@ -1,0 +1,115 @@
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-hero);
+  user-select: none;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.card {
+  position: absolute;
+  outline: 1.5px solid var(--accent);
+  cursor: move;
+  touch-action: none;
+}
+.card:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.handle {
+  position: absolute;
+  right: -7px;
+  bottom: -7px;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--accent);
+  border-radius: 3px;
+  background: var(--handle-fill);
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+.vguide,
+.hguide {
+  position: absolute;
+  border: 0 dashed var(--guide);
+  pointer-events: none;
+}
+.vguide {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left-width: 1px;
+}
+.hguide {
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top-width: 1px;
+}
+
+.tip {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: var(--band);
+  color: var(--band-ink);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.tip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.reset {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+}
+
+.subTight {
+  margin-bottom: 22px;
+}
+
+.bullets {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.bullets li {
+  display: flex;
+  gap: 10px;
+}
+.bullets svg {
+  margin-top: 3px;
+}
+.bullets b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (max-width: 759px) {
+  .tip {
+    left: 10px;
+    bottom: 10px;
+    font-size: 11px;
+  }
+}
