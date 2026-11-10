@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { sanitizeDeck } from '../model/sanitize'
 import { OPENDECK_THEME } from '../model/theme'
-import type { ImageEl, Slide, SlideElement, TextEl } from '../model/types'
+import { bounds } from '../model/geometry'
+import { SLIDE_H, SLIDE_W } from '../model/types'
+import type { ImageEl, Rect, Slide, SlideElement, TextEl } from '../model/types'
 import { BUILTIN_TEMPLATES } from '../templates/builtins'
 import { convertV1Project, convertV1Slide } from './convert'
 import { SLIDE_TEMPLATE } from './slideMap'
@@ -186,6 +188,67 @@ describe('filling a template', () => {
     const body = texts(slide).find((t) => t.role === 'item.body[1]')!
     expect(body.paragraphs[0].runs[0].text).toBe('<img src=x onerror=alert(1)><script>x</script>')
     expect(JSON.stringify(slide)).not.toMatch(/"href"/)
+  })
+
+  it('gives longer V1 text room below its spot so it keeps its size', () => {
+    const template = BUILTIN_TEMPLATES.find((t) => t.id === 'image-text')!.slide.elements.find((e): e is TextEl => e.type === 'text' && e.role === 'body')!
+    const { slide } = convertV1Slide(v1('split', { subtitle: 'Sub', bullets: ['One', 'Two', 'Three', 'Four'], boxTitle: '', boxText: '', image: '' }))
+    const body = texts(slide).find((t) => t.role === 'body')!
+    expect(body.h).toBeGreaterThan(template.h * 1.8)
+    expect(body.y).toBe(template.y)
+  })
+
+  it('gives every feature card the same room', () => {
+    const cards = [1, 2, 3].map((n) => ({ title: `Card ${n} with a longer name`, text: 'Some words about it that run a little long', image: '' }))
+    const els = texts(convertV1Slide(v1('grid', { subtitle: '', cards })).slide)
+    const h = (role: string) => els.find((t) => t.role === role)!.h
+    const same = (xs: number[]) => Math.max(...xs) - Math.min(...xs) <= 2
+    expect(same([1, 2, 3].map((n) => h(`item.body[${n}]`)))).toBe(true)
+    expect(same([1, 2, 3].map((n) => h(`item.title[${n}]`)))).toBe(true)
+    const w = [1, 2, 3].map((n) => els.find((t) => t.role === `item.title[${n}]`)!.w)
+    expect(Math.min(...w)).toBeGreaterThan(Math.max(...w) * 0.85)
+  })
+
+  it('lets a title use the full width when nothing sits beside it', () => {
+    const tmpl = (id: string) => bounds(BUILTIN_TEMPLATES.find((t) => t.id === id)!.slide.elements.find((e) => e.role === 'title')!)
+    const phases = [1, 2, 3].map((n) => ({ title: `Phase ${n}`, text: 'Words', status: 'Now' }))
+    const road = texts(convertV1Slide(v1('roadmap_cards', { kicker: '', subtitle: '', phases })).slide).find((t) => t.role === 'title')!
+    expect(road.w).toBeGreaterThan(tmpl('roadmap').w * 2)
+    const team = texts(convertV1Slide(v1('corp_team', { subtitle: '', team: [{ name: 'A B', role: 'C', image: '' }] })).slide).find((t) => t.role === 'title')!
+    expect(team.w).toBeGreaterThan(tmpl('team').w * 2)
+  })
+
+  it('widens a call-to-action button to fit a long link, keeping the label centered in it', () => {
+    const { slide } = convertV1Slide(v1('cta', { subtitle: '', link: 'go.company.com/action' }))
+    const label = texts(slide).find((t) => t.role === 'text[1]')!
+    const button = slide.elements.find((e) => e.type === 'shape' && e.x <= label.x && e.x + e.w >= label.x + label.w && e.y <= label.y && e.y + e.h >= label.y + label.h)!
+    expect(bounds(label).w).toBeGreaterThanOrEqual(21 * 28 * 0.55)
+    expect(bounds(button).x + bounds(button).w - (label.x + label.w)).toBe(label.x - bounds(button).x)
+  })
+
+  it('never grows a text spot over anything else or off the slide', () => {
+    const overlap = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+    const inside = (a: Rect, b: Rect) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h
+    for (const p of allProjects())
+      for (const s of p.data.slides) {
+        const { slide } = convertV1Slide(s)
+        const tmpl = BUILTIN_TEMPLATES.find((t) => `builtin:${t.id}` === slide.layout)
+        const els = slide.elements.filter((e) => !e.aside)
+        for (const t of els.filter((e): e is TextEl => e.type === 'text' && !!e.role && e.role !== 'decor')) {
+          const was = tmpl?.slide.elements.find((e) => e.role === t.role)
+          const tb = bounds(t)
+          const wb = was && bounds(was)
+          if (wb && tb.w === wb.w && tb.h === wb.h) continue
+          expect(tb.x + tb.w, `${s.type} ${t.role}`).toBeLessThanOrEqual(SLIDE_W)
+          expect(tb.y + tb.h, `${s.type} ${t.role}`).toBeLessThanOrEqual(SLIDE_H)
+          for (const o of els) {
+            if (o === t) continue
+            const ob = bounds(o)
+            if (inside(bounds(was ?? t), ob) || (was && overlap(bounds(was), ob))) continue
+            expect(overlap(tb, ob), `${s.type} ${t.role} over ${o.role ?? o.type}`).toBe(false)
+          }
+        }
+      }
   })
 
   it('turns a showcase window into a code slide with the code on it', () => {

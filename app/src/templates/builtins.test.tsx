@@ -53,6 +53,22 @@ describe('built-in templates', () => {
     expect(t.keywords.length).toBeGreaterThanOrEqual(3)
   })
 
+  it('keeps a label on a button at least as far from the right edge as from the left', () => {
+    for (const t of BUILTIN_TEMPLATES) {
+      const els = walk(t.slide.elements)
+      for (const e of els.filter((x) => x.type === 'text')) {
+        const r = bounds(e)
+        // Button-sized shapes only; big panels may place text off-center on purpose.
+        for (const o of els.filter((x) => x.type === 'shape' && bounds(x).h <= 120)) {
+          const b = bounds(o)
+          const inside = r.x >= b.x && r.y >= b.y && r.x + r.w <= b.x + b.w && r.y + r.h <= b.y + b.h
+          if (!inside) continue
+          expect(b.x + b.w - (r.x + r.w), `${t.id} ${e.role}`).toBeGreaterThanOrEqual(r.x - b.x)
+        }
+      }
+    }
+  })
+
   it('puts the logo on the seven slides that show it', () => {
     const withLogo = BUILTIN_TEMPLATES.filter((t) => t.slide.elements.some((e) => e.type === 'logo')).map((t) => t.name).sort()
     expect(withLogo).toEqual(['Bullets + picture', 'Call to action', 'Picture + text', 'Thank you', 'Three numbers', 'Title', 'Title with photo'])

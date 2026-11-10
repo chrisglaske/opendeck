@@ -11,8 +11,8 @@ import { bounds } from '../model/geometry'
 import { newId } from '../model/ids'
 import { itemKey } from '../model/roles'
 import { OPENDECK_THEME } from '../model/theme'
-import { DECK_VERSION } from '../model/types'
-import type { Deck, ImageEl, Paragraph, Rect, Run, Slide, SlideElement, TextEl } from '../model/types'
+import { DECK_VERSION, SLIDE_H, SLIDE_W } from '../model/types'
+import type { Deck, ImageEl, Paragraph, Rect, Run, ShapeEl, Slide, SlideElement, TextEl } from '../model/types'
 import { isSafeHref } from '../model/sanitize'
 import { builtinTemplate } from '../templates/builtins'
 import { slideFromTemplate } from '../templates/instantiate'
@@ -95,6 +95,77 @@ function union(rs: Rect[]): Rect {
   return { x, y, w: Math.max(...rs.map((r) => r.x + r.w)) - x, h: Math.max(...rs.map((r) => r.y + r.h)) - y }
 }
 
+/** The margin the templates keep to the slide's edges, and the space kept between elements. */
+const EDGE_X = 134, EDGE_Y = 108, GAP = 24
+const contains = (o: Rect, r: Rect) => r.x >= o.x && r.y >= o.y && r.x + r.w <= o.x + o.w && r.y + r.h <= o.y + o.h
+
+/** Shapes up to this tall that hold a text spot are buttons. */
+const BUTTON_H = 120
+/** A rough single-line width for text, on the wide side (no layout engine here). */
+function textWidth(e: TextEl): number {
+  const size = e.paragraphs[0]?.runs[0]?.size ?? e.size ?? OPENDECK_THEME.text[e.style].size
+  const longest = Math.max(0, ...e.paragraphs.map((p) => p.runs.map((r) => r.text).join('').length))
+  return Math.ceil(longest * size * 0.6)
+}
+
+/** Widens a button and its label to the right so the label fits, as far as free space allows. */
+function widenButton(out: SlideElement[], i: number, j: number) {
+  const e = out[i] as TextEl, b = out[j] as ShapeEl
+  const inset = e.x - b.x
+  const need = textWidth(e) + 2 * inset
+  if (need <= b.w) return
+  let right = SLIDE_W - EDGE_X
+  for (const [k, o] of out.map((x, k) => [k, bounds(x)] as const)) {
+    if (k === i || k === j || contains(o, bounds(b))) continue
+    if (o.x >= b.x + b.w && o.y < b.y + b.h && b.y < o.y + o.h) right = Math.min(right, o.x - GAP)
+  }
+  const w = Math.max(b.w, Math.min(need, right - b.x))
+  out[j] = { ...b, w }
+  out[i] = { ...e, w: w - 2 * inset }
+}
+
+/**
+ * Template spots are sized for their short sample text and shrink what doesn't fit, so longer
+ * V1 text would come out small. Each filled text spot grows into the free space below it (and,
+ * for left-aligned text, to its right) up to the next element or the slide margin; a shape or
+ * picture it sits on keeps it inside with the same inset, and a button widens to fit its label.
+ * Spots only grow, never shrink.
+ */
+function giveRoom(els: SlideElement[], filled: Set<string>): SlideElement[] {
+  const out = [...els]
+  out.forEach((e, i) => {
+    if (e.type !== 'text' || !filled.has(e.id) || e.rotation) return
+    const r: Rect = { x: e.x, y: e.y, w: e.w, h: e.h }
+    const button = out.findIndex((o, j) => j !== i && o.type === 'shape' && !o.rotation && o.h <= BUTTON_H && contains(bounds(o), r))
+    if (button >= 0) return widenButton(out, i, button)
+    const others = out.filter((_, j) => j !== i).map(bounds)
+    let right = SLIDE_W - EDGE_X, bottom = SLIDE_H - EDGE_Y
+    for (const o of others.filter((o) => contains(o, r))) {
+      const inset = r.x - o.x
+      right = Math.min(right, o.x + o.w - inset)
+      bottom = Math.min(bottom, o.y + o.h - inset)
+    }
+    const blockers = others.filter((o) => !contains(o, r))
+    const left = e.paragraphs.every((p) => p.align === 'left')
+    // For a card in a row, anything further right at any height bounds the width, so its text
+    // never runs into the next column; other text only keeps clear of what sits beside it.
+    const inRow = !!e.role && itemOf(e.role) !== null
+    for (const o of blockers) {
+      const beside = inRow || (o.y < r.y + r.h && r.y < o.y + o.h)
+      if (o.x >= r.x + r.w && beside) right = Math.min(right, o.x - GAP)
+    }
+    const w = left ? Math.max(r.w, right - r.x) : r.w
+    for (const o of blockers) {
+      const below = o.y > r.y
+      const across = o.x < r.x + w && r.x < o.x + o.w
+      if (below && across) bottom = Math.min(bottom, o.y - GAP)
+    }
+    const h = Math.max(r.h, bottom - r.y)
+    if (w !== r.w || h !== r.h) out[i] = { ...e, w: Math.round(w), h: Math.round(h) }
+  })
+  return out
+}
+
 /** One V1 slide as a filled template. */
 export function convertV1Slide(v1: V1Slide, keys = new PictureKeys()): { slide: Slide } {
   const plan = planSlide(v1)
@@ -140,6 +211,7 @@ export function convertV1Slide(v1: V1Slide, keys = new PictureKeys()): { slide: 
   }
 
   const elements: SlideElement[] = []
+  const filledIds = new Set<string>()
   for (const e of made.elements) {
     if (!e.role || e.role === 'decor') {
       const owner = e.role === 'decor' ? ownerOf(e) : null
@@ -150,7 +222,10 @@ export function convertV1Slide(v1: V1Slide, keys = new PictureKeys()): { slide: 
     const value = values.get(e.role)
     if (e.type === 'text') {
       const filled = value?.kind === 'text' ? fillText(e, value) : null
-      if (filled) elements.push(filled)
+      if (filled) {
+        elements.push(filled)
+        filledIds.add(filled.id)
+      }
       else if (value) extra.push(...leftoverText(value))
       continue
     }
@@ -170,7 +245,7 @@ export function convertV1Slide(v1: V1Slide, keys = new PictureKeys()): { slide: 
   const base = v1.notes.trimEnd()
   const notes = extra.length ? `${base ? base + '\n\n' : ''}${FROM_OLD_VERSION}\n${extra.join('\n')}` : v1.notes
   return {
-    slide: { ...made, elements: [...elements, ...parkElements(parked)], notes },
+    slide: { ...made, elements: [...giveRoom(elements, filledIds), ...parkElements(parked)], notes },
   }
 }
 
