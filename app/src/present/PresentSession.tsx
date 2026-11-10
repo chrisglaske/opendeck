@@ -103,8 +103,12 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
   useEffect(() => {
     if (!popup) return
     // A closed speaker window (full screen) just goes away; a closed slides window is reported.
-    return watchClosed(popup.win, () => { setPopup(null); setClosed(modeRef.current === 'window') })
-  }, [popup])
+    return watchClosed(popup.win, () => { setPopup(null); setClosed(modeRef.current === 'window') }, {
+      mount: popup.mount,
+      // Reloading the pop-up empties it; draw the show into it again.
+      onReloaded: () => attach(popup.win),
+    })
+  }, [popup, attach])
 
   // The same keys work in both windows.
   useEffect(() => {

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDeck, createSlide } from '../model/factory'
 import type { Deck } from '../model/types'
-import { fakePopup } from '../present/fakePopup'
+import { fakePopup, reloadPopup } from '../present/fakePopup'
 import type { FakePopup } from '../present/fakePopup'
 import { PlayerApp } from './PlayerApp'
 
@@ -52,6 +52,21 @@ describe('PlayerApp', () => {
     key(win, 'ArrowRight')
     expect(shown()).toBe('c')
     expect(win.document.body.textContent).toContain('Notes for c')
+  })
+
+  it('draws the speaker view again when its window is reloaded', () => {
+    vi.useFakeTimers()
+    render(<PlayerApp deck={deck()} />)
+    act(() => screen.getByRole('button', { name: 'Speaker view' }).click())
+    expect(win.document.body.textContent).toContain('Notes for b')
+    reloadPopup(win)
+    expect(win.document.body.textContent).not.toContain('Notes for b')
+    act(() => { vi.advanceTimersByTime(1000) })
+    expect(win.document.title).toBe('Speaker view · Q3 Board update')
+    expect(win.document.body.textContent).toContain('Notes for b')
+    key(win, 'ArrowRight')
+    expect(shown()).toBe('c')
+    vi.useRealTimers()
   })
 
   it('Esc never ends anything: the slides stay', () => {

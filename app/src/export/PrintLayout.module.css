@@ -1,9 +1,4 @@
-/* Pages are slide-sized, so a slide prints edge to edge at its real size and text stays text. */
-@page {
-  size: 1920px 1080px;
-  margin: 0;
-}
-
+/* The slide-sized @page rule is added by printDeck only while its print window is open. */
 .root {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;

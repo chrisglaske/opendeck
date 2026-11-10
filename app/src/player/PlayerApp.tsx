@@ -70,8 +70,12 @@ function Player({ deck, first }: { deck: Deck; first: ShowState }) {
 
   useEffect(() => {
     if (!popup) return
-    return watchClosed(popup.win, () => setPopup(null))
-  }, [popup])
+    return watchClosed(popup.win, () => setPopup(null), {
+      mount: popup.mount,
+      // Reloading the pop-up empties it; draw the speaker view into it again.
+      onReloaded: () => setPopup({ win: popup.win, mount: preparePopup(popup.win, `Speaker view · ${deck.name}`, []) }),
+    })
+  }, [popup, deck.name])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

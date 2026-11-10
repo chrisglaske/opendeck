@@ -51,6 +51,18 @@ describe('printDeck', () => {
     expect(document.documentElement.dataset.printing).toBeUndefined()
   })
 
+  it('a second print, when the first never reported closing, replaces it cleanly', async () => {
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+    const title = document.title
+    await printDeck(deck())
+    await printDeck(createDeck('Second'))
+    expect(print).toHaveBeenCalledTimes(2)
+    expect(document.querySelectorAll('#print-root')).toHaveLength(1)
+    window.dispatchEvent(new Event('afterprint'))
+    expect(document.getElementById('print-root')).toBeNull()
+    expect(document.title).toBe(title)
+  })
+
   it('names the PDF after the deck while the print window is open', async () => {
     let during = ''
     vi.spyOn(window, 'print').mockImplementation(() => { during = document.title })
