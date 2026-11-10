@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { loadBeacon } from '../analytics/beacon'
+import { loadBeacon, reloadPage, unloadBeacon } from '../analytics/beacon'
 import { readConsent, writeConsent } from '../analytics/consent'
 import type { Consent } from '../analytics/consent'
 import { Button, Dialog, Toggle } from '../ui'
@@ -11,9 +11,11 @@ export function PrivacyDialog({ open, onClose, onAnswer }: { open: boolean; onCl
   const change = (v: boolean) => {
     const c: Consent = v ? 'accepted' : 'declined'
     writeConsent(c)
-    if (v) loadBeacon()
     setOn(v)
     onAnswer?.(c)
+    if (v) loadBeacon()
+    // A counter that already ran keeps counting until the page reloads.
+    else if (unloadBeacon()) reloadPage()
   }
   return (
     <Dialog open={open} onClose={onClose} title="Privacy" actions={<Button variant="primary" onClick={onClose}>Done</Button>}>

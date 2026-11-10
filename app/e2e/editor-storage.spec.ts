@@ -9,7 +9,7 @@ test('New deck opens the editor and the deck survives a reload', async ({ page }
 
   await page.goto('./')
   await page.reload()
-  await expect(page.getByRole('link', { name: 'Untitled deck' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Untitled deck', exact: true })).toBeVisible()
 })
 
 test('a deck can be edited in one tab at a time', async ({ page, context }) => {

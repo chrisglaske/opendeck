@@ -12,3 +12,18 @@ export function loadBeacon(token: string | undefined = import.meta.env.VITE_CF_B
   doc.head.appendChild(s)
   return true
 }
+
+/**
+ * Removes the counter script. Returns true when it was there: the script may already be running
+ * then, and only a reload stops it (see `reloadPage`).
+ */
+export function unloadBeacon(doc: Document = document): boolean {
+  const s = doc.querySelector('script[data-od-beacon]')
+  s?.remove()
+  return !!s
+}
+
+/** Reloads the page; used to stop a counter that already ran. */
+export function reloadPage(): void {
+  window.location.reload()
+}

@@ -357,7 +357,7 @@ export default function DesignSystemPage() {
       <header className={styles.topbar}>
         <div className={`${styles.wrap} ${styles.topInner}`}>
           <Logo />
-          <span className={styles.note}>Design system · Stage 1</span>
+          <span className={styles.note}>Design system</span>
           <span className={styles.spacer} />
           <ModeSwitch />
         </div>

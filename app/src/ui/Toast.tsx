@@ -7,7 +7,18 @@ type ToastData = ToastOptions & { id: number; message: string }
 
 const MAX_TOASTS = 3
 const listeners = new Set<(t: ToastData) => void>()
+const holdListeners = new Set<(held: boolean) => void>()
+let held = false
 let nextId = 1
+
+/**
+ * While held (a show is running), toasts are kept but not shown, so nothing covers the slides;
+ * they show, with their full time, once released.
+ */
+export function holdToasts(hold: boolean): void {
+  held = hold
+  for (const l of holdListeners) l(hold)
+}
 
 /** Shows a short message in the mounted <ToastHost/>. */
 export function toast(message: string, opts: ToastOptions = {}): void {
@@ -17,12 +28,16 @@ export function toast(message: string, opts: ToastOptions = {}): void {
 
 export function ToastHost() {
   const [toasts, setToasts] = useState<ToastData[]>([])
+  const [isHeld, setHeld] = useState(held)
 
   useEffect(() => {
     const add = (t: ToastData) => setToasts((list) => [...list, t].slice(-MAX_TOASTS))
     listeners.add(add)
+    holdListeners.add(setHeld)
+    setHeld(held)
     return () => {
       listeners.delete(add)
+      holdListeners.delete(setHeld)
     }
   }, [])
 
@@ -30,7 +45,7 @@ export function ToastHost() {
 
   return (
     <div role="status" aria-live="polite" className={styles.host}>
-      {toasts.map((t) => (
+      {!isHeld && toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onDismiss={() => dismiss(t.id)} />
       ))}
     </div>

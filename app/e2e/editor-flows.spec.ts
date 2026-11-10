@@ -386,3 +386,44 @@ for (const mode of ['light', 'dark'] as const) {
     await check('crop mode')
   })
 }
+
+function longDeckFile(count: number) {
+  const slides = Array.from({ length: count }, (_, i) => ({
+    id: `s${i}`, notes: '', hidden: false, background: { color: { theme: 'bg' } }, elements: [],
+  }))
+  const deck = { format: 'opendeck', version: 1, id: `long${count}`, name: `Long deck ${count}`, theme: { logo: {} }, slides, transition: 'fade', createdAt: 0, updatedAt: 0 }
+  const odeck = { format: 'opendeck-deck', version: 1, deck, assets: [], fonts: [] }
+  return { name: 'long.odeck', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(odeck)) }
+}
+
+async function openDeckFile(page: Page, file: ReturnType<typeof longDeckFile>) {
+  await page.goto('./#/home')
+  await expect(page.getByRole('heading', { name: /Make your first deck|Start something new/ })).toBeVisible({ timeout: 20_000 })
+  await page.locator('input[aria-label="Deck file"]').setInputFiles(file)
+  await expect(page).toHaveURL(/#\/deck\//)
+}
+
+test('Add slide stays visible in a long deck', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await openDeckFile(page, longDeckFile(30))
+  const rail = page.getByRole('complementary', { name: 'Slide list' })
+  await expect(rail.getByRole('option')).toHaveCount(30)
+  const add = rail.getByRole('button', { name: 'Add slide' })
+  await expect(add).toBeInViewport({ ratio: 1 })
+  const list = rail.locator('[data-rail-scroller]')
+  expect(await list.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true)
+  await expect(rail.locator('[data-rail-footer]')).toHaveAttribute('data-scrolls', '')
+  // Still there after scrolling the list to the end.
+  await list.evaluate((el) => { el.scrollTop = el.scrollHeight })
+  await expect(add).toBeInViewport({ ratio: 1 })
+  await add.click()
+  await expect(page.getByRole('complementary', { name: 'Add slide' })).toBeVisible()
+})
+
+test('a short deck has no divider above Add slide', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await openDeckFile(page, longDeckFile(2))
+  const rail = page.getByRole('complementary', { name: 'Slide list' })
+  await expect(rail.getByRole('option')).toHaveCount(2)
+  await expect(rail.locator('[data-rail-footer]')).not.toHaveAttribute('data-scrolls', '')
+})

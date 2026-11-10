@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { htmlFileName, saveBlob } from './download'
+import { htmlFileName, kitFileName, safeFileName, saveBlob, templateFileName } from './download'
 
 describe('htmlFileName', () => {
   it.each([
@@ -24,6 +24,20 @@ describe('htmlFileName', () => {
     const file = htmlFileName('😀'.repeat(200))
     expect([...file.replace(/\.html$/, '')].length).toBe(100)
     expect(file).toMatch(/^(😀)+\.html$/u)
+  })
+})
+
+describe('file names in any language', () => {
+  it('keeps letters from every script and drops only what file systems refuse', () => {
+    expect(safeFileName('Квартальный отчёт', 'deck', '.odeck')).toBe('Квартальный отчёт.odeck')
+    expect(kitFileName('ブランド')).toBe('ブランド.odtheme')
+    expect(templateFileName('a/b')).toBe('a b.odtemplate')
+  })
+
+  it('falls back when nothing is left', () => {
+    expect(kitFileName('///')).toBe('brand-kit.odtheme')
+    expect(templateFileName('  ')).toBe('template.odtemplate')
+    expect(safeFileName('...', 'deck', '.odeck')).toBe('deck.odeck')
   })
 })
 

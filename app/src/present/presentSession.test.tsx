@@ -4,6 +4,7 @@ import { createDeck, createSlide } from '../model/factory'
 import type { Deck } from '../model/types'
 import { fakePopup } from './fakePopup'
 import type { FakePopup } from './fakePopup'
+import { toast, ToastHost } from '../ui'
 import { PresentSession } from './PresentSession'
 import type { ShowStart } from './PresentSession'
 
@@ -87,6 +88,14 @@ describe('PresentSession in a window', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reopen slides window' }))
     expect(again.document.querySelector('[data-show-slide]')?.getAttribute('data-show-slide')).toBe('b')
     expect(screen.getByText('Slides window open')).toBeInTheDocument()
+  })
+
+  it('holds toasts while the show runs and shows them after', () => {
+    const view = render(<><ToastHost /><PresentSession deck={deck()} start={start()} onEnd={() => {}} /></>)
+    act(() => toast('Changes saved in another tab'))
+    expect(screen.queryByText('Changes saved in another tab')).not.toBeInTheDocument()
+    view.rerender(<ToastHost />)
+    expect(screen.getByText('Changes saved in another tab')).toBeInTheDocument()
   })
 
   it('runs a timer that can be paused', () => {

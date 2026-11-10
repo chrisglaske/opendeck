@@ -37,6 +37,20 @@ export function Rail() {
   const [menu, setMenu] = useState<Menu | null>(null)
   const thumbRefs = useRef(new Map<string, HTMLDivElement>())
   const justDragged = useRef(false)
+  // Only the thumbnails scroll; "Add slide" stays below them, with a divider once they scroll.
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [scrolls, setScrolls] = useState(false)
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    const check = () => setScrolls(el.scrollHeight > el.clientHeight + 1)
+    check()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    if (el.firstElementChild) ro.observe(el.firstElementChild)
+    return () => ro.disconnect()
+  }, [])
 
   // The rail selection always includes the current slide and only slides that still exist.
   const live = picked.filter((id) => slides.some((s) => s.id === id))
@@ -174,58 +188,62 @@ export function Rail() {
 
   return (
     <aside className={styles.rail} aria-label="Slide list">
-      <div
-        role="listbox"
-        aria-label="Slides"
-        aria-multiselectable="true"
-        aria-orientation="vertical"
-        className={styles.list}
-      >
-        {slides.map((slide, i) => (
-          <div key={slide.id} className={styles.item}>
-            {dragging && dragging.drop === i && <div className={styles.dropLine} data-drop-line="" aria-hidden />}
-            <div
-              ref={(el) => {
-                if (el) thumbRefs.current.set(slide.id, el)
-                else thumbRefs.current.delete(slide.id)
-              }}
-              role="option"
-              aria-selected={selected.includes(slide.id)}
-              aria-current={slide.id === current ? 'true' : undefined}
-              aria-label={`Slide ${i + 1}${slide.hidden ? ', hidden' : ''}`}
-              tabIndex={slide.id === current ? 0 : -1}
-              data-slide-id={slide.id}
-              data-hidden={slide.hidden ? '' : undefined}
-              data-dragging={dragging?.ids.includes(slide.id) ? '' : undefined}
-              className={`${styles.thumb} ${slide.id === current ? styles.current : ''}`}
-              onClick={(e) => onClick(e, slide)}
-              onKeyDown={(e) => onKeyDown(e, slide, i)}
-              onContextMenu={(e) => {
-                e.preventDefault()
-                openMenu(slide, e.clientX, e.clientY, e.currentTarget)
-              }}
-              onPointerDown={(e) => onPointerDown(e, slide)}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={() => setDrag(null)}
-            >
-              <span className={styles.num} aria-hidden>{i + 1}</span>
-              <Thumb slide={slide} theme={theme} />
+      <div ref={scrollerRef} className={styles.scroller} data-rail-scroller="">
+        <div
+          role="listbox"
+          aria-label="Slides"
+          aria-multiselectable="true"
+          aria-orientation="vertical"
+          className={styles.list}
+        >
+          {slides.map((slide, i) => (
+            <div key={slide.id} className={styles.item}>
+              {dragging && dragging.drop === i && <div className={styles.dropLine} data-drop-line="" aria-hidden />}
+              <div
+                ref={(el) => {
+                  if (el) thumbRefs.current.set(slide.id, el)
+                  else thumbRefs.current.delete(slide.id)
+                }}
+                role="option"
+                aria-selected={selected.includes(slide.id)}
+                aria-current={slide.id === current ? 'true' : undefined}
+                aria-label={`Slide ${i + 1}${slide.hidden ? ', hidden' : ''}`}
+                tabIndex={slide.id === current ? 0 : -1}
+                data-slide-id={slide.id}
+                data-hidden={slide.hidden ? '' : undefined}
+                data-dragging={dragging?.ids.includes(slide.id) ? '' : undefined}
+                className={`${styles.thumb} ${slide.id === current ? styles.current : ''}`}
+                onClick={(e) => onClick(e, slide)}
+                onKeyDown={(e) => onKeyDown(e, slide, i)}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  openMenu(slide, e.clientX, e.clientY, e.currentTarget)
+                }}
+                onPointerDown={(e) => onPointerDown(e, slide)}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerCancel={() => setDrag(null)}
+              >
+                <span className={styles.num} aria-hidden>{i + 1}</span>
+                <Thumb slide={slide} theme={theme} />
+              </div>
             </div>
-          </div>
-        ))}
-        {dragging && dragging.drop === slides.length && <div className={styles.dropLine} data-drop-line="" aria-hidden />}
+          ))}
+          {dragging && dragging.drop === slides.length && <div className={styles.dropLine} data-drop-line="" aria-hidden />}
+        </div>
       </div>
-      <Button
-        variant="secondary"
-        size="sm"
-        icon={Plus}
-        className={styles.add}
-        aria-pressed={slidesPanel.open}
-        onClick={slidesPanel.toggle}
-      >
-        Add slide
-      </Button>
+      <div className={styles.footer} data-rail-footer="" data-scrolls={scrolls ? '' : undefined}>
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={Plus}
+          className={styles.add}
+          aria-pressed={slidesPanel.open}
+          onClick={slidesPanel.toggle}
+        >
+          Add slide
+        </Button>
+      </div>
       {ghost && dragging && (
         <div className={styles.ghost} style={{ left: `${dragging.x + 12}px`, top: `${dragging.y - 20}px` }} aria-hidden>
           <Thumb slide={ghost} theme={theme} />

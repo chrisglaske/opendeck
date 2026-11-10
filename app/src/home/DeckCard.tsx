@@ -1,4 +1,4 @@
-import { Pin, Play } from 'lucide-react'
+import { Pencil, Pin, Play } from 'lucide-react'
 import type { DragEvent, MouseEvent, ReactNode, Ref } from 'react'
 import type { DeckStore } from '../storage/deckStore'
 import { Chip } from '../ui'
@@ -33,7 +33,7 @@ export function DeckCard({
   footer?: ReactNode
   /** A deck in the Trash: faded preview, and the card doesn't open the deck. */
   trashed?: boolean
-  /** Shows Present over the preview on hover and keyboard focus. */
+  /** Shows Edit and Present over the preview on hover and keyboard focus. */
   onPresent?(): void
 }) {
   const preview = useDeckPreview(store, deck.id, deck.updatedAt)
@@ -64,8 +64,12 @@ export function DeckCard({
         )}
       </div>
       {onPresent && !trashed && (
-        <div className={styles.present}>
-          <button type="button" className={styles.presentBtn} aria-label={`Present ${deck.name}`} onClick={onPresent}>
+        <div className={styles.actions}>
+          <a className={`${styles.actionBtn} ${styles.editBtn}`} href={deckHref(deck.id)} aria-label={`Edit ${deck.name}`}>
+            <Pencil size={15} strokeWidth={1.75} aria-hidden />
+            Edit
+          </a>
+          <button type="button" className={styles.actionBtn} aria-label={`Present ${deck.name}`} onClick={onPresent}>
             <Play size={16} strokeWidth={1.75} aria-hidden />
             Present
           </button>

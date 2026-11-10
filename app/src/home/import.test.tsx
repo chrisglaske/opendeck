@@ -88,7 +88,7 @@ describe('Export .odeck on a deck card', () => {
     await userEvent.click(screen.getByRole('button', { name: 'More actions for Quarterly review' }))
     await userEvent.click(screen.getByRole('menuitem', { name: 'Export .odeck' }))
     await waitFor(() => expect(saved.calls).toHaveLength(1))
-    expect(saved.calls[0].name).toBe('quarterly-review.odeck')
+    expect(saved.calls[0].name).toBe('Quarterly review.odeck')
     const parsed = JSON.parse(await saved.calls[0].blob.text())
     expect(parsed).toMatchObject({ format: DECK_FILE_FORMAT, version: DECK_FILE_VERSION, deck: { id: deck.id, name: 'Quarterly review' } })
   })

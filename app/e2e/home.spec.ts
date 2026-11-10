@@ -242,7 +242,7 @@ test('a deck exported as .odeck imports as a new deck', async ({ page }, info) =
   const download = page.waitForEvent('download')
   await deckMenu(page, 'Pitch deck', 'Export .odeck')
   const file = await download
-  expect(file.suggestedFilename()).toBe('pitch-deck.odeck')
+  expect(file.suggestedFilename()).toBe('Pitch deck.odeck')
   const path = info.outputPath('pitch-deck.odeck')
   await file.saveAs(path)
   expect(JSON.parse(await readFile(path, 'utf8'))).toMatchObject({ deck: { name: 'Pitch deck' } })

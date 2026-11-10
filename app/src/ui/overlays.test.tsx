@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { Copy, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { Button, Dialog, Menu, ToastHost, toast, type MenuItem } from './index'
+import { Button, Dialog, holdToasts, Menu, ToastHost, toast, type MenuItem } from './index'
 
 describe('Menu', () => {
   const setup = () => {
@@ -137,6 +137,15 @@ describe('toast', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('toasts wait while a show runs', () => {
+    render(<ToastHost />)
+    act(() => holdToasts(true))
+    act(() => toast('Saved elsewhere'))
+    expect(screen.queryByText('Saved elsewhere')).not.toBeInTheDocument()
+    act(() => holdToasts(false))
+    expect(screen.getByText('Saved elsewhere')).toBeInTheDocument()
   })
 
   it('a toast with no time limit stays until it is acted on', () => {

@@ -66,8 +66,9 @@ async function importedDeck(store: ReturnType<typeof createMemoryStore>, r: Awai
 }
 
 describe('deck files', () => {
-  it('names the file from the deck name with plain characters and dashes', () => {
-    expect(deckFileName('Pitch: Q4 / 2026!')).toBe('pitch-q4-2026.odeck')
+  it('names the file from the deck name in any language', () => {
+    expect(deckFileName('Pitch: Q4 / 2026!')).toBe('Pitch Q4 2026!.odeck')
+    expect(deckFileName('Квартальный отчёт')).toBe('Квартальный отчёт.odeck')
     expect(deckFileName('  ***  ')).toBe('deck.odeck')
   })
 

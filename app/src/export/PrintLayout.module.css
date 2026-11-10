@@ -31,12 +31,12 @@
 }
 
 @media print {
-  :global(body > :not(#print-root)) {
+  :global(html[data-printing] body > :not(#print-root)) {
     display: none !important;
   }
 
-  :global(html),
-  :global(body) {
+  :global(html[data-printing]),
+  :global(html[data-printing] body) {
     margin: 0;
     background: #fff;
   }

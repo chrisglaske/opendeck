@@ -78,6 +78,9 @@
   --handle-fill: #FFFFFF;
   --shadow-float: 0 1px 2px rgba(28, 27, 42, 0.06), 0 8px 24px rgba(28, 27, 42, 0.1);
   --shadow-slide: 0 1px 3px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(28, 27, 42, 0.06);
+  /* Resting card lift, and the thin ring that keeps a colour swatch visible on any background. */
+  --shadow-card: 0 1px 2px rgba(28, 27, 42, 0.04);
+  --swatch-ring: rgba(28, 27, 42, 0.12);
 }
 
 /* Graphite: neutral greys, violet only as the accent. */
@@ -118,6 +121,8 @@
   --handle-fill: #FFFFFF;
   --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.45);
   --shadow-slide: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --swatch-ring: rgba(255, 255, 255, 0.16);
 }
 
 /* No-JS fallback: follow the system when mode-init.js has not run. Keep in sync with the block above. */
@@ -159,5 +164,7 @@
     --handle-fill: #FFFFFF;
     --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.45);
     --shadow-slide: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --swatch-ring: rgba(255, 255, 255, 0.16);
   }
 }

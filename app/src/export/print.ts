@@ -62,10 +62,14 @@ export async function printDeck(deck: Deck, opts: { loadAsset?: AssetLoader } = 
   const title = document.title
   const cleanup = () => {
     document.title = title
+    delete document.documentElement.dataset.printing
     root.unmount()
     host.remove()
   }
   window.addEventListener('afterprint', cleanup, { once: true })
   document.title = deck.name
+  // Only while this is set does the page hide everything but the slides when printing, so the
+  // browser's own Print elsewhere in the app isn't blank.
+  document.documentElement.dataset.printing = ''
   window.print()
 }

@@ -9,7 +9,7 @@
 .preview {
   border-radius: var(--r-lg);
   border: 1px solid var(--line);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  box-shadow: var(--shadow-card);
   transition: box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 
@@ -101,8 +101,8 @@
   opacity: 0.75;
 }
 
-/* Present, in the middle of the preview, on hover and keyboard focus. */
-.present {
+/* Edit and Present, in the middle of the preview, on hover and keyboard focus. */
+.actions {
   position: absolute;
   top: 0;
   left: 0;
@@ -111,17 +111,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 
-.card:hover .present,
-.card:focus-within .present {
+.card:hover .actions,
+.card:focus-within .actions {
   opacity: 1;
 }
 
-.presentBtn {
+.actionBtn {
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
@@ -134,10 +135,16 @@
   color: var(--ink);
   font: 600 13px var(--font-ui);
   box-shadow: var(--shadow-float);
+  text-decoration: none;
   cursor: pointer;
 }
 
-.presentBtn:focus-visible {
+.editBtn {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.actionBtn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

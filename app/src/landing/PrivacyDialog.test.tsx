@@ -4,6 +4,12 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { readConsent, writeConsent } from '../analytics/consent'
 import { PrivacyDialog } from './PrivacyDialog'
 
+const reload = vi.hoisted(() => ({ fn: (() => {}) as () => void }))
+vi.mock('../analytics/beacon', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../analytics/beacon')>()),
+  reloadPage: () => reload.fn(),
+}))
+
 const beacons = () => document.querySelectorAll('script[data-od-beacon]')
 beforeEach(() => vi.stubEnv('VITE_CF_BEACON_TOKEN', 't'))
 afterEach(() => {
@@ -46,4 +52,26 @@ it('Done closes it', async () => {
   render(<PrivacyDialog open onClose={onClose} />)
   await userEvent.click(screen.getByRole('button', { name: 'Done' }))
   expect(onClose).toHaveBeenCalled()
+})
+
+it('switching off after Allow on this page stops the running counter by reloading', async () => {
+  const reloaded = vi.fn()
+  reload.fn = reloaded
+  writeConsent('declined')
+  render(<PrivacyDialog open onClose={() => {}} />)
+  await userEvent.click(toggle())
+  expect(beacons()).toHaveLength(1)
+  await userEvent.click(toggle())
+  expect(readConsent()).toBe('declined')
+  expect(beacons()).toHaveLength(0)
+  expect(reloaded).toHaveBeenCalledOnce()
+})
+
+it('switching off when no counter was loaded does not reload', async () => {
+  const reloaded = vi.fn()
+  reload.fn = reloaded
+  writeConsent('accepted')
+  render(<PrivacyDialog open onClose={() => {}} />)
+  await userEvent.click(toggle())
+  expect(reloaded).not.toHaveBeenCalled()
 })

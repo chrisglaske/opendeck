@@ -41,6 +41,16 @@ describe('printDeck', () => {
     expect(document.title).toBe(title)
   })
 
+  it('marks the page as printing a deck only while its print window is open', async () => {
+    let during: string | undefined
+    vi.spyOn(window, 'print').mockImplementation(() => { during = document.documentElement.dataset.printing })
+    expect(document.documentElement.dataset.printing).toBeUndefined()
+    await printDeck(deck())
+    expect(during).toBe('')
+    window.dispatchEvent(new Event('afterprint'))
+    expect(document.documentElement.dataset.printing).toBeUndefined()
+  })
+
   it('names the PDF after the deck while the print window is open', async () => {
     let during = ''
     vi.spyOn(window, 'print').mockImplementation(() => { during = document.title })

@@ -5,6 +5,7 @@
  * Folder, tags and pin stay in the library and are not part of the file.
  */
 import { importFontData } from '../fonts/uploadedFonts'
+import { safeFileName } from '../editor/download'
 import { withAssetLock } from './assets'
 import { emptyEntry } from '../home/library'
 import { withNewIds } from '../home/libraryService'
@@ -33,11 +34,8 @@ export type ConvertV1 = (raw: unknown) => Promise<DeckImportResult> | null
 
 type DeckFont = { family: string; weight: string; style: string; format: string; fileName: string; data: string }
 
-/** A file name for a deck: lower-case letters, digits and dashes, ending in .odeck. */
-export function deckFileName(name: string): string {
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-  return `${slug || 'deck'}.odeck`
-}
+/** A file name for a deck, from its name in any language, ending in .odeck. */
+export const deckFileName = (name: string) => safeFileName(name, 'deck', '.odeck')
 
 function eachElement(els: SlideElement[], fn: (el: SlideElement) => void) {
   for (const el of els) {

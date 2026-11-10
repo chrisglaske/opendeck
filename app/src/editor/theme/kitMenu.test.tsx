@@ -101,7 +101,7 @@ describe('kit menu', () => {
   })
 
   it('gives kit files a safe name', () => {
-    expect(kitFileName('Acme / Co.')).toBe('Acme Co..odtheme')
+    expect(kitFileName('Acme / Co.')).toBe('Acme Co.odtheme')
     expect(kitFileName('///')).toBe('brand-kit.odtheme')
     expect(kitFileName('  Q3   launch: kit ')).toBe('Q3 launch kit.odtheme')
   })

@@ -78,6 +78,8 @@ const FAMILY = /^[A-Za-z0-9 ._-]{1,64}$/
 
 async function load(family: string, data: ArrayBuffer, weight: string, style: FontStyle): Promise<FontFace | null> {
   try {
+    // Passed as is: Chromium and WebKit keep quotes as part of the name, so a quoted name would
+    // never match the decks' font-family. Firefox accepts names such as "Acme 2" either way.
     const font = new FontFace(family, data, { weight, style })
     await font.load()
     return font

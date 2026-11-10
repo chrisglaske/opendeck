@@ -143,7 +143,6 @@ export function ColorPicker({ value, onChange, allowNone = false, noneLabel = 'N
   )
 }
 
-/** Shade square, hue bar and hex field. */
 /**
  * The color area, hue bar and hex field on their own, for editing one hex value
  * (the brand kit colors). Keeps the hue while the color is gray.

@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from 'vitest'
-import { BEACON_SRC, loadBeacon } from './beacon'
+import { BEACON_SRC, loadBeacon, unloadBeacon } from './beacon'
 
 const scripts = () => document.querySelectorAll<HTMLScriptElement>('script[data-od-beacon]')
 afterEach(() => scripts().forEach((s) => s.remove()))
@@ -19,4 +19,11 @@ it('adds the counter script once', () => {
   expect(s.getAttribute('data-cf-beacon')).toBe('{"token":"t"}')
   expect(loadBeacon('t')).toBe(true)
   expect(scripts()).toHaveLength(1)
+})
+
+it('turning counting off removes the counter', () => {
+  expect(unloadBeacon()).toBe(false)
+  loadBeacon('t')
+  expect(unloadBeacon()).toBe(true)
+  expect(scripts()).toHaveLength(0)
 })

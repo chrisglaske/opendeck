@@ -29,7 +29,7 @@ async function storeWith(seeds: Seed[]): Promise<{ store: DeckStore; ids: Record
 
 const section = (name: string) => screen.getByRole('region', { name })
 const cardNames = (region: HTMLElement) =>
-  within(region).queryAllByRole('listitem').map((li) => within(li).getByRole('link').textContent)
+  within(region).queryAllByRole('listitem').map((li) => li.querySelector('[data-deck-name]')?.textContent)
 
 describe('Home', () => {
   it('shows Start something new with Blank, the starters and Browse all', async () => {
@@ -114,7 +114,7 @@ describe('Home', () => {
     render(<HomePage route={{ view: 'home' }} store={store} />)
     const recent = await screen.findByRole('region', { name: 'Recent' })
     expect(within(recent).getAllByRole('listitem')).toHaveLength(8)
-    expect(within(recent).getAllByRole('listitem').map((li) => within(li).getByRole('link').textContent)).toEqual(
+    expect(within(recent).getAllByRole('listitem').map((li) => li.querySelector('[data-deck-name]')?.textContent)).toEqual(
       ['D9', 'D8', 'D7', 'D6', 'D5', 'D4', 'D3', 'D2'],
     )
     expect(within(recent).getByRole('link', { name: 'All decks' })).toHaveAttribute('href', '#/all')

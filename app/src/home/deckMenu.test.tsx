@@ -80,6 +80,19 @@ describe('deck menu', () => {
     open.mockRestore()
   })
 
+  it('hover shows Edit and Present', async () => {
+    const { ids } = await setup([{ name: 'Pitch' }])
+    const c = within(card('Pitch'))
+    const edit = c.getByRole('link', { name: 'Edit Pitch' })
+    expect(edit).toHaveAttribute('href', `#/deck/${ids.Pitch}`)
+    const present = c.getByRole('button', { name: 'Present Pitch' })
+    c.getByRole('link', { name: 'Pitch' }).focus()
+    await userEvent.tab()
+    expect(edit).toHaveFocus()
+    await userEvent.tab()
+    expect(present).toHaveFocus()
+  })
+
   it('says Unpin for a pinned deck', async () => {
     await setup([{ name: 'Pitch', entry: { pinnedAt: 1 } }])
     const menu = await openMenu('Pitch')
@@ -156,7 +169,7 @@ describe('deck menu', () => {
     await userEvent.click(within(await openMenu('Pitch')).getByRole('menuitem', { name: 'Duplicate' }))
     const recent = await screen.findByRole('region', { name: 'Recent' })
     await waitFor(() =>
-      expect(within(recent).getAllByRole('listitem').map((li) => within(li).getByRole('link').textContent)).toEqual(['Newer', 'Copy of Pitch', 'Pitch']),
+      expect(within(recent).getAllByRole('listitem').map((li) => li.querySelector('[data-deck-name]')?.textContent)).toEqual(['Newer', 'Copy of Pitch', 'Pitch']),
     )
   })
 

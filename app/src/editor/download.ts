@@ -17,27 +17,20 @@ export function saveBlob(blob: Blob, fileName: string): void {
   }
 }
 
-/** A file name for a brand kit: only plain characters, spaces collapsed, ending in .odtheme. */
-export function kitFileName(name: string): string {
-  const safe = name.replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim()
-  return `${safe.replace(/^\.+$/, '') || 'brand-kit'}.odtheme`
-}
-
-/** A safe file name for a template file, from its name. */
-export function templateFileName(name: string): string {
-  const safe = name.replace(/[^A-Za-z0-9 ._-]/g, '').replace(/\s+/g, ' ').trim()
-  return `${safe.replace(/^\.+$/, '') || 'template'}.odtemplate`
-}
-
 /**
- * A file name for a downloaded presentation: the deck's name in any language, without the
- * characters file systems refuse (/ \ : * ? " < > | and control characters), ending in .html.
+ * A file name from a deck, kit or template name in any language: without the characters file
+ * systems refuse (/ \ : * ? " < > | and control characters), spaces collapsed, no leading or
+ * trailing dots, at most 100 characters, then `ext`. `fallback` when nothing is left.
  */
-export function htmlFileName(name: string): string {
+export function safeFileName(name: string, fallback: string, ext: string): string {
   const safe = name
     .normalize('NFC')
     .replace(/[/\\:*?"<>|\u0000-\u001f\u007f]/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/^[\s.]+|[\s.]+$/g, '')
-  return `${[...safe].slice(0, 100).join('').trim() || 'presentation'}.html`
+  return `${[...safe].slice(0, 100).join('').trim() || fallback}${ext}`
 }
+
+export const kitFileName = (name: string) => safeFileName(name, 'brand-kit', '.odtheme')
+export const templateFileName = (name: string) => safeFileName(name, 'template', '.odtemplate')
+export const htmlFileName = (name: string) => safeFileName(name, 'presentation', '.html')

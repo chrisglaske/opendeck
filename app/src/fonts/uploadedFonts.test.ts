@@ -84,3 +84,25 @@ describe('faceLabel', () => {
     expect(faceLabel('100 900', 'normal')).toBe('Variable')
   })
 })
+
+describe('font family names', () => {
+  it('are passed to FontFace as is (quotes would become part of the name in Chromium and WebKit)', async () => {
+    const families: string[] = []
+    const Real = FontFace
+    class Recording extends Real {
+      constructor(family: string, source: BufferSource, d?: FontFaceDescriptors) {
+        families.push(family)
+        super(family, source, d)
+      }
+    }
+    vi.stubGlobal('FontFace', Recording)
+    try {
+      const data = new Uint8Array([0x77, 0x4f, 0x46, 0x32, 0, 0]).buffer
+      await registerStoredFonts([{ id: 'f3', family: 'Acme 2', weight: '400', style: 'normal', format: 'woff2', data, fileName: 'a.woff2', size: 6 }])
+      expect(families).toEqual(['Acme 2'])
+    } finally {
+      vi.unstubAllGlobals()
+      resetUploadedFonts()
+    }
+  })
+})

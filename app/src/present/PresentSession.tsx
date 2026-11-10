@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { uploadedFontSources } from '../fonts/uploadedFonts'
 import type { Deck } from '../model/types'
+import { holdToasts } from '../ui'
 import { BlockedDialog } from './BlockedDialog'
 import { ControlBar } from './ControlBar'
 import { keyIntent } from './keys'
@@ -65,6 +66,12 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
   useEffect(() => {
     if (start.popup) attach(start.popup)
   }, [start.popup, attach])
+
+  // Nothing pops up over the slides during the show; messages wait until it ends.
+  useEffect(() => {
+    holdToasts(true)
+    return () => holdToasts(false)
+  }, [])
 
   const end = useCallback(() => {
     if (ended.current) return

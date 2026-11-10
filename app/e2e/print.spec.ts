@@ -35,3 +35,19 @@ test('Save as PDF lays out one full-size page per visible slide, without notes',
   await expect(page.locator('#print-root')).toHaveCount(0)
   expect(errors).toEqual([])
 })
+
+test("Ctrl+P in the editor isn't blank, even after a Save as PDF", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.print = () => { (window as unknown as { __printed: boolean }).__printed = true }
+  })
+  await openEverythingDeck(page)
+  // Save as PDF once, then close its print window.
+  await page.getByRole('button', { name: 'Share' }).click()
+  await page.getByRole('menuitem', { name: /Save as PDF/ }).click()
+  await page.waitForFunction(() => (window as unknown as { __printed?: boolean }).__printed)
+  await page.evaluate(() => window.dispatchEvent(new Event('afterprint')))
+  await expect(page.locator('#print-root')).toHaveCount(0)
+
+  await page.emulateMedia({ media: 'print' })
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('root')!).display)).not.toBe('none')
+})

@@ -58,7 +58,7 @@ export function Menu({
   trigger: ReactElement<TriggerProps>
   items: MenuItem[]
   label: string
-  /** Which edge of the trigger the menu prefers to line up with; it switches when that side would be cut off. */
+  /** Which edge of the trigger the menu lines up with; it slides sideways when that would cut it off. */
   align?: 'start' | 'end'
   /** Menu width in pixels, for menus whose items have descriptions. */
   width?: number
