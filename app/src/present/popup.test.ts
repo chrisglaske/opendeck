@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fakePopup } from './fakePopup'
+import { fakePopup, reloadPopup } from './fakePopup'
 import { openSlidesWindow, preparePopup, watchClosed } from './popup'
 
 afterEach(() => {
@@ -39,6 +39,36 @@ describe('popup', () => {
     vi.advanceTimersByTime(1000)
     expect(onClosed).toHaveBeenCalledTimes(1)
     vi.advanceTimersByTime(3000)
+    expect(onClosed).toHaveBeenCalledTimes(1)
+    stop()
+  })
+
+  it('notices when the pop-up is reloaded, so the show can draw into it again', () => {
+    vi.useFakeTimers()
+    const win = fakePopup()
+    const mount = preparePopup(win, 'Slides', [])
+    const onClosed = vi.fn()
+    const onReloaded = vi.fn()
+    const stop = watchClosed(win, onClosed, { mount, onReloaded })
+    vi.advanceTimersByTime(3000)
+    expect(onReloaded).not.toHaveBeenCalled()
+    reloadPopup(win)
+    vi.advanceTimersByTime(1000)
+    expect(onReloaded).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(3000)
+    expect(onReloaded).toHaveBeenCalledTimes(1)
+    expect(onClosed).not.toHaveBeenCalled()
+    stop()
+  })
+
+  it('treats a pop-up it can no longer reach (moved to another site) as closed', () => {
+    vi.useFakeTimers()
+    const win = fakePopup()
+    const mount = preparePopup(win, 'Slides', [])
+    const onClosed = vi.fn()
+    const stop = watchClosed(win, onClosed, { mount, onReloaded: () => {} })
+    Object.defineProperty(win, 'document', { get() { throw new DOMException('Blocked', 'SecurityError') } })
+    vi.advanceTimersByTime(1000)
     expect(onClosed).toHaveBeenCalledTimes(1)
     stop()
   })

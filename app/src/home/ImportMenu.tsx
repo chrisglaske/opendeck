@@ -20,7 +20,7 @@ const decksLabel = (n: number) => (n === 1 ? '1 deck' : `${n} decks`)
 
 /**
  * The Import menu on Home: a deck file (V2, or one V1 project) opens as a new deck in the editor;
- * "From V1" copies the V1 decks not copied yet. Without V1 data, "From V1" isn't shown.
+ * "From V1" copies the V1 decks not copied yet, and those changed in V1 since (as a fresh copy). Without V1 data, "From V1" isn't shown.
  */
 export function ImportMenu({ store }: { store: DeckStore | null }) {
   const fileRef = useRef<HTMLInputElement>(null)
@@ -54,7 +54,7 @@ export function ImportMenu({ store }: { store: DeckStore | null }) {
     const none = v1.count === 0
     items.push({
       id: 'v1', label: 'From V1', icon: History, disabled: none,
-      hint: v1.count === null ? undefined : none ? 'Nothing new in V1' : `${v1.count} new`,
+      hint: v1.count === null ? undefined : none ? 'Nothing new in V1' : `${v1.count} new or changed`,
       onSelect: () => void copyFromV1(),
     })
   }

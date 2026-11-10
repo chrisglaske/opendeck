@@ -30,10 +30,29 @@ async function settled(root: HTMLElement, pending: Set<Promise<unknown>>): Promi
 }
 
 /**
+ * Pages are slide-sized, so a slide prints edge to edge at its real size and text stays text.
+ * Applied only while printing a deck, so the browser's own Print elsewhere keeps its paper size.
+ * Built through the CSSOM, which the page's strict CSP allows.
+ */
+function addSlidePageSize(): () => void {
+  if (typeof CSSStyleSheet === 'undefined' || !('adoptedStyleSheets' in document)) return () => {}
+  const sheet = new CSSStyleSheet()
+  sheet.replaceSync('@page { size: 1920px 1080px; margin: 0; }')
+  document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]
+  return () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet)
+  }
+}
+
+/** Undoes the last printDeck, if its print window never reported closing. */
+let undoLastPrint: (() => void) | null = null
+
+/**
  * Opens the browser's print window with the deck laid out one slide per page, so "Save as PDF"
  * there makes the PDF. The layout is removed once the print window closes.
  */
 export async function printDeck(deck: Deck, opts: { loadAsset?: AssetLoader } = {}): Promise<void> {
+  undoLastPrint?.()
   document.getElementById('print-root')?.remove()
   const host = document.createElement('div')
   host.id = 'print-root'
@@ -60,13 +79,19 @@ export async function printDeck(deck: Deck, opts: { loadAsset?: AssetLoader } = 
 
   // Browsers name the PDF after the page title.
   const title = document.title
+  let removePageSize = () => {}
   const cleanup = () => {
+    window.removeEventListener('afterprint', cleanup)
+    if (undoLastPrint === cleanup) undoLastPrint = null
+    removePageSize()
     document.title = title
     delete document.documentElement.dataset.printing
     root.unmount()
     host.remove()
   }
+  undoLastPrint = cleanup
   window.addEventListener('afterprint', cleanup, { once: true })
+  removePageSize = addSlidePageSize()
   document.title = deck.name
   // Only while this is set does the page hide everything but the slides when printing, so the
   // browser's own Print elsewhere in the app isn't blank.

@@ -133,7 +133,7 @@ describe('Import → From V1', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Got it' }))
     seedV1([...projectsOf('branded'), { ...projectsOf('branded')[0], id: 'proj_new', name: 'Made later' }])
     const item = within(await openImport()).getByRole('menuitem', { name: /From V1/ })
-    await waitFor(() => expect(item).toHaveTextContent('1 new'))
+    await waitFor(() => expect(item).toHaveTextContent('1 new or changed'))
     await userEvent.click(item)
     await waitFor(() => expect(toastText()).toContain('1 deck copied from V1'))
     expect((await store.listDecks()).map((d) => d.name).sort()).toEqual(['Branded deck', 'Made later'])

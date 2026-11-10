@@ -51,13 +51,30 @@ export function preparePopup(win: Window, title: string, fonts: readonly FontSou
 
 /**
  * Calls `onClosed` once when the pop-up is closed (checked every second), and closes the
- * pop-up when this page goes away (reload, tab closed). Returns a function that stops watching.
+ * pop-up when this page goes away (reload, tab closed). Given the `mount` drawn into, it also
+ * notices when the pop-up was reloaded (a fresh empty page) and calls `onReloaded`, so the show
+ * can draw into it again; a pop-up this page can no longer reach counts as closed.
+ * Returns a function that stops watching.
  */
-export function watchClosed(win: Window, onClosed: () => void): () => void {
+export function watchClosed(
+  win: Window,
+  onClosed: () => void,
+  opts: { mount?: HTMLElement; onReloaded?(): void } = {},
+): () => void {
   const timer = setInterval(() => {
-    if (!win.closed) return
+    let state: 'open' | 'closed' | 'reloaded' = 'open'
+    if (win.closed) state = 'closed'
+    else if (opts.mount) {
+      try {
+        if (win.document !== opts.mount.ownerDocument) state = opts.onReloaded ? 'reloaded' : 'closed'
+      } catch {
+        state = 'closed'
+      }
+    }
+    if (state === 'open') return
     clearInterval(timer)
-    onClosed()
+    if (state === 'reloaded') opts.onReloaded!()
+    else onClosed()
   }, 1000)
   const onHide = () => win.close()
   window.addEventListener('pagehide', onHide)

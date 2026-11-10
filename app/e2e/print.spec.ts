@@ -50,4 +50,7 @@ test("Ctrl+P in the editor isn't blank, even after a Save as PDF", async ({ page
 
   await page.emulateMedia({ media: 'print' })
   expect(await page.evaluate(() => getComputedStyle(document.getElementById('root')!).display)).not.toBe('none')
+  // ...and back on the browser's normal paper size, not slide-size pages.
+  const pdf = (await page.pdf({ preferCSSPageSize: true })).toString('latin1')
+  expect(pdf).not.toMatch(/\/MediaBox\s*\[0 0 1440 810\]/)
 })

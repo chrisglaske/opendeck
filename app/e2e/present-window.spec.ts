@@ -59,6 +59,20 @@ test('closing the slides window and reopening keeps the slide', async ({ page })
   await speakerSays(page, 2, N)
 })
 
+test('reloading the slides window draws the slides again, on the same slide', async ({ page }) => {
+  await rail(page, 2).click()
+  const pop = await present(page)
+  await pop.reload()
+  await pop.waitForSelector('[data-show-slide]')
+  await expect(pop).toHaveTitle(`Slides · ${EVERYTHING_DECK_NAME}`)
+  await slidesSay(pop, 2, N)
+  await expect(page.getByText('Slides window open')).toBeVisible()
+  // Keys in the reloaded window still work.
+  await pop.keyboard.press('ArrowRight')
+  await speakerSays(page, 3, N)
+  await slidesSay(pop, 3, N)
+})
+
 test('Esc ends the show and selects the last slide', async ({ page }) => {
   await rail(page, 1).click()
   await present(page)

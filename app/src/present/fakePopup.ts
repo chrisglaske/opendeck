@@ -20,3 +20,11 @@ export function fakePopup(): FakePopup {
   Object.defineProperty(doc, 'fonts', { value: { add: (f: { family: string }) => fontsAdded.push(f) } })
   return win
 }
+
+/** What reloading the pop-up does in real browsers: same window, a fresh empty page. */
+export function reloadPopup(win: FakePopup): void {
+  const doc = document.implementation.createHTMLDocument('')
+  Object.defineProperty(doc, 'defaultView', { value: win })
+  Object.defineProperty(doc, 'fonts', { value: { add: (f: { family: string }) => win.fontsAdded.push(f) } })
+  ;(win as { document: Document }).document = doc
+}

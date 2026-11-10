@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDeck, createSlide } from '../model/factory'
 import type { Deck } from '../model/types'
-import { fakePopup } from './fakePopup'
+import { fakePopup, reloadPopup } from './fakePopup'
 import type { FakePopup } from './fakePopup'
 import { toast, ToastHost } from '../ui'
 import { PresentSession } from './PresentSession'
@@ -88,6 +88,19 @@ describe('PresentSession in a window', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reopen slides window' }))
     expect(again.document.querySelector('[data-show-slide]')?.getAttribute('data-show-slide')).toBe('b')
     expect(screen.getByText('Slides window open')).toBeInTheDocument()
+  })
+
+  it('draws the slides again when the slides window is reloaded, on the same slide', () => {
+    vi.useFakeTimers()
+    render(<PresentSession deck={deck()} start={start()} onEnd={() => {}} />)
+    reloadPopup(win)
+    expect(shown()).toBeUndefined()
+    act(() => { vi.advanceTimersByTime(1000) })
+    expect(shown()).toBe('b')
+    expect(win.document.title).toBe('Slides · Q3 Board update')
+    expect(screen.getByText('Slides window open')).toBeInTheDocument()
+    key(win, 'ArrowRight')
+    expect(shown()).toBe('c')
   })
 
   it('holds toasts while the show runs and shows them after', () => {
