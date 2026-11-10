@@ -133,3 +133,37 @@ test('an earlier Allow loads the visitor counter in the app', async ({ page }) =
   expect(hits[0]).toBe('https://static.cloudflareinsights.com/beacon.min.js')
   expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([])
 })
+
+test.describe('the landing page', () => {
+  test.use({ storageState: { cookies: [], origins: [] } })
+
+  test('stays inside the CSP and this origin, chips and all', async ({ page }) => {
+    const external: string[] = []
+    await page.route('**/*', (route) => {
+      if (new URL(route.request().url()).hostname !== 'localhost') {
+        external.push(route.request().url())
+        return route.abort()
+      }
+      return route.continue()
+    })
+    const cspConsole: string[] = []
+    page.on('console', (msg) => {
+      if (/Content Security Policy/i.test(msg.text())) cspConsole.push(msg.text())
+    })
+    await page.addInitScript(() => {
+      const w = window as unknown as { __csp: string[] }
+      w.__csp = []
+      document.addEventListener('securitypolicyviolation', (e) => w.__csp.push(`${e.violatedDirective} ${e.blockedURI}`))
+    })
+    await page.goto('./')
+    await expect(page.getByRole('heading', { name: 'Good-looking decks, without the fuss.' })).toBeVisible()
+    for (const radio of await page.getByRole('radiogroup', { name: 'Try a theme' }).getByRole('radio').all()) await radio.click()
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await expect(page.getByRole('contentinfo')).toBeVisible()
+    await page.waitForLoadState('networkidle')
+    await page.evaluate(() => document.fonts.ready)
+    expect(external).toEqual([])
+    expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([])
+    expect(cspConsole).toEqual([])
+  })
+})

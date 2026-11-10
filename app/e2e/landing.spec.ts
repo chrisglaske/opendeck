@@ -1,4 +1,6 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { everythingDeckFile } from './fixtures/everything-deck.ts'
 
@@ -262,3 +264,97 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     })
   })
 }
+
+/** Script the landing page may load before it settles. Measured 493 KB on 2026-11-10 (React is most of it). */
+const LANDING_JS_BUDGET_KB = 575
+
+test('the landing page stays light and never loads the editor or Home', async ({ page }) => {
+  const scripts: { url: string; bytes: number }[] = []
+  page.on('response', async (r) => {
+    if (r.request().resourceType() === 'script') scripts.push({ url: r.url(), bytes: (await r.body()).length })
+  })
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+  await page.waitForLoadState('networkidle')
+  const kb = scripts.reduce((n, s) => n + s.bytes, 0) / 1024
+  expect(kb, `${Math.round(kb)} KB of script`).toBeLessThanOrEqual(LANDING_JS_BUDGET_KB)
+  expect(scripts.map((s) => s.url).filter((u) => /(EditorPage|HomePage|DesignSystemPage)-[^/]*\.js$/.test(u))).toEqual([])
+})
+
+test('nothing on the landing page jumps while it loads', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __shift: number }
+    w.__shift = 0
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__shift += e.value
+    }).observe({ type: 'layout-shift', buffered: true })
+  })
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+  await page.evaluate(() => document.fonts.ready)
+  await page.waitForTimeout(500)
+  expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBeLessThan(0.02)
+})
+
+async function checkAxe(page: Page, where: string) {
+  await page.waitForFunction(() => document.getAnimations().length === 0)
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  expect(violations.map((v) => `${where} · ${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([])
+}
+
+for (const mode of ['light', 'dark'] as const) {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    test.describe(`axe · ${mode} · ${viewport.width}px`, () => {
+      test.use({ viewport, colorScheme: mode })
+
+      test('the landing page, the Privacy dialog and the "needs a computer" note', async ({ page }) => {
+        await page.goto('./')
+        await expect(page.getByRole('region', { name: 'Visitor counts' })).toBeVisible()
+        await checkAxe(page, 'landing')
+        await page.getByRole('contentinfo').getByRole('button', { name: 'Privacy' }).click()
+        await expect(page.getByRole('dialog', { name: 'Privacy' })).toBeVisible()
+        await checkAxe(page, 'privacy')
+        await page.goto('./#/computer')
+        await expect(page.getByRole('heading', { name: "OpenDeck's editor needs a computer." })).toBeVisible()
+        await checkAxe(page, 'computer')
+      })
+    })
+  }
+}
+
+test('with reduced motion, a theme change swaps at once', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('./')
+  const frame = page.locator('main [data-slide-layer]').first().locator('..')
+  await frame.evaluate((el) => {
+    const w = window as unknown as { __layers: number }
+    w.__layers = 0
+    new MutationObserver(() => {
+      w.__layers = Math.max(w.__layers, el.querySelectorAll(':scope > [data-slide-layer]').length)
+    }).observe(el, { childList: true })
+  })
+  await page.getByRole('radio', { name: 'Editorial' }).click()
+  await expect(page.getByRole('radio', { name: 'Editorial' })).toHaveAttribute('aria-checked', 'true')
+  // The app shortens every transition to 0.01 ms under reduced motion; none may linger.
+  await page.waitForFunction(() => document.getAnimations().length === 0, null, { timeout: 200 })
+  expect(await page.evaluate(() => (window as unknown as { __layers: number }).__layers)).toBeLessThanOrEqual(1)
+  await expect(frame.locator(':scope > [data-slide-layer]')).toHaveCount(1)
+})
+
+test('after a look around, Make a deck still works offline', async ({ page, context }) => {
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: LANDING })).toBeVisible()
+  await page.mouse.wheel(0, 600)
+  await page.waitForLoadState('networkidle')
+  await context.setOffline(true)
+  await page.getByRole('banner').getByRole('button', { name: 'Make a deck' }).click()
+  await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()
+  await page.getByRole('button', { name: 'Blank', exact: true }).first().click()
+  await expect(page.getByRole('listbox', { name: 'Slides' })).toBeVisible()
+})
+
+test('a part of the app that fails to load shows a way to reload, not a blank page', async ({ page }) => {
+  await page.route(/\/assets\/HomePage-[^/]*\.js$/, (route) => route.abort())
+  await page.goto('./#/home')
+  await expect(page.getByRole('heading', { name: "Couldn't load this part of OpenDeck" })).toBeVisible()
+})

@@ -57,6 +57,25 @@ describe('Home', () => {
     expect(await store.getDeck(window.location.hash.slice('#/deck/'.length))).not.toBeNull()
   })
 
+  it('a quick double-click on Blank makes one deck, even while saving is slow', async () => {
+    const { store } = await storeWith([{ name: 'A' }])
+    let release!: () => void
+    const gate = new Promise<void>((r) => { release = r })
+    const put = store.putDeck.bind(store)
+    let puts = 0
+    store.putDeck = async (d) => {
+      puts++
+      await gate
+      return put(d)
+    }
+    render(<HomePage route={{ view: 'home' }} store={store} />)
+    const start = await screen.findByRole('region', { name: 'Start something new' })
+    await userEvent.dblClick(within(start).getByRole('button', { name: 'Blank' }))
+    release()
+    await waitFor(() => expect(window.location.hash).toMatch(/^#\/deck\/.+/))
+    expect(puts).toBe(1)
+  })
+
   it('Browse all makes a blank deck, opens it and asks the editor to show the Slides panel', async () => {
     const { store } = await storeWith([{ name: 'A' }])
     render(<HomePage route={{ view: 'home' }} store={store} />)

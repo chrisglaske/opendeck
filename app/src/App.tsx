@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
+import { LoadErrorBoundary } from './app/LoadErrorBoundary'
 import { START_HASHES } from './app/startGate'
 import { StartRoute } from './app/StartRoute'
 import { parseHomeRoute } from './home/routes'
@@ -33,13 +34,15 @@ function Page({ hash }: { hash: string }) {
 export default function App() {
   const hash = useHash()
   useEffect(() => {
-    void import('./app/startup').then((m) => m.runStartup())
+    void import('./app/startup').then((m) => m.runStartup(), () => {})
   }, [])
   return (
     <>
-      <Suspense fallback={null}>
-        <Page hash={hash} />
-      </Suspense>
+      <LoadErrorBoundary resetKey={hash}>
+        <Suspense fallback={null}>
+          <Page hash={hash} />
+        </Suspense>
+      </LoadErrorBoundary>
       <ToastHost />
     </>
   )

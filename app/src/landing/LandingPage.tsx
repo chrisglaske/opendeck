@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ConsentCard } from './ConsentCard'
 import { FeatureStrip } from './FeatureStrip'
 import { Footer } from './Footer'
@@ -12,7 +12,27 @@ import { WhyPrivate } from './WhyPrivate'
 import styles from './LandingPage.module.css'
 
 /** The start page for new visitors: what OpenDeck is, shown with real slides. */
+/**
+ * Once the visitor starts looking around, fetch Home and the editor in the background, so
+ * "Make a deck" still works if the connection drops. Not before: the first screen stays light.
+ */
+function usePrefetchAppOnFirstInteraction() {
+  useEffect(() => {
+    const events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'] as const
+    const go = () => {
+      for (const e of events) window.removeEventListener(e, go)
+      void import('../home/HomePage').catch(() => {})
+      void import('../editor/EditorPage').catch(() => {})
+    }
+    for (const e of events) window.addEventListener(e, go, { passive: true, once: true })
+    return () => {
+      for (const e of events) window.removeEventListener(e, go)
+    }
+  }, [])
+}
+
 export default function LandingPage() {
+  usePrefetchAppOnFirstInteraction()
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [answered, setAnswered] = useState(false)
   return (

@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { requestSlidesPanel } from '../editor/slides/openRequest'
 import { createDeck } from '../model/factory'
 import type { Deck } from '../model/types'
@@ -35,8 +35,16 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
   // Read the clock again whenever the decks or the page change, so "days left" and "Edited …" stay current.
   const now = useMemo(() => Date.now(), [data, route])
 
+  // One new deck per click: a second click while the first is still saving does nothing.
+  const creating = useRef(false)
   const openNew = async (d: Deck) => {
-    if (store) await openNewDeck(store, d)
+    if (!store || creating.current) return
+    creating.current = true
+    try {
+      await openNewDeck(store, d)
+    } finally {
+      creating.current = false
+    }
   }
   const start = {
     onBlank: () => void openNew(createDeck()),
