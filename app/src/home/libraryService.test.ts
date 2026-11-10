@@ -293,15 +293,25 @@ describe('folders', () => {
     expect(await store.listLibrary()).toEqual([{ ...emptyEntry(d.id), tags: ['t'] }])
   })
 
-  it('a failing library write leaves the folder in place', async () => {
+  it('a failing folder delete leaves the folder and every deck in it as they were', async () => {
     const { store, d } = await setup()
     const r = await createFolder(store, 'Work')
     if (!r.ok) throw new Error('failed')
     const e: LibraryEntry = { ...emptyEntry(d.id), folderId: r.folder.id }
     await store.putLibrary(e)
-    const broken: DeckStore = { ...store, async updateLibrary() { throw full() } }
+    const broken: DeckStore = { ...store, async deleteFolder() { throw full() } }
     expect(await deleteFolder(broken, r.folder.id)).toEqual({ ok: false, reason: 'quota' })
     expect(await store.listFolders()).toEqual([r.folder])
     expect(await store.listLibrary()).toEqual([e])
+  })
+
+  it('deleting a folder never goes through one write per deck', async () => {
+    const { store, d } = await setup()
+    const r = await createFolder(store, 'Work')
+    if (!r.ok) throw new Error('failed')
+    await store.putLibrary({ ...emptyEntry(d.id), folderId: r.folder.id })
+    const noPerDeckWrites: DeckStore = { ...store, async updateLibrary() { throw full() }, async putLibrary() { throw full() } }
+    expect(await deleteFolder(noPerDeckWrites, r.folder.id)).toEqual({ ok: true })
+    expect(await store.listLibrary()).toEqual([emptyEntry(d.id)])
   })
 })

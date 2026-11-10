@@ -219,7 +219,8 @@ function sanitizeElement(c: Ctx, v: unknown, depth: number): SlideElement[] {
   if (!['text', 'shape', 'image', 'icon', 'logo', 'group'].includes(type as string)) { c.fix(); return [] }
   const art = type === 'image' && v.art !== undefined ? sanitizeArt(v.art) : null
   if (type === 'image' && v.art !== undefined && !art) { c.fix(); return [] }
-  if (type === 'image' && !art && (typeof v.assetId !== 'string' || !SAFE_ID.test(v.assetId))) { c.fix(); return [] }
+  // An empty id is an empty picture frame (a copy of a sample picture), waiting for a photo.
+  if (type === 'image' && !art && (typeof v.assetId !== 'string' || (v.assetId !== '' && !SAFE_ID.test(v.assetId)))) { c.fix(); return [] }
 
   const box = {
     id: c.id(v.id), x: c.coord(v.x), y: c.coord(v.y), w: c.size(v.w), h: c.size(v.h),

@@ -210,6 +210,18 @@ describe('library, folders and meta', () => {
     expect(await s.getMeta('v1.copiedIds')).toEqual(['p1'])
   })
 
+  it('deleting a folder takes its decks out of it in the same step, leaving others alone', async () => {
+    const s = createMemoryStore()
+    await s.putFolder({ id: 'f1', name: 'Work', createdAt: 1 })
+    await s.putFolder({ id: 'f2', name: 'Home', createdAt: 2 })
+    await s.putLibrary({ ...entry('a'), folderId: 'f1', tags: ['x'] })
+    await s.putLibrary({ ...entry('b'), folderId: 'f2' })
+    await s.putLibrary(entry('c'))
+    await s.deleteFolder('f1')
+    expect(await s.listFolders()).toEqual([{ id: 'f2', name: 'Home', createdAt: 2 }])
+    expect(await s.listLibrary()).toEqual([{ ...entry('a'), folderId: null, tags: ['x'] }, { ...entry('b'), folderId: 'f2' }, entry('c')])
+  })
+
   it('stores a copy of library entries, not the live object', async () => {
     const s = createMemoryStore()
     const e = { ...entry('a'), tags: ['x'] }

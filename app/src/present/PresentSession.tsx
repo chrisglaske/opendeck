@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { uploadedFontSources } from '../fonts/uploadedFonts'
+import { getDeckStore } from '../storage/appStore'
 import type { Deck } from '../model/types'
 import { holdToasts } from '../ui'
 import { BlockedDialog } from './BlockedDialog'
 import { ControlBar } from './ControlBar'
 import { keyIntent } from './keys'
-import { openSlidesWindow, preparePopup, watchClosed } from './popup'
+import { addPopupFonts, openSlidesWindow, preparePopup, watchClosed } from './popup'
 import { takeCallTip } from './prefs'
 import { currentSlideId, showReducer, startShow } from './show'
 import type { ShowAction, ShowState } from './show'
@@ -62,7 +63,10 @@ export function PresentSession({ deck, start, onEnd }: { deck: Deck; start: Show
   // In a window, the pop-up shows the slides; in full screen, it shows the speaker view.
   const attach = useCallback((win: Window) => {
     const title = modeRef.current === 'window' ? `Slides · ${deck.name}` : `Speaker view · ${deck.name}`
-    setPopup({ win, mount: preparePopup(win, title, uploadedFontSources()) })
+    const mount = preparePopup(win, title, [])
+    // The font bytes come from storage, so they arrive a moment later; text redraws when they load.
+    void getDeckStore().then(uploadedFontSources).then((fonts) => addPopupFonts(win, fonts)).catch(() => {})
+    setPopup({ win, mount })
     setClosed(false)
     setBlocked(false)
   }, [deck.name])

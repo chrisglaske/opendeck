@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryStore, createSessionOnlyStore } from '../storage/deckStore'
-import { faceLabel, importFontFiles, registerStoredFonts, resetUploadedFonts, useUploadedFonts } from './uploadedFonts'
+import { faceLabel, importFontFiles, registerStoredFonts, resetUploadedFonts, uploadedFontSources, useUploadedFonts } from './uploadedFonts'
 
 const woff2 = (name: string, size = 64) => {
   const b = new Uint8Array(size)
@@ -65,6 +65,35 @@ describe('importFontFiles', () => {
     expect(res).toEqual([{ ok: true, family: 'Acme Sans', faces: ['700'], bytes: 64, notSaved: 'unavailable' }])
     const { result } = renderHook(() => useUploadedFonts())
     expect(result.current.families).toEqual(['Acme Sans'])
+  })
+})
+
+describe('uploadedFontSources', () => {
+  it('reads a saved face from the store instead of keeping its own copy in memory', async () => {
+    const store = createMemoryStore()
+    await importFontFiles(store, [woff2('AcmeSans-Bold.woff2')])
+    const [saved] = await store.listFonts()
+    // If the registry still held its own copy, it would hand back the old bytes.
+    await store.putFont({ ...saved, data: new Uint8Array(8).buffer })
+    const [src] = await uploadedFontSources(store)
+    expect(src).toMatchObject({ family: 'Acme Sans', weight: '700', style: 'normal' })
+    expect(src.data.byteLength).toBe(8)
+  })
+
+  it('still has the bytes of a face storage refused', async () => {
+    const store = createSessionOnlyStore()
+    await importFontFiles(store, [woff2('AcmeSans-Bold.woff2')])
+    const [src] = await uploadedFontSources(store)
+    expect(src.data.byteLength).toBe(64)
+  })
+
+  it('has the bytes of faces registered from the store', async () => {
+    const data = new Uint8Array([0x77, 0x4f, 0x46, 0x32, 0, 0]).buffer
+    const store = createMemoryStore()
+    const rec = { id: 'f2', family: 'Brand', weight: '400', style: 'normal' as const, format: 'woff2' as const, data, fileName: 'x.woff2', size: 6 }
+    await store.putFont(rec)
+    await registerStoredFonts(await store.listFonts())
+    expect((await uploadedFontSources(store)).map((f) => f.family)).toEqual(['Brand'])
   })
 })
 

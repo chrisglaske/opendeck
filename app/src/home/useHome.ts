@@ -3,11 +3,11 @@ import { getDeckStore } from '../storage/appStore'
 import type { DeckStore } from '../storage/deckStore'
 import { firstRunCopy } from '../v1/importV1'
 import { onLibraryMessage } from './libraryChannel'
-import { loadHome, purgeDue } from './libraryService'
+import { loadHome, purgeDue, purgeUnusedAssets } from './libraryService'
 import type { HomeData } from './libraryService'
 
 /**
- * The first-load work per store (V1 copy, then Trash clean-up), run once per page load. Every
+ * The first-load work per store (V1 copy, Trash clean-up, then picture clean-up), run once per page load. Every
  * caller waits for the same run, so Home never shows before the copy has finished.
  */
 const firstLoad = new WeakMap<DeckStore, Promise<void>>()
@@ -17,6 +17,8 @@ function prepare(store: DeckStore): Promise<void> {
     p = (async () => {
       await firstRunCopy(store, v1Storage(), Date.now()).catch(() => {})
       await purgeDue(store, Date.now()).catch(() => {})
+      // Pictures left behind by a closed tab or an interrupted import go too.
+      await purgeUnusedAssets(store).catch(() => {})
     })()
     firstLoad.set(store, p)
   }

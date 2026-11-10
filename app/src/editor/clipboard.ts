@@ -7,6 +7,8 @@ import { asOwnElement } from '../model/roles'
 import { addElements, findElement } from '../model/ops'
 import { sanitizeElements } from '../model/sanitize'
 import type { Slide, SlideElement } from '../model/types'
+import { getDeckStore } from '../storage/appStore'
+import { toast } from '../ui'
 import { elementCommands } from './commands'
 import { useEditorStore } from './EditorContext'
 import { addImages, imageFiles } from './media'
@@ -111,20 +113,62 @@ export function copySelection(store: EditorStore, data: DataTransfer): boolean {
   return true
 }
 
-export function pasteInto(store: EditorStore, data: DataTransfer): boolean {
+/** True when the picture is still stored. Anything unreadable counts as stored: never drop on doubt. */
+const pictureStored = async (id: string): Promise<boolean> => {
+  try {
+    return (await (await getDeckStore()).getAsset(id)) !== null
+  } catch {
+    return true
+  }
+}
+
+/** The elements without the pictures in `missing`; a group left empty goes too. */
+function withoutPictures(els: SlideElement[], missing: Set<string>): SlideElement[] {
+  return els.flatMap((e): SlideElement[] => {
+    if (e.type === 'image') return missing.has(e.assetId) ? [] : [e]
+    if (e.type !== 'group') return [e]
+    const children = withoutPictures(e.children, missing)
+    return children.length ? [{ ...e, children }] : []
+  })
+}
+
+/**
+ * Puts pasted elements on the slide. A copied picture whose deck was deleted since (so its picture
+ * was cleaned up) is left out, with a note, rather than pasted as a broken picture.
+ */
+async function place(store: EditorStore, slideId: string, pasted: SlideElement[], copied: boolean, stored: (id: string) => Promise<boolean>) {
+  let els = pasted
+  const pics = assetIds(pasted)
+  if (pics.length) {
+    const missing = new Set((await Promise.all([...new Set(pics)].map(async (id) => ((await stored(id).catch(() => true)) ? null : id)))).filter((x): x is string => x !== null))
+    if (missing.size) {
+      els = withoutPictures(pasted, missing)
+      toast('A picture in what you pasted is no longer stored, so it was left out.')
+    }
+  }
+  if (!els.length) return
+  const slide = store.getState().deck.slides.find((s) => s.id === slideId)
+  if (!slide) return
+  // Copied elements keep their place (stepping past identical ones); typed-in text is added as is.
+  const { dx, dy } = copied ? pastePlacement(els, slide.elements) : { dx: 0, dy: 0 }
+  const placed = copied ? bringOnSlide(els.map((e) => moveElement(e, dx, dy))) : els
+  store.apply((d) => addElements(d, slide.id, placed), { selection: { slideId: slide.id, ids: placed.map((e) => e.id) } })
+}
+
+export function pasteInto(
+  store: EditorStore, data: Pick<DataTransfer, 'getData'>, stored: (id: string) => Promise<boolean> = pictureStored,
+): boolean {
   const slide = slideOf(store)
   const fromClip = parseClipboard(data.getData(MIME)) ?? parseClipboard(data.getData('text/plain'))
   let els: SlideElement[]
-  if (fromClip) {
-    const { dx, dy } = pastePlacement(fromClip, slide.elements)
-    els = bringOnSlide(fromClip.map((e) => moveElement(e, dx, dy)))
-  } else {
+  if (fromClip) els = fromClip
+  else {
     const text = data.getData('text/plain')
     // Image files are handled before this (see useClipboard); anything else without text is ignored.
     if (!text.trim()) return false
     els = [textBox(text)]
   }
-  store.apply((d) => addElements(d, slide.id, els), { selection: { slideId: slide.id, ids: els.map((e) => e.id) } })
+  void place(store, slide.id, els, fromClip !== null, stored)
   return true
 }
 

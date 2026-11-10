@@ -17,7 +17,8 @@ export type FontImportResult =
 
 // ── Registry of faces usable in this tab ─────────────────────────────────
 
-type Face = { id: string; family: string; weight: string; style: FontStyle; data: ArrayBuffer; font: FontFace }
+/** `data` is kept only while the face isn't saved in this browser; a saved face's bytes are read from the store when needed. */
+type Face = { id: string; family: string; weight: string; style: FontStyle; data: ArrayBuffer | null; font: FontFace }
 const registry = new Map<string, Face>()
 const listeners = new Set<() => void>()
 let snapshot: { families: string[]; faces: Record<string, string[]>; loading: boolean } = { families: [], faces: {}, loading: false }
@@ -61,9 +62,18 @@ export const uploadedFamilies = (): ReadonlySet<string> => new Set(snapshot.fami
 /** An uploaded face's bytes, for drawing it somewhere else: the slides window or a downloaded file. */
 export type FontSource = { family: string; weight: string; style: FontStyle; data: ArrayBuffer }
 
-/** Every uploaded face registered in this tab. */
-export function uploadedFontSources(): FontSource[] {
-  return [...registry.values()].map(({ family, weight, style, data }) => ({ family, weight, style, data }))
+/** Every uploaded face registered in this tab, with its bytes (read from the store for saved faces). */
+export async function uploadedFontSources(store: DeckStore): Promise<FontSource[]> {
+  const saved = new Map<string, ArrayBuffer>()
+  try {
+    for (const f of await store.listFonts()) saved.set(f.id, f.data)
+  } catch {
+    // Faces kept in memory are still returned.
+  }
+  return [...registry.values()].flatMap(({ id, family, weight, style, data }) => {
+    const bytes = data ?? saved.get(id)
+    return bytes ? [{ family, weight, style, data: bytes }] : []
+  })
 }
 
 /** Forgets every registered face. For tests. */
@@ -103,7 +113,7 @@ export async function registerStoredFonts(fonts: readonly unknown[]): Promise<vo
       || !(f.data instanceof ArrayBuffer) || f.data.byteLength > FONT_MAX_BYTES
     ) continue
     const font = await load(f.family, f.data, f.weight, f.style)
-    if (font) addFace({ id: f.id, family: f.family, weight: f.weight, style: f.style, data: f.data }, font)
+    if (font) addFace({ id: f.id, family: f.family, weight: f.weight, style: f.style, data: null }, font)
   }
   publish()
 }
@@ -144,6 +154,9 @@ export async function importFontData(
   publish()
   try {
     await store.putFont(stored)
+    // Saved: the store holds the bytes now, so this tab doesn't need a second copy.
+    const cur = registry.get(faceKey(family, weight, style))
+    if (cur && cur.id === stored.id && cur.font === font) cur.data = null
     return result
   } catch (e) {
     return { ...result, notSaved: errorReason(e) }

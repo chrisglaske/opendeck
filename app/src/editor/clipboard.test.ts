@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createShape, createSlide, createText } from '../model/factory'
+import { createImage, createShape, createSlide, createText } from '../model/factory'
 import { group } from '../model/ops'
 import { createDeck } from '../model/factory'
 import type { SlideElement } from '../model/types'
-import { CLIP_FORMAT, parseClipboard, pastePlacement, serializeSelection } from './clipboard'
+import { CLIP_FORMAT, MIME, parseClipboard, pasteInto, pastePlacement, serializeSelection } from './clipboard'
+import { createEditorStore } from './store'
+
+const toasts = vi.hoisted(() => ({ list: [] as string[] }))
+vi.mock('../ui', () => ({ toast: (m: string) => toasts.list.push(m) }))
 
 /** Every id in an element tree. */
 const ids = (els: SlideElement[]): string[] => els.flatMap((e) => [e.id, ...(e.type === 'group' ? ids(e.children) : [])])
@@ -100,6 +104,25 @@ describe('pasting template elements', () => {
   })
 })
 
+describe('copying a sample picture', () => {
+  it('gives an empty picture frame, not a copy of the drawn sample art', () => {
+    const slide = createSlide()
+    const pic = { ...createImage('', { w: 400, h: 300 }), art: { kind: 'photo' as const, variant: 0 as const }, sample: true as const, role: 'picture' }
+    slide.elements = [pic]
+    const [copy] = parseClipboard(serializeSelection(slide, [pic.id]))!
+    expect(copy.type).toBe('image')
+    expect(copy).not.toHaveProperty('art')
+    expect(copy).toMatchObject({ assetId: '', w: 400, h: 300 })
+  })
+
+  it('keeps a real photo as it is', () => {
+    const slide = createSlide()
+    const pic = createImage('real-asset', { w: 400, h: 300 })
+    slide.elements = [pic]
+    expect(parseClipboard(serializeSelection(slide, [pic.id]))![0]).toMatchObject({ assetId: 'real-asset' })
+  })
+})
+
 describe('pasting onto a slide that is nearly full', () => {
   it('compares each element once, not once per step', () => {
     const base = createShape('rect')
@@ -112,5 +135,45 @@ describe('pasting onto a slide that is nearly full', () => {
     spy.mockRestore()
     expect(placement).toEqual({ dx: 2400, dy: 2400 })
     expect(calls).toBeLessThan(200_000)
+  })
+
+  describe('pasting pictures', () => {
+    const clipWith = (assetIds: string[]) => {
+      const slide = createSlide()
+      slide.elements = [createShape('rect'), ...assetIds.map((a) => createImage(a, { w: 100, h: 80 }))]
+      const json = serializeSelection(slide, slide.elements.map((e) => e.id))
+      return { getData: (t: string) => (t === MIME ? json : '') }
+    }
+    const setup = () => {
+      const store = createEditorStore(createDeck())
+      return { store, slideId: store.getState().deck.slides[0].id }
+    }
+    const types = (store: ReturnType<typeof createEditorStore>) => store.getState().deck.slides[0].elements.map((e) => e.type)
+
+    it('drops a picture that is no longer stored, keeps the rest, and says so', async () => {
+      toasts.list.length = 0
+      const { store } = setup()
+      pasteInto(store, clipWith(['gone', 'here']), async (id) => id === 'here')
+      await vi.waitFor(() => expect(types(store)).toEqual(['shape', 'image']))
+      expect((store.getState().deck.slides[0].elements[1] as { assetId: string }).assetId).toBe('here')
+      expect(toasts.list).toEqual(["A picture in what you pasted is no longer stored, so it was left out."])
+    })
+
+    it('pastes nothing when every copied item was a missing picture', async () => {
+      toasts.list.length = 0
+      const { store } = setup()
+      const slide = createSlide()
+      slide.elements = [createImage('gone', { w: 100, h: 80 })]
+      const json = serializeSelection(slide, [slide.elements[0].id])
+      pasteInto(store, { getData: (t: string) => (t === MIME ? json : '') }, async () => false)
+      await vi.waitFor(() => expect(toasts.list).toHaveLength(1))
+      expect(types(store)).toEqual([])
+    })
+
+    it('keeps a picture when storage can not be read (never drops on doubt)', async () => {
+      const { store } = setup()
+      pasteInto(store, clipWith(['x']), async () => { throw new Error('read failed') })
+      await vi.waitFor(() => expect(types(store)).toEqual(['shape', 'image']))
+    })
   })
 })

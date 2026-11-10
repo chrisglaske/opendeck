@@ -111,8 +111,8 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
       if (!s.cancelled) setView({ kind: 'other-tab', name: store.getState().deck.name })
     })
     // Home moved this deck to the Trash: keep what was typed, then stop editing.
-    s.offLibrary = onLibraryMessage((m) => {
-      if (m.kind !== 'trashed' || m.deckId !== deckId || s.autosaver !== autosaver) return
+    const stopForTrash = () => {
+      if (s.autosaver !== autosaver) return
       s.offDeck?.()
       s.offLibrary?.()
       s.lock = s.autosaver = s.offDeck = s.offLibrary = undefined
@@ -121,7 +121,13 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
         lock.release()
         if (!s.cancelled) setView({ kind: 'trashed', name: store.getState().deck.name })
       })
+    }
+    s.offLibrary = onLibraryMessage((m) => {
+      if (m.kind === 'trashed' && m.deckId === deckId) stopForTrash()
     })
+    // A deck trashed after the check that let this editor open but before the line above started
+    // listening sent a message nobody heard: look once more now that we are listening.
+    void isTrashed(deckStore, deckId).then((trashed) => { if (trashed) stopForTrash() }, () => {})
     setView({ kind: 'ready', store, autosaver })
     return store
   }, [deckId, storeProp])

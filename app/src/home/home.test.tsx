@@ -207,4 +207,12 @@ describe('Home', () => {
     await screen.findByRole('heading', { name: 'Make your first deck' })
     await waitFor(async () => expect(await store.getDeck(old.id)).toBeNull())
   })
+
+  it('removes pictures nothing uses when Home opens, not only after a deletion', async () => {
+    const store = createMemoryStore()
+    await store.putAsset({ id: 'orphan', blob: new Blob(['x']), type: 'image/png', width: 1, height: 1 })
+    render(<HomePage route={{ view: 'home' }} store={store} />)
+    await screen.findByRole('heading', { name: 'Make your first deck' })
+    await waitFor(async () => expect(await store.getAsset('orphan')).toBeNull())
+  })
 })

@@ -208,23 +208,12 @@ export async function renameFolder(store: DeckStore, id: string, name: string): 
   }
 }
 
-/**
- * Deletes a folder and keeps its decks (they end up in no folder). Decks are moved out first;
- * if that fails, the ones already moved are put back and the folder stays.
- */
+/** Deletes a folder and keeps its decks (they end up in no folder), all in one step. */
 export async function deleteFolder(store: DeckStore, id: string): Promise<ActionResult> {
-  const inside = (await listEntries(store)).filter((e) => e.folderId === id)
-  const moved: LibraryEntry[] = []
   try {
-    for (const e of inside) {
-      const r = await updateEntry(store, e.deckId, (cur) => ({ ...cur, folderId: null }))
-      if (!r.ok) throw r
-      moved.push(e)
-    }
     await store.deleteFolder(id)
     return { ok: true }
   } catch (err) {
-    for (const e of moved) await updateEntry(store, e.deckId, (cur) => ({ ...cur, folderId: e.folderId }))
-    return (err as Failed | null)?.ok === false ? (err as Failed) : fail(err)
+    return fail(err)
   }
 }

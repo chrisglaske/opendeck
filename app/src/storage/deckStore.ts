@@ -48,6 +48,7 @@ export interface DeckStore {
   /** Raw stored data: run each through `sanitizeFolder`. */
   listFolders(): Promise<unknown[]>
   putFolder(f: Folder): Promise<void>
+  /** Deletes the folder and, in the same step, takes every deck in it out of it (all or nothing). */
   deleteFolder(id: string): Promise<void>
   /** Small app-wide values (for example which V1 decks were copied). Raw stored data. */
   getMeta(key: string): Promise<unknown>
@@ -172,6 +173,7 @@ export function createMemoryStore(): DeckStore {
     },
     async deleteFolder(id) {
       folders.delete(id)
+      for (const [k, e] of library) if ((e as { folderId?: unknown }).folderId === id) library.set(k, { ...e, folderId: null })
     },
     async getMeta(key) {
       return meta.has(key) ? structuredClone(meta.get(key)) : undefined
