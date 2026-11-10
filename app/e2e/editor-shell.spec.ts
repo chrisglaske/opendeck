@@ -98,3 +98,23 @@ for (const mode of ['light', 'dark'] as const) {
     expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([])
   })
 }
+
+for (const scheme of ['light', 'dark'] as const) {
+  test(`the current slide's number is readable in ${scheme} mode`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await newDeck(page)
+    const colors = await thumbs(page).first().locator('[class*="num"]').evaluate((el) => {
+      const c = getComputedStyle(el)
+      return { fg: c.color, bg: c.backgroundColor }
+    })
+    const lum = (rgb: string) => {
+      const [r, g, b] = (rgb.match(/\d+/g) ?? []).slice(0, 3).map((v) => {
+        const x = Number(v) / 255
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+      })
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    }
+    const [hi, lo] = [lum(colors.fg), lum(colors.bg)].sort((a, b) => b - a)
+    expect((hi + 0.05) / (lo + 0.05)).toBeGreaterThanOrEqual(4.5)
+  })
+}

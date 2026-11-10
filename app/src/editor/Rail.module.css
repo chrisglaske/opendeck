@@ -101,7 +101,8 @@
   box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px var(--accent-tint);
 }
 
-.current .num {
+.current .num,
+.thumb.current[aria-selected='true'] .num {
   align-self: flex-start;
   width: 18px;
   margin-top: 2px;

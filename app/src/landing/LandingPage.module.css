@@ -191,3 +191,17 @@
     order: 2;
   }
 }
+
+/* Large screens: use more of the width. */
+@media (min-width: 1700px) {
+  .in {
+    max-width: 1800px;
+    padding: 0 56px;
+  }
+}
+
+@media (min-width: 2200px) {
+  .in {
+    max-width: 2240px;
+  }
+}

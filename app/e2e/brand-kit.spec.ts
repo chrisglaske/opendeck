@@ -247,3 +247,53 @@ test('the menu of a kit in the last row stays inside the Theme panel', async ({ 
   expect(menu.y).toBeGreaterThanOrEqual(panel.y)
   expect(menu.y + menu.height).toBeLessThanOrEqual(panel.y + panel.height)
 })
+
+/** Opens the font picker from a new brand kit's Headings button. */
+async function openFontPicker(page: Page) {
+  await openTheme(page)
+  await themePanel(page).getByRole('button', { name: 'Create brand kit' }).click()
+  await kitDialog(page).getByRole('button', { name: /^Headings: / }).click()
+  return page.getByRole('dialog', { name: 'Font' })
+}
+
+test('a saved font comes back after a reload and is never called missing on the way', async ({ page }) => {
+  await newDeck(page)
+  await createAcme(page, { logo: false })
+  await page.addInitScript(() => {
+    ;(window as unknown as { __missing: number }).__missing = 0
+    new MutationObserver(() => {
+      if (document.body?.innerText.includes('Missing · upload again')) (window as unknown as { __missing: number }).__missing++
+    }).observe(document, { subtree: true, childList: true, characterData: true })
+  })
+  await page.reload()
+  await expect(page.getByRole('listbox', { name: 'Slides' })).toBeVisible()
+  const picker = await openFontPicker(page)
+  await expect(picker.getByRole('menuitemradio', { name: /Acme Sans/ })).toBeVisible()
+  await expect(picker.getByText('Missing · upload again')).toHaveCount(0)
+  const faces = await page.evaluate(async () => (await document.fonts.load("700 40px 'Acme Sans'")).map((f) => [f.family.replace(/["']/g, ''), f.status]))
+  expect(faces).toContainEqual(['Acme Sans', 'loaded'])
+  expect(await page.evaluate(() => (window as unknown as { __missing: number }).__missing)).toBe(0)
+})
+
+test('when the saved fonts cannot be read, the deck still opens and the font is listed as missing', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(String(e)))
+  await newDeck(page)
+  await createAcme(page, { logo: false })
+  await page.addInitScript(() => {
+    const fail = (orig: (...a: never[]) => unknown) =>
+      function (this: IDBObjectStore, ...a: never[]) {
+        if (this.name === 'fonts') throw new DOMException('simulated read failure', 'UnknownError')
+        return orig.apply(this, a)
+      }
+    IDBObjectStore.prototype.getAll = fail(IDBObjectStore.prototype.getAll as never) as never
+    IDBObjectStore.prototype.openCursor = fail(IDBObjectStore.prototype.openCursor as never) as never
+  })
+  await page.reload()
+  await expect(page.getByRole('listbox', { name: 'Slides' })).toBeVisible()
+  const picker = await openFontPicker(page)
+  // Once loading has ended, the font the deck uses is honestly called missing.
+  await expect(picker.getByText('Missing · upload again')).toBeVisible()
+  await page.keyboard.press('Escape')
+  expect(errors).toEqual([])
+})
