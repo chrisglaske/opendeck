@@ -47,7 +47,7 @@ describe('editor store', () => {
     expect(store.getState().selection.ids).toEqual([shape.id])
     expect(store.getState().canUndo).toBe(true)
     store.undo()
-    expect(store.getState().deck).toBe(deck)
+    expect(store.getState().deck).toEqual({ ...deck, updatedAt: expect.any(Number) })
     expect(store.getState().selection).toEqual({ slideId, ids: [] })
     expect(store.getState().canRedo).toBe(true)
   })
@@ -72,6 +72,19 @@ describe('editor store', () => {
     expect(store.getState().deck.updatedAt).toBe(Date.parse('2026-11-08T11:00:00Z'))
   })
 
+  it('undo and redo stamp updatedAt too, so Home shows when the deck last changed', () => {
+    const { store } = setup()
+    vi.setSystemTime(new Date('2026-11-08T11:00:00Z'))
+    store.apply(rename('A'))
+    vi.setSystemTime(new Date('2026-11-08T12:00:00Z'))
+    store.undo()
+    expect(store.getState().deck.updatedAt).toBe(Date.parse('2026-11-08T12:00:00Z'))
+    vi.setSystemTime(new Date('2026-11-08T13:00:00Z'))
+    store.redo()
+    expect(store.getState().deck.name).toBe('A')
+    expect(store.getState().deck.updatedAt).toBe(Date.parse('2026-11-08T13:00:00Z'))
+  })
+
   it('an apply that returns the same deck is a no-op', () => {
     const { store } = setup()
     const before = store.getState()
@@ -87,7 +100,7 @@ describe('editor store', () => {
     store.commit()
     expect(store.getState().deck.name).toBe('drag 29')
     store.undo()
-    expect(store.getState().deck).toBe(deck)
+    expect(store.getState().deck).toEqual({ ...deck, updatedAt: expect.any(Number) })
     expect(store.getState().canUndo).toBe(false)
   })
 
@@ -115,7 +128,7 @@ describe('editor store', () => {
     vi.advanceTimersByTime(500)
     store.apply(rename('ab'), { coalesce: 'type' })
     store.undo()
-    expect(store.getState().deck).toBe(deck)
+    expect(store.getState().deck).toEqual({ ...deck, updatedAt: expect.any(Number) })
   })
 
   it('does not coalesce 1500 ms apart', () => {

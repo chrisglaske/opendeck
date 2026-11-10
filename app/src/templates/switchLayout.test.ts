@@ -35,6 +35,36 @@ const KPI_TEXT = {
   'stat.value[4]': '71', 'stat.label[4]': 'NPS score',
 }
 
+describe('switchLayout with locked items', () => {
+  const lock = (s: Slide, pick: (e: SlideElement) => boolean): Slide => ({
+    ...s, elements: s.elements.map((e) => (pick(e) ? { ...e, locked: true } : e)),
+  })
+
+  it('keeps a locked content item where it is, still locked, and does not fill its spot twice', () => {
+    const kpis = lock(typed(slideFromTemplate(T('kpis')), KPI_TEXT), (e) => e.role === 'title')
+    const before = byRole(kpis, 'title') as TextEl
+    const { slide } = switchLayout(kpis, T('stats'))
+    const titles = slide.elements.filter((e) => e.role === 'title')
+    expect(titles).toHaveLength(1)
+    expect(titles[0]).toEqual(before)
+    expect(titles[0].locked).toBe(true)
+  })
+
+  it('keeps a locked decor item too', () => {
+    const kpis = lock(slideFromTemplate(T('kpis')), (e) => e.role === 'decor')
+    const lockedDecor = kpis.elements.filter((e) => e.role === 'decor' && e.locked)
+    if (lockedDecor.length === 0) return // this layout has no decor to lock
+    const { slide } = switchLayout(kpis, T('stats'))
+    for (const d of lockedDecor) expect(slide.elements).toContainEqual(d)
+  })
+
+  it('moves unlocked content as before', () => {
+    const kpis = lock(typed(slideFromTemplate(T('kpis')), KPI_TEXT), (e) => e.role === 'title')
+    const { slide } = switchLayout(kpis, T('stats'))
+    expect(textOf(byRole(slide, 'stat.value[1]'))).toBe('$2M')
+  })
+})
+
 describe('switchLayout', () => {
   it('moves typed numbers into the new layout and parks the fourth', () => {
     const kpis = typed(slideFromTemplate(T('kpis')), KPI_TEXT)

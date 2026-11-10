@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent } from 'react'
 import { useElementWidth } from '../home/useElementWidth'
 import { OPENDECK_THEME } from '../model/theme'
-import { SLIDE_W } from '../model/types'
+import { SLIDE_H, SLIDE_W } from '../model/types'
 import type { Rect } from '../model/types'
 import { SlideView } from '../render/SlideView'
 import { Button } from '../ui'
@@ -21,6 +21,7 @@ function DemoFrame() {
   const scale = w / SLIDE_W
   const [rect, setRect] = useState<Rect>(DEMO_CARD_START)
   const [snap, setSnap] = useState({ x: false, y: false })
+  const [said, setSaid] = useState('')
   const gesture = useRef<Gesture | null>(null)
 
   const begin = (kind: Gesture['kind']) => (e: PointerEvent<HTMLElement>) => {
@@ -53,6 +54,13 @@ function DemoFrame() {
     if (!next) return
     e.preventDefault()
     setRect(next)
+    // Keys only: a drag would announce every step.
+    const pct = (v: number, of: number) => Math.round((v / of) * 100)
+    setSaid(
+      e.shiftKey
+        ? `Resized. Card is ${pct(next.w, SLIDE_W)}% wide and ${pct(next.h, SLIDE_H)}% tall.`
+        : `Moved. Card is at ${pct(next.x, SLIDE_W)}% from the left, ${pct(next.y, SLIDE_H)}% from the top.`,
+    )
   }
 
   const t = OPENDECK_THEME
@@ -62,7 +70,7 @@ function DemoFrame() {
         <SlideView slide={slide} theme={t} scale={scale} interactive={false} />
       </div>
       <div
-        role="button"
+        role="group"
         tabIndex={0}
         aria-label="Demo card. Arrow keys move it, Shift and arrow keys resize it."
         className={styles.card}
@@ -87,6 +95,7 @@ function DemoFrame() {
       >
         <span className={styles.handle} data-demo-handle="" onPointerDown={begin('resize')} onPointerMove={move} onPointerUp={end} onPointerCancel={end} />
       </div>
+      <span role="status" className={styles.srOnly}>{said}</span>
       {snap.x && <span className={styles.vguide} data-guide="vertical" aria-hidden />}
       {snap.y && <span className={styles.hguide} data-guide="horizontal" aria-hidden />}
       <span className={styles.tip}><Hand aria-hidden />Try it: drag the card, or resize from its corner</span>

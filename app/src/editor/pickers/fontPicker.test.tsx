@@ -1,7 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { resetUploadedFonts } from '../../fonts/uploadedFonts'
+import { loadStoredFonts, resetUploadedFonts } from '../../fonts/uploadedFonts'
 import { builtinTheme } from '../../model/builtinThemes'
 import { createDeck, createText } from '../../model/factory'
 import { applyTheme } from '../../model/themeOps'
@@ -68,6 +68,22 @@ describe('FontPicker', () => {
     await open('Font: Acme Sans')
     expect(groupNames()[0]).toBe('Uploaded')
     expect(item('Acme Sans')).toHaveTextContent('Missing · upload again')
+  })
+
+  it('does not call a saved font missing while the saved fonts are still loading', async () => {
+    const store = createMemoryStore()
+    const bytes = new Uint8Array(64)
+    bytes.set([0x77, 0x4f, 0x46, 0x32])
+    await store.putFont({ id: 'f1', family: 'Acme Sans', weight: '400', style: 'normal', format: 'woff2', data: bytes.buffer, fileName: 'a.woff2', size: 64 })
+    let release!: () => void
+    const slow = new Promise<typeof store>((res) => { release = () => res(store) })
+    const loading = loadStoredFonts(slow)
+    picker({ value: 'Acme Sans', roles: { heading: 'Acme Sans', body: 'Inter' }, inUse: ['Acme Sans'] })
+    await open('Font: Acme Sans')
+    expect(screen.queryByText(/Missing/)).toBeNull()
+    await act(async () => { release(); await loading })
+    expect(screen.queryByText(/Missing/)).toBeNull()
+    expect(item('Acme Sans')).toBeInTheDocument()
   })
 
   it('uploads a font and shows it under Uploaded', async () => {

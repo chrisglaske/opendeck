@@ -115,3 +115,48 @@ describe('autosaver', () => {
     expect(store.puts).toEqual([])
   })
 })
+
+describe('autosaver and a deck deleted in another tab', () => {
+  it('does not bring a deleted deck back, and says why', async () => {
+    const store = spyStore()
+    const d = createDeck('x')
+    await store.putDeck(d)
+    store.puts.length = 0
+    const a = createAutosaver(store, { existing: true })
+    await store.deleteDeck(d.id) // another tab deleted it
+    a.schedule({ ...d, name: 'edited' })
+    await vi.advanceTimersByTimeAsync(600)
+    expect(store.puts).toHaveLength(0)
+    expect(await store.getDeck(d.id)).toBeNull()
+    expect(a.getStatus()).toEqual({ state: 'error', reason: 'deleted' })
+    await vi.advanceTimersByTimeAsync(20000) // no retry brings it back
+    expect(store.puts).toHaveLength(0)
+  })
+
+  it('still saves a deck that exists', async () => {
+    const store = spyStore()
+    const d = createDeck('x')
+    await store.putDeck(d)
+    store.puts.length = 0
+    const a = createAutosaver(store, { existing: true })
+    a.schedule({ ...d, name: 'edited' })
+    await vi.advanceTimersByTimeAsync(600)
+    expect(store.puts.map((p) => p.name)).toEqual(['edited'])
+  })
+})
+
+describe('autosaver flushNow (the connection is about to close)', () => {
+  it('starts the write in the same tick, before any await', async () => {
+    const store = spyStore()
+    const a = createAutosaver(store, { existing: true })
+    const d = createDeck('x')
+    await store.putDeck(d)
+    store.puts.length = 0
+    a.schedule({ ...d, name: 'typed just now' }) // still inside the 600 ms wait
+    a.flushNow()
+    expect(store.puts.map((p) => p.name)).toEqual(['typed just now'])
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(store.puts).toHaveLength(1) // not written twice
+    expect(a.getStatus()).toEqual({ state: 'saved' })
+  })
+})

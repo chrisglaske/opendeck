@@ -78,13 +78,13 @@ function fingerprint(v: unknown): string {
   return JSON.stringify(v)
 }
 
-const sameExceptId = (a: SlideElement, b: SlideElement) => fingerprint(a) === fingerprint(b)
-
 /** Pastes in place, stepping 24 down and right past identical elements already there. */
 export function pastePlacement(pasted: SlideElement[], existing: SlideElement[]): { dx: number; dy: number } {
   if (pasted.length === 0) return { dx: 0, dy: 0 }
+  // Each element on the slide is fingerprinted once; the steps only fingerprint the pasted one.
+  const taken = new Set(existing.map(fingerprint))
   let k = 0
-  while (k < 100 && existing.some((e) => sameExceptId(e, moveElement(pasted[0], k * PASTE_STEP, k * PASTE_STEP)))) k++
+  while (k < 100 && taken.has(fingerprint(moveElement(pasted[0], k * PASTE_STEP, k * PASTE_STEP)))) k++
   return { dx: k * PASTE_STEP, dy: k * PASTE_STEP }
 }
 

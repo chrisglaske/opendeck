@@ -116,7 +116,7 @@ export function createEditorStore(initial: Deck, opts: { historyLimit?: number }
       if (!prev) return
       future.push(current())
       lastCoalesce = null
-      set({ ...prev, editingId: null }, true)
+      set({ ...prev, deck: stamp(prev.deck), editingId: null }, true)
     },
     redo() {
       if (gesture) this.cancel()
@@ -124,7 +124,7 @@ export function createEditorStore(initial: Deck, opts: { historyLimit?: number }
       if (!next) return
       pushPast(current())
       lastCoalesce = null
-      set({ ...next, editingId: null }, true)
+      set({ ...next, deck: stamp(next.deck), editingId: null }, true)
     },
     select(sel) {
       set({ selection: sel }, false)

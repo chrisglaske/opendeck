@@ -1,12 +1,17 @@
 import type { Deck } from '../model/types'
 import type { DeckStore } from './deckStore'
 
-export type SaveErrorReason = 'quota' | 'unavailable' | 'unknown'
+export type SaveErrorReason = 'quota' | 'unavailable' | 'deleted' | 'unknown'
 export type SaveStatus = { state: 'saved' } | { state: 'saving' } | { state: 'error'; reason: SaveErrorReason }
 
 export interface Autosaver {
   schedule(d: Deck): void
   flush(): Promise<void>
+  /**
+   * Starts writing the waiting deck right now, in this same tick. For the last moment before the
+   * browser closes the storage connection, when nothing can be awaited first.
+   */
+  flushNow(): void
   getStatus(): SaveStatus
   subscribe(fn: () => void): () => void
   dispose(): void
@@ -24,9 +29,10 @@ export function errorReason(e: unknown): SaveErrorReason {
 /**
  * Saves the latest deck a short while after a change. Only the newest deck is
  * kept; writes never overlap. On failure the deck stays in memory, the status
- * says why, and the next change (or a timed retry) tries again.
+ * says why, and the next change (or a timed retry) tries again. With `existing`, a deck that
+ * has been deleted in another tab is never written back: the status says so instead.
  */
-export function createAutosaver(store: DeckStore, opts: { delay?: number } = {}): Autosaver {
+export function createAutosaver(store: DeckStore, opts: { delay?: number; existing?: boolean } = {}): Autosaver {
   const delay = opts.delay ?? 600
   let pending: Deck | null = null
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -60,6 +66,10 @@ export function createAutosaver(store: DeckStore, opts: { delay?: number } = {})
     pending = null
     inFlight = (async () => {
       try {
+        if (opts.existing && (await store.getDeck(deck.id)) == null) {
+          setStatus({ state: 'error', reason: 'deleted' })
+          return
+        }
         await store.putDeck(deck)
         if (!pending) setStatus({ state: 'saved' })
       } catch (e) {
@@ -84,6 +94,20 @@ export function createAutosaver(store: DeckStore, opts: { delay?: number } = {})
     async flush() {
       clearTimers()
       await run()
+    },
+    flushNow() {
+      if (disposed || !pending || inFlight) return
+      clearTimers()
+      const deck = pending
+      pending = null
+      const write = store.putDeck(deck).then(
+        () => { if (!pending) setStatus({ state: 'saved' }) },
+        (e) => {
+          if (!pending) pending = deck
+          setStatus({ state: 'error', reason: errorReason(e) })
+        },
+      )
+      inFlight = write.finally(() => { if (inFlight === write) inFlight = null })
     },
     getStatus: () => status,
     subscribe(fn) {

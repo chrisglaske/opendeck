@@ -218,6 +218,23 @@ describe('the From V1 chip', () => {
   })
 })
 
+describe('clearing the From V1 chip next to changes made elsewhere', () => {
+  it('keeps what another tab changed to the entry in the meantime', async () => {
+    const inner = createMemoryStore()
+    await firstRunCopy(inner, v1Storage(projectsOf('branded')), NOW)
+    const [d] = await inner.listDecks()
+    const stale = await inner.listLibrary() // what this tab last saw
+    const [seen] = stale as { deckId: string; tags: string[] }[]
+    // Another tab tags the deck after this tab read the library.
+    await inner.updateLibrary(d.id, (raw) => ({ ...(raw as object), tags: [...seen.tags, 'added-elsewhere'] }) as never)
+    const lagging: DeckStore = { ...inner, listLibrary: async () => stale }
+    await clearFromV1(lagging, d.id)
+    const [e] = await listEntries(inner)
+    expect(e.fromV1Unopened).toBeUndefined()
+    expect(e.tags).toContain('added-elsewhere')
+  })
+})
+
 describe('V1 deck files', () => {
   it('imports a V1 project file as a new deck with no folder', async () => {
     const [p] = projectsOf('organized')

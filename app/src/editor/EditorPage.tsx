@@ -8,6 +8,7 @@ import { failToast } from '../home/useDeckActions'
 import { createAutosaver } from '../storage/autosave'
 import type { Autosaver } from '../storage/autosave'
 import { getDeckStore } from '../storage/appStore'
+import { onStorageOutdated } from '../storage/idbStore'
 import { acquireDeckLock, takeOverDeckLock } from '../storage/deckLock'
 import type { HeldLock } from '../storage/deckLock'
 import { openDeck } from '../storage/deckStore'
@@ -87,10 +88,14 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
       return null
     }
     const store = createEditorStore(r.deck)
-    const autosaver = createAutosaver(deckStore)
+    const autosaver = createAutosaver(deckStore, { existing: true })
     s.lock = lock
     s.autosaver = autosaver
-    s.offDeck = store.onDeckChange((d) => autosaver.schedule(d))
+    const offChange = store.onDeckChange((d) => autosaver.schedule(d))
+    // Another tab upgraded the database: the connection closes now, so an edit still inside the
+    // short save delay has to be written at this moment.
+    const offOutdated = onStorageOutdated(() => autosaver.flushNow())
+    s.offDeck = () => { offChange(); offOutdated() }
     // A deck that only lives in this tab (its last write failed) tries again now, so the
     // status shows "Not saved" and why from the start instead of a false "Saved".
     if (deckStore.isUnsaved?.(deckId)) {
@@ -167,7 +172,8 @@ export default function EditorPage({ deckId, store: storeProp }: { deckId: strin
       await clearFromV1(deckStore, deckId).catch(() => {})
     })()
 
-    const flush = () => { void s.autosaver?.flush() }
+    // The page may be gone after this tick, so the write has to start in it (flushNow), not after a check.
+    const flush = () => { s.autosaver?.flushNow(); void s.autosaver?.flush() }
     const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
     // While saving is failing, the work exists only in this tab: ask before it is closed.
     const onBeforeUnload = (e: BeforeUnloadEvent) => {

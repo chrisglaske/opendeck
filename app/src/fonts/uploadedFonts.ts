@@ -13,14 +13,16 @@ import type { FontStyle } from './fontFile'
 
 export type FontImportResult =
   | { ok: true; family: string; faces: string[]; bytes: number; notSaved?: SaveErrorReason }
-  | { ok: false; fileName: string; reason: 'not-a-font' | 'too-large' }
+  | { ok: false; fileName: string; reason: 'not-a-font' | 'too-large' | 'unreadable' }
 
 // ── Registry of faces usable in this tab ─────────────────────────────────
 
 type Face = { id: string; family: string; weight: string; style: FontStyle; data: ArrayBuffer; font: FontFace }
 const registry = new Map<string, Face>()
 const listeners = new Set<() => void>()
-let snapshot: { families: string[]; faces: Record<string, string[]> } = { families: [], faces: {} }
+let snapshot: { families: string[]; faces: Record<string, string[]>; loading: boolean } = { families: [], faces: {}, loading: false }
+/** True from the moment loading the saved fonts starts until it ends, so none is called missing meanwhile. */
+let loading = false
 
 const faceKey = (family: string, weight: string, style: FontStyle) => `${family}|${weight}|${style}`
 /** How a face is listed: its weight, plus " italic" for italic faces. */
@@ -31,7 +33,7 @@ function publish() {
   const faces: Record<string, string[]> = {}
   for (const f of registry.values()) (faces[f.family] ??= []).push(faceName(f.weight, f.style))
   for (const list of Object.values(faces)) list.sort(byWeight)
-  snapshot = { families: Object.keys(faces).sort((a, b) => a.localeCompare(b)), faces }
+  snapshot = { families: Object.keys(faces).sort((a, b) => a.localeCompare(b)), faces, loading }
   for (const l of listeners) l()
 }
 
@@ -44,7 +46,7 @@ function addFace(face: Omit<Face, 'font'>, font: FontFace) {
 }
 
 /** Uploaded families usable in this tab, and each family's faces ("400", "700 italic", …). */
-export function useUploadedFonts(): { families: string[]; faces: Record<string, string[]> } {
+export function useUploadedFonts(): { families: string[]; faces: Record<string, string[]>; loading: boolean } {
   return useSyncExternalStore(
     (l) => {
       listeners.add(l)
@@ -68,6 +70,8 @@ export function uploadedFontSources(): FontSource[] {
 export function resetUploadedFonts() {
   for (const f of registry.values()) document.fonts.delete(f.font)
   registry.clear()
+  started = null
+  loading = false
   publish()
 }
 
@@ -107,7 +111,14 @@ export async function registerStoredFonts(fonts: readonly unknown[]): Promise<vo
 let started: Promise<void> | null = null
 /** Registers the fonts saved in this browser, once per page. */
 export function loadStoredFonts(store: Promise<DeckStore>): Promise<void> {
-  started ??= store.then((s) => s.listFonts()).then(registerStoredFonts).catch(() => {})
+  if (!started) {
+    loading = true
+    publish()
+    started = store.then((s) => s.listFonts()).then(registerStoredFonts).catch(() => {}).then(() => {
+      loading = false
+      publish()
+    })
+  }
   return started
 }
 
@@ -146,7 +157,15 @@ export async function importFontFiles(store: DeckStore, files: readonly File[]):
   for (const file of files) {
     if (!hasFontExtension(file.name)) { failed.push({ ok: false, fileName: file.name, reason: 'not-a-font' }); continue }
     if (file.size > FONT_MAX_BYTES) { failed.push({ ok: false, fileName: file.name, reason: 'too-large' }); continue }
-    const r = await importFontData(store, file.name, await file.arrayBuffer())
+    let data: ArrayBuffer
+    try {
+      data = await file.arrayBuffer()
+    } catch {
+      // Moved, deleted or locked since it was picked.
+      failed.push({ ok: false, fileName: file.name, reason: 'unreadable' })
+      continue
+    }
+    const r = await importFontData(store, file.name, data)
     if (!r.ok) { failed.push({ ok: false, fileName: file.name, reason: r.reason }); continue }
     const fam = families.get(r.family) ?? { faces: new Set<string>(), bytes: 0 }
     fam.faces.add(r.face)
