@@ -70,6 +70,11 @@
   --guide: #E2457A;
   --readout-bg: #1C1B2A;
   --readout-ink: #FFFFFF;
+  --band: #1C1B2A;
+  --band-ink: #FFFFFF;
+  --band-muted: #C9C7D6;
+  --hero-glow: radial-gradient(45% 55% at 78% 30%, rgba(108, 76, 245, 0.1), transparent 70%), radial-gradient(40% 50% at 18% 60%, rgba(255, 201, 181, 0.28), transparent 70%);
+  --shadow-hero: 0 2px 6px rgba(28, 27, 42, 0.06), 0 24px 60px rgba(28, 27, 42, 0.14);
   --handle-fill: #FFFFFF;
   --shadow-float: 0 1px 2px rgba(28, 27, 42, 0.06), 0 8px 24px rgba(28, 27, 42, 0.1);
   --shadow-slide: 0 1px 3px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(28, 27, 42, 0.06);
@@ -105,6 +110,11 @@
   --guide: #FF6B9A;
   --readout-bg: #1C1B2A;
   --readout-ink: #FFFFFF;
+  --band: #232327;
+  --band-ink: #EDEDEF;
+  --band-muted: #B0B0B7;
+  --hero-glow: radial-gradient(45% 55% at 78% 30%, rgba(139, 114, 255, 0.09), transparent 70%), radial-gradient(40% 50% at 18% 60%, rgba(255, 201, 181, 0.05), transparent 70%);
+  --shadow-hero: 0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 60px rgba(0, 0, 0, 0.5);
   --handle-fill: #FFFFFF;
   --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.45);
   --shadow-slide: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
@@ -141,6 +151,11 @@
     --guide: #FF6B9A;
     --readout-bg: #1C1B2A;
     --readout-ink: #FFFFFF;
+    --band: #232327;
+    --band-ink: #EDEDEF;
+    --band-muted: #B0B0B7;
+    --hero-glow: radial-gradient(45% 55% at 78% 30%, rgba(139, 114, 255, 0.09), transparent 70%), radial-gradient(40% 50% at 18% 60%, rgba(255, 201, 181, 0.05), transparent 70%);
+    --shadow-hero: 0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 60px rgba(0, 0, 0, 0.5);
     --handle-fill: #FFFFFF;
     --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.45);
     --shadow-slide: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);

@@ -24,6 +24,8 @@ const TEXT_PAIRS: [fg: string, bg: string][] = [
   ['danger', 'bg'],
   ['toast-link', 'ink'],
   ['bg', 'ink'],
+  ['band-ink', 'band'],
+  ['band-muted', 'band'],
 ]
 
 describe('contrastRatio', () => {

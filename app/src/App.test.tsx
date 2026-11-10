@@ -44,3 +44,9 @@ it('routes #/deck/<id> to the editor', async () => {
   render(<App />)
   expect(await screen.findByRole('heading', { name: 'Deck not found' })).toBeInTheDocument()
 })
+
+it('routes #/computer to the "needs a computer" note', async () => {
+  window.location.hash = '#/computer'
+  render(<App />)
+  expect(await screen.findByRole('heading', { name: "OpenDeck's editor needs a computer." })).toBeInTheDocument()
+})

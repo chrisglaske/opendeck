@@ -7,6 +7,7 @@ import { ToastHost } from './ui'
 const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'))
 const EditorPage = lazy(() => import('./editor/EditorPage'))
 const HomePage = lazy(() => import('./home/HomePage'))
+const NeedsComputer = lazy(() => import('./landing/NeedsComputer'))
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -23,6 +24,7 @@ const DECK_ROUTE = /^#\/deck\/([A-Za-z0-9_-]{1,64})$/
 function Page({ hash }: { hash: string }) {
   if (START_HASHES.includes(hash)) return <StartRoute />
   if (hash === '#/design') return <DesignSystemPage />
+  if (hash === '#/computer') return <NeedsComputer />
   const deck = DECK_ROUTE.exec(hash)
   if (deck) return <EditorPage key={deck[1]} deckId={deck[1]} />
   return <HomePage route={parseHomeRoute(hash) ?? { view: 'home' }} />
