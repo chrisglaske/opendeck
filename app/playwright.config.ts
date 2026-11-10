@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:4173/v2/',
+    baseURL: 'http://localhost:4173/',
     // Existing specs test every control, so they run in Advanced; the editing-modes spec opts out.
     // They also start at Home: the visit hint skips the landing page shown to new visitors.
     storageState: {
@@ -29,8 +29,8 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /present-(window|file)\.spec\.ts/ },
   ],
   webServer: {
-    command: 'VITE_CF_BEACON_TOKEN=e2e-token npm run build && npm run preview -- --port 4173 --strictPort',
-    url: 'http://localhost:4173/v2/',
+    command: 'VITE_CF_BEACON_TOKEN=e2e-token npm run build:site && npm run preview -- --port 4173 --strictPort',
+    url: 'http://localhost:4173/',
     reuseExistingServer: false,
     timeout: 120_000,
   },

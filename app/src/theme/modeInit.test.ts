@@ -36,6 +36,6 @@ it('falls back to the system when localStorage throws', () => {
 })
 
 it('is loaded from a root path that Vite prefixes with the base once', () => {
-  // Vite adds the /v2/ base to public files itself; writing it here too gives /v2/v2/ in dev.
+  // Vite adds the base to public files itself; writing it here too would double it in dev.
   expect(indexHtml).toContain('<script src="/mode-init.js"></script>')
 })

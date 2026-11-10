@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest'
 import { LoadErrorBoundary } from './LoadErrorBoundary'
 
 function Broken(): never {
-  throw new TypeError('Failed to fetch dynamically imported module: /v2/assets/HomePage-x.js')
+  throw new TypeError('Failed to fetch dynamically imported module: /assets/HomePage-x.js')
 }
 
 it('shows a way to reload instead of a blank page when part of the app fails to load', async () => {

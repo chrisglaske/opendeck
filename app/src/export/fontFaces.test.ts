@@ -39,12 +39,12 @@ describe('pickFontFaces', () => {
 describe('bundledFaceRules', () => {
   it('reads @font-face rules from the page with absolute URLs', () => {
     const style = document.createElement('style')
-    style.textContent = `@font-face { font-family: 'Manrope Variable'; font-style: normal; font-weight: 200 800; src: url(/v2/assets/manrope-latin.woff2) format('woff2-variations'); unicode-range: U+0000-00FF; }`
+    style.textContent = `@font-face { font-family: 'Manrope Variable'; font-style: normal; font-weight: 200 800; src: url(/assets/manrope-latin.woff2) format('woff2-variations'); unicode-range: U+0000-00FF; }`
     document.head.append(style)
     try {
       const found = bundledFaceRules(document).find((r) => r.family === 'Manrope Variable')
       expect(found).toBeDefined()
-      expect(found!.src).toBe(new URL('/v2/assets/manrope-latin.woff2', document.baseURI).href)
+      expect(found!.src).toBe(new URL('/assets/manrope-latin.woff2', document.baseURI).href)
       expect(found!.unicodeRange).toMatch(/U\+0+-0*FF/i)
     } finally {
       style.remove()

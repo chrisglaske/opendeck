@@ -23,8 +23,8 @@ import demoUntouched from './fixtures/demo-untouched.json'
 import { normalizeV1Projects, readV1Storage } from './normalize'
 import type { V1Folder, V1Project, V1Slide } from './types'
 
-/** Where "Open the old version" goes: the site root during the beta, `/v1/` after the switch-over. */
-export const OLD_VERSION_URL = '/'
+/** Where "Open the old version" goes. */
+export const OLD_VERSION_URL = '/v1/'
 
 export const V1_META = {
   /** V1 project ids already copied (string[]). */
