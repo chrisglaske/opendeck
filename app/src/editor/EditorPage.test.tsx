@@ -11,7 +11,7 @@ describe('EditorPage', () => {
   it('shows a not-found state for an unknown deck', async () => {
     render(<EditorPage deckId="nope" store={createMemoryStore()} />)
     expect(await screen.findByRole('heading', { name: 'Deck not found' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Back to decks' })).toHaveAttribute('href', '#/')
+    expect(screen.getByRole('link', { name: 'Back to decks' })).toHaveAttribute('href', '#/home')
   })
 
   it('refuses a deck from a newer version and never writes it', async () => {
@@ -89,7 +89,7 @@ describe('EditorPage', () => {
       render(<EditorPage deckId={d.id} store={store} />)
       expect(await screen.findByRole('heading', { name: 'This deck is in the Trash' })).toBeInTheDocument()
       expect(screen.getByText('Restore it to keep working on it.')).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: 'Back to Home' })).toHaveAttribute('href', '#/')
+      expect(screen.getByRole('link', { name: 'Back to Home' })).toHaveAttribute('href', '#/home')
     })
 
     it('Restore takes it out of the Trash, back in its folder, and opens the editor', async () => {

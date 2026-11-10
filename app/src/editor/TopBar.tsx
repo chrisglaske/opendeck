@@ -1,5 +1,6 @@
 import { Moon, Palette, Redo2, Sun, Undo2 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { homeHref } from '../home/routes'
 import { renameDeck } from '../model/ops'
 import type { Autosaver } from '../storage/autosave'
 import { useColorMode } from '../theme/useColorMode'
@@ -73,7 +74,7 @@ export function TopBar({ autosaver, themeOpen, onToggleTheme }: { autosaver: Aut
   const canRedo = useEditor((s) => s.canRedo)
   return (
     <header className={styles.bar}>
-      <a href="#/" className={styles.home} aria-label="All decks">
+      <a href={homeHref({ view: 'home' })} className={styles.home} aria-label="All decks">
         <Logo size={24} wordmark={false} />
       </a>
       <DeckName />

@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { homeHref } from '../home/routes'
 import { Logo, ModeSwitch } from '../ui'
 import styles from './StateScreen.module.css'
 
@@ -14,7 +15,7 @@ export function StateScreen({ icon: Icon, title, deckName, children, actions }: 
   return (
     <div className={styles.page}>
       <header className={styles.bar}>
-        <a href="#/" className={styles.home} aria-label="All decks"><Logo size={24} wordmark={false} /></a>
+        <a href={homeHref({ view: 'home' })} className={styles.home} aria-label="All decks"><Logo size={24} wordmark={false} /></a>
         {deckName && <span className={styles.name}>{deckName}</span>}
         <span className={styles.spacer} />
         <ModeSwitch />

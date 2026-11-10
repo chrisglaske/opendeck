@@ -13,7 +13,7 @@ import { FolderPage } from './FolderPage'
 import { ImportMenu } from './ImportMenu'
 import { RECENT_COUNT } from './library'
 import type { HomeDeck } from './libraryService'
-import { deckHref } from './routes'
+import { openNewDeck } from './openNewDeck'
 import type { HomeRoute } from './routes'
 import { SearchBox } from './SearchBox'
 import { Sidebar } from './Sidebar'
@@ -36,13 +36,7 @@ export default function HomePage({ route, store: storeProp }: { route: HomeRoute
   const now = useMemo(() => Date.now(), [data, route])
 
   const openNew = async (d: Deck) => {
-    if (!store) return
-    try {
-      await store.putDeck(d)
-    } catch {
-      // Storage is blocked: the deck still opens for this session and the editor shows "Not saved".
-    }
-    window.location.hash = deckHref(d.id)
+    if (store) await openNewDeck(store, d)
   }
   const start = {
     onBlank: () => void openNew(createDeck()),

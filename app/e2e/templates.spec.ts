@@ -59,7 +59,10 @@ function storedTemplates(page: Page) {
       new Promise<{ id: string; name: string }[]>((resolve) => {
         const r = indexedDB.open('opendeck-v2')
         r.onsuccess = () => {
-          if (!r.result.objectStoreNames.contains('templates')) return resolve([])
+          if (!r.result.objectStoreNames.contains('templates')) {
+            r.result.close()
+            return resolve([])
+          }
           const all = r.result.transaction('templates').objectStore('templates').getAll()
           all.onsuccess = () => resolve(all.result)
           all.onerror = () => resolve([])

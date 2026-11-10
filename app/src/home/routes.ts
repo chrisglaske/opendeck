@@ -11,7 +11,7 @@ export type HomeRoute =
 const SIMPLE = { all: 'all', trash: 'trash', templates: 'templates', kits: 'kits' } as const
 
 export function parseHomeRoute(hash: string): HomeRoute | null {
-  if (hash === '' || hash === '#' || hash === '#/') return { view: 'home' }
+  if (hash === '' || hash === '#' || hash === '#/' || hash === '#/home') return { view: 'home' }
   const m = /^#\/([a-z]+)(?:\/(.*))?$/.exec(hash)
   if (!m) return null
   const [, view, rest] = m
@@ -30,7 +30,7 @@ export function parseHomeRoute(hash: string): HomeRoute | null {
 
 export function homeHref(r: HomeRoute): string {
   switch (r.view) {
-    case 'home': return '#/'
+    case 'home': return '#/home'
     case 'folder': return `#/folder/${r.id}`
     case 'tag': return `#/tag/${encodeURIComponent(r.tag)}`
     default: return `#/${r.view}`

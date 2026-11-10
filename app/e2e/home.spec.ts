@@ -17,7 +17,10 @@ function all<T>(page: Page, store: 'decks' | 'library' | 'folders' | 'assets'): 
         const r = indexedDB.open('opendeck-v2')
         r.onsuccess = () => {
           const db = r.result
-          if (!db.objectStoreNames.contains(store)) return resolve([])
+          if (!db.objectStoreNames.contains(store)) {
+            db.close()
+            return resolve([])
+          }
           const q = db.transaction(store).objectStore(store).getAll()
           q.onsuccess = () => {
             resolve(q.result as T[])

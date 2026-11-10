@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { restoreEntry } from '../home/library'
 import { onLibraryMessage, postRestored } from '../home/libraryChannel'
 import { listEntries, listFolders, setEntry } from '../home/libraryService'
+import { homeHref } from '../home/routes'
 import { failToast } from '../home/useDeckActions'
 import { createAutosaver } from '../storage/autosave'
 import type { Autosaver } from '../storage/autosave'
@@ -38,7 +39,7 @@ type View =
   | { kind: 'ready'; store: EditorStore; autosaver: Autosaver }
 
 const homeLink = (
-  <a href="#/" className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.sm].join(' ')}>
+  <a href={homeHref({ view: 'home' })} className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.sm].join(' ')}>
     <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
     Back to Home
   </a>
@@ -48,7 +49,7 @@ const isTrashed = async (store: DeckStore, id: string) =>
   (await listEntries(store)).some((e) => e.deckId === id && e.trashedAt !== null)
 
 const backLink = (
-  <a href="#/" className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.sm].join(' ')}>
+  <a href={homeHref({ view: 'home' })} className={[buttonStyles.btn, buttonStyles.secondary, buttonStyles.sm].join(' ')}>
     <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
     Back to decks
   </a>

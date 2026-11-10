@@ -7,6 +7,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173/v2/',
     // Existing specs test every control, so they run in Advanced; the editing-modes spec opts out.
+    // They also start at Home: the visit hint skips the landing page shown to new visitors.
     storageState: {
       cookies: [],
       origins: [
@@ -15,6 +16,7 @@ export default defineConfig({
           localStorage: [
             { name: 'opendeck.v2.editorMode', value: 'advanced' },
             { name: 'opendeck.v2.modeNoteSeen', value: '1' },
+            { name: 'opendeck.v2.hasDecks', value: '1' },
           ],
         },
       ],
@@ -27,7 +29,7 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /present-(window|file)\.spec\.ts/ },
   ],
   webServer: {
-    command: 'npm run build && npm run preview -- --port 4173 --strictPort',
+    command: 'VITE_CF_BEACON_TOKEN=e2e-token npm run build && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173/v2/',
     reuseExistingServer: false,
     timeout: 120_000,

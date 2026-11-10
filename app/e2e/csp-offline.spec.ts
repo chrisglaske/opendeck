@@ -25,6 +25,7 @@ test('no external requests, no CSP violations, fonts and icons bundled', async (
   })
 
   await page.goto('./#/design')
+  await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
 
   expect(external).toEqual([])
@@ -112,4 +113,23 @@ test('presenting and downloading stay inside the CSP and this origin', async ({ 
   await downloadHtml(page, test.info().outputPath('deck.html'))
   expect(external).toEqual([])
   expect(errors).toEqual([])
+})
+
+test('an earlier Allow loads the visitor counter in the app', async ({ page }) => {
+  const hits: string[] = []
+  await page.route('https://static.cloudflareinsights.com/**', (route) => {
+    hits.push(route.request().url())
+    return route.fulfill({ contentType: 'text/javascript', body: '' })
+  })
+  await page.addInitScript(() => {
+    localStorage.setItem('openDeck_cookieConsent', 'accepted')
+    const w = window as unknown as { __csp: string[] }
+    w.__csp = []
+    document.addEventListener('securitypolicyviolation', (e) => w.__csp.push(`${e.violatedDirective} ${e.blockedURI}`))
+  })
+  await page.goto('./#/home')
+  await expect(page.getByRole('heading', { name: 'Make your first deck' })).toBeVisible()
+  await expect.poll(() => hits.length).toBe(1)
+  expect(hits[0]).toBe('https://static.cloudflareinsights.com/beacon.min.js')
+  expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([])
 })

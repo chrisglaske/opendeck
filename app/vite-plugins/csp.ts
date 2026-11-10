@@ -3,10 +3,11 @@ import type { Plugin } from 'vite'
 /**
  * Strict policy for the built app. Build-only: Vite dev injects <style> tags
  * that this policy would block. Don't loosen it (e.g. 'unsafe-inline') without
- * a security review; element styles go through the CSSOM instead.
+ * a security review; element styles go through the CSSOM instead. The one
+ * outside origin is Cloudflare Web Analytics, loaded only after the visitor allows it.
  */
 export const CSP_POLICY =
-  "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'"
+  "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'"
 
 export function cspPlugin(): Plugin {
   return {

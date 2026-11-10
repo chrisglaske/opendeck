@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react'
-import EditorPage from './editor/EditorPage'
-import HomePage from './home/HomePage'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { START_HASHES } from './app/startGate'
+import { StartRoute } from './app/StartRoute'
 import { parseHomeRoute } from './home/routes'
-import { loadStoredFonts } from './fonts/uploadedFonts'
-import DesignSystemPage from './pages/DesignSystemPage'
-import { getDeckStore } from './storage/appStore'
-import { loadKits } from './storage/kits'
-import { loadTemplates } from './storage/templates'
 import { ToastHost } from './ui'
+
+const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'))
+const EditorPage = lazy(() => import('./editor/EditorPage'))
+const HomePage = lazy(() => import('./home/HomePage'))
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -22,6 +21,7 @@ function useHash(): string {
 const DECK_ROUTE = /^#\/deck\/([A-Za-z0-9_-]{1,64})$/
 
 function Page({ hash }: { hash: string }) {
+  if (START_HASHES.includes(hash)) return <StartRoute />
   if (hash === '#/design') return <DesignSystemPage />
   const deck = DECK_ROUTE.exec(hash)
   if (deck) return <EditorPage key={deck[1]} deckId={deck[1]} />
@@ -30,15 +30,14 @@ function Page({ hash }: { hash: string }) {
 
 export default function App() {
   const hash = useHash()
-  // Uploaded fonts, brand kits and saved templates are read once, before decks that use them are drawn.
   useEffect(() => {
-    void loadStoredFonts(getDeckStore())
-    void getDeckStore().then(loadKits, () => {})
-    void getDeckStore().then(loadTemplates, () => {})
+    void import('./app/startup').then((m) => m.runStartup())
   }, [])
   return (
     <>
-      <Page hash={hash} />
+      <Suspense fallback={null}>
+        <Page hash={hash} />
+      </Suspense>
       <ToastHost />
     </>
   )

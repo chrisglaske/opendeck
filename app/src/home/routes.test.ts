@@ -15,7 +15,7 @@ describe('home routes', () => {
     expect(parseHomeRoute('')).toEqual({ view: 'home' })
     expect(parseHomeRoute('#')).toEqual({ view: 'home' })
     expect(parseHomeRoute('#/')).toEqual({ view: 'home' })
-    expect(homeHref({ view: 'home' })).toBe('#/')
+    expect(homeHref({ view: 'home' })).toBe('#/home')
     expect(homeHref({ view: 'tag', tag: 'a b' })).toBe('#/tag/a%20b')
   })
 
@@ -25,4 +25,9 @@ describe('home routes', () => {
     expect(parseHomeRoute('#/tag/%E0%A4%A')).toBeNull()
     expect(parseHomeRoute('#/deck/abc')).toBeNull()
   })
+})
+
+it('gives Home its own address', () => {
+  expect(parseHomeRoute('#/home')).toEqual({ view: 'home' })
+  expect(homeHref({ view: 'home' })).toBe('#/home')
 })

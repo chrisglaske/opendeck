@@ -1,21 +1,11 @@
 import { ChevronDown, Download, FileUp, History } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { SAVE_ERROR_TEXT } from '../editor/SaveStatus'
-import { importDeckFile } from '../storage/deckFile'
-import type { DeckImportResult } from '../storage/deckFile'
 import type { DeckStore } from '../storage/deckStore'
 import { Menu, toast } from '../ui'
 import type { MenuItem } from '../ui'
 import buttonStyles from '../ui/Button.module.css'
-import { convertV1File, copyNewV1Decks, hasV1Data, v1NewCount } from '../v1/importV1'
-import { postChanged } from './libraryChannel'
-import { deckHref } from './routes'
-
-const FAILED: Record<Extract<DeckImportResult, { ok: false }>['reason'], string> = {
-  'not-a-deck': "This file isn't an OpenDeck deck.",
-  'newer-version': 'This deck was made with a newer OpenDeck.',
-  'too-large': 'This file is too large to import.',
-}
+import { copyNewV1Decks, hasV1Data, v1NewCount } from '../v1/importV1'
+import { importAndOpen } from './importDeck'
 
 /** V1's storage, if this browser lets us read it. */
 function v1Storage(): Pick<Storage, 'getItem'> {
@@ -54,17 +44,7 @@ export function ImportMenu({ store }: { store: DeckStore | null }) {
   }
 
   const importFile = async (file: File) => {
-    if (!store) return
-    let r: DeckImportResult
-    try {
-      r = await importDeckFile(store, file, convertV1File(store, Date.now()), Date.now())
-    } catch {
-      r = { ok: false, reason: 'not-a-deck' }
-    }
-    if (!r.ok) return toast(FAILED[r.reason])
-    if (r.notSaved) toast(`Deck kept for this tab, but not saved. ${SAVE_ERROR_TEXT[r.notSaved]}`, { durationMs: 8000 })
-    postChanged(r.deckId)
-    window.location.hash = deckHref(r.deckId)
+    if (store) await importAndOpen(store, file)
   }
 
   const items: MenuItem[] = [
