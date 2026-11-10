@@ -1,0 +1,101 @@
+.gal {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gal > li {
+  min-width: 0;
+}
+
+.card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.card:focus-visible {
+  outline: none;
+}
+
+.frame {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-float);
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+}
+.card:hover .frame {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hero);
+}
+.card:focus-visible .frame {
+  box-shadow: var(--focus-ring);
+}
+
+.cap {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 13.5px;
+}
+.cap b {
+  font-weight: 600;
+}
+
+.use {
+  color: var(--faint);
+}
+
+.go {
+  color: var(--accent-text);
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card:hover .go,
+.card:focus-visible .go {
+  opacity: 1;
+}
+
+.all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 22px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  color: var(--accent-text);
+  font: 600 14px var(--font-ui);
+  cursor: pointer;
+}
+.all:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .card:hover .frame {
+    transition: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 759px) {
+  .gal {
+    grid-template-columns: 1fr;
+  }
+  .gal > li:nth-child(n + 4) {
+    display: none;
+  }
+}

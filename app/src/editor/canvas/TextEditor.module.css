@@ -1,0 +1,8 @@
+/* The editable text box keeps the slide's look; only the caret and focus ring change. */
+.editor {
+  outline: none;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+  caret-color: var(--t-accent);
+}

@@ -1,0 +1,128 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "photo-full",
+    "name": "Full-bleed photo",
+    "group": "images",
+    "keywords": [
+      "photo",
+      "image",
+      "background",
+      "cover"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "photo-full-1",
+          "type": "image",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 0,
+          "art": {
+            "kind": "photo",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "picture[1]"
+        },
+        {
+          "id": "photo-full-2",
+          "type": "shape",
+          "x": 0,
+          "y": 626,
+          "w": 1920,
+          "h": 454,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": 0,
+          "fill": {
+            "theme": "text"
+          },
+          "stroke": null,
+          "fade": "up",
+          "opacity": 0.55,
+          "role": "decor"
+        },
+        {
+          "id": "photo-full-3",
+          "type": "text",
+          "x": 134,
+          "y": 829,
+          "w": 1344,
+          "h": 112,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Built for the field"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 88,
+          "color": {
+            "theme": "bg"
+          },
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "photo-full-4",
+          "type": "text",
+          "x": 134,
+          "y": 932,
+          "w": 680,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Northwind crews, Lisbon, 2026"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "bg"
+          },
+          "opacity": 0.85,
+          "role": "subtitle",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

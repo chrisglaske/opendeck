@@ -1,0 +1,82 @@
+.bar {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  box-shadow: var(--shadow-float);
+  white-space: nowrap;
+}
+
+.sep {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  margin: 0 3px;
+  background: var(--line);
+}
+
+.field {
+  width: 76px;
+}
+
+.textButton {
+  height: 28px;
+}
+
+.count {
+  padding: 0 8px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+
+.sizeField {
+  width: 56px;
+}
+
+/* The size list button sits flush against the size field. */
+.sizeMenu {
+  width: 20px;
+  margin-left: -2px;
+}
+
+.anchor {
+  display: inline-flex;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.label svg {
+  color: var(--accent-text);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--accent-text);
+  font-size: var(--fs-overline);
+  font-weight: 600;
+}
+
+/* Simple mode's text style menu button: the style name and a chevron. */
+.styleButton {
+  height: 28px;
+  gap: 4px;
+  padding: 0 8px;
+  font-weight: 500;
+}

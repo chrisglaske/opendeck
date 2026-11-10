@@ -1,0 +1,12 @@
+.popover {
+  position: fixed;
+  z-index: 50;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  box-shadow: var(--shadow-float);
+  outline: none;
+}

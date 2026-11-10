@@ -1,0 +1,16 @@
+{
+  "id": "quarterly",
+  "name": "Quarterly review",
+  "order": 1,
+  "slides": [
+    "title",
+    "agenda",
+    "kpis",
+    "stats",
+    "bullets",
+    "comparison",
+    "roadmap",
+    "takeaways",
+    "questions"
+  ]
+}

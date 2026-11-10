@@ -1,0 +1,14 @@
+.shell {
+  display: grid;
+  grid-template-columns: 168px 1fr 264px;
+  grid-template-rows: 52px minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.shell[data-panel='hidden'] {
+  grid-template-columns: 168px 1fr;
+}

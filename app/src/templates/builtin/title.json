@@ -1,0 +1,228 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "title",
+    "name": "Title",
+    "group": "titles",
+    "keywords": [
+      "cover",
+      "opening",
+      "intro",
+      "start"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "title-1",
+          "type": "logo",
+          "x": 134,
+          "y": 97,
+          "w": 245,
+          "h": 59,
+          "rotation": 0,
+          "locked": false,
+          "role": "decor"
+        },
+        {
+          "id": "title-2",
+          "type": "text",
+          "x": 135,
+          "y": 270,
+          "w": 523,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Q3 2026 · PRODUCT TEAM"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "letterSpacing": 0.14,
+          "role": "overline",
+          "sample": true
+        },
+        {
+          "id": "title-3",
+          "type": "text",
+          "x": 134,
+          "y": 356,
+          "w": 1075,
+          "h": 143,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Quarterly review"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "title-4",
+          "type": "text",
+          "x": 134,
+          "y": 670,
+          "w": 883,
+          "h": 139,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "What we shipped, what we learned, and where we go next."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "subtitle",
+          "sample": true
+        },
+        {
+          "id": "title-5",
+          "type": "shape",
+          "x": 1344,
+          "y": 237,
+          "w": 403,
+          "h": 497,
+          "rotation": 7,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent2"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "title-6",
+          "type": "shape",
+          "x": 1287,
+          "y": 281,
+          "w": 403,
+          "h": 497,
+          "rotation": 355,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "title-7",
+          "type": "line",
+          "x1": 135,
+          "y1": 982.5,
+          "x2": 1786,
+          "y2": 982.5,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "line"
+            },
+            "width": 1,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "title-8",
+          "type": "text",
+          "x": 134,
+          "y": 991,
+          "w": 370,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Northwind · Q3 review"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "caption",
+          "sample": true
+        },
+        {
+          "id": "title-9",
+          "type": "text",
+          "x": 1754,
+          "y": 991,
+          "w": 55,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "01"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "number",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

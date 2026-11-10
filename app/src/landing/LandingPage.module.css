@@ -1,0 +1,193 @@
+/* Shared layout for the landing page. Phone layout below 760px. */
+.page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: clip;
+}
+
+.glow {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 900px;
+  background: var(--hero-glow);
+  pointer-events: none;
+}
+
+.in {
+  position: relative;
+  max-width: 1420px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.nav {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  height: 68px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.sp {
+  flex: 1;
+}
+
+.links {
+  display: flex;
+  gap: 6px;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.navLink:hover {
+  color: var(--ink);
+  background: var(--subtle);
+}
+.navLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.lg {
+  height: 46px;
+  padding: 0 20px;
+  border-radius: 11px;
+  font-size: 15px;
+}
+
+.ico {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--accent-text);
+}
+
+/* Feature strip */
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  margin: 0;
+  padding: 36px 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+.strip b {
+  display: block;
+  margin: 10px 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.strip p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+.fi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--accent-tint);
+}
+.fi .ico {
+  width: 18px;
+  height: 18px;
+}
+
+/* Sections */
+.sec {
+  padding: 84px 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 8px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.h2 {
+  max-width: 640px;
+  margin: 0 0 12px;
+  font: 800 36px/1.08 var(--font-display);
+  letter-spacing: -0.035em;
+}
+
+.sub {
+  max-width: 560px;
+  margin: 0 0 34px;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 56px;
+  align-items: center;
+}
+.two > * {
+  min-width: 0;
+}
+.flip {
+  grid-template-columns: 1.2fr 0.8fr;
+}
+
+@media (max-width: 759px) {
+  .in {
+    padding: 0 18px;
+  }
+  .nav {
+    gap: 10px;
+    height: 58px;
+  }
+  .links,
+  .desk {
+    display: none;
+  }
+  .strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .sec {
+    padding: 52px 0;
+  }
+  .h2 {
+    font-size: 28px;
+  }
+  .two,
+  .flip {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .flip > :first-child {
+    order: 2;
+  }
+}

@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDeck - Open Source Presentation Builder</title>
+
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='110' fill='%232563eb'/><path fill='%23ffffff' transform='translate(100, 100) scale(0.6)' d='M512 256c0 10.4-5.5 20.1-14.5 25.5l-224 135c-10.9 6.6-24.1 6.6-35 0l-224-135C5.5 276.1 0 266.4 0 256s5.5-20.1 14.5-25.5l224-135c10.9-6.6 24.1-6.6 35 0l224 135c9 5.4 14.5 15.1 14.5 25.5zm-256 91.2l176.6-106.4L256 134.4 79.4 240.8 256 347.2zm-241.5-31.7C5.5 320.9 0 330.6 0 341.3s5.5 20.4 14.5 25.8l224 135c10.9 6.6 24.1 6.6 35 0l224-135c9-5.4 14.5-15.1 14.5-25.8s-5.5-20.4-14.5-25.8l-37-22.3-171.1 103.1c-10.9 6.6-24.1 6.6-35 0L83.4 293.2l-37 22.3z'/></svg>">
+
+    <meta name="title" content="OpenDeck - Open Source Presentation Builder">
+    <link rel="canonical" href="https://opendeck.work/" />
+    <meta name="robots" content="noindex">
+    <meta name="description"
+        content="Create beautiful, branded tech talks and corporate decks with zero backend dependencies. A privacy-first, local-only presentation studio designed for the modern web.">
+    <meta name="keywords"
+        content="presentation builder, open source, local-first, privacy, slide deck, tech talks, vanilla js, html presentations">
+    <meta name="author" content="Chris Glaske">
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://opendeck.work/">
+    <meta property="og:site_name" content="OpenDeck">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="OpenDeck – Open Source Presentation Builder">
+    <meta property="og:description" content="Create beautiful, branded tech talks and corporate decks with zero backend dependencies. A privacy-first, local-only presentation studio designed for the modern web.">
+    <meta property="og:image" content="https://opendeck.work/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="OpenDeck – the open source slide deck builder">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://opendeck.work/">
+    <meta name="twitter:title" content="OpenDeck – Open Source Presentation Builder">
+    <meta name="twitter:description" content="Create beautiful, branded tech talks and corporate decks with zero backend dependencies. A privacy-first, local-only presentation studio designed for the modern web.">
+    <meta name="twitter:image" content="https://opendeck.work/og-image.png">
+    <meta name="twitter:image:alt" content="OpenDeck – the open source slide deck builder">
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; 
+        style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; 
+        font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; 
+        img-src 'self' data: blob: https://picsum.photos https://opendeck.work; 
+        connect-src 'self' https://picsum.photos https://cdn.jsdelivr.net https://cloudflareinsights.com;
+    ">
+
+    <link rel="stylesheet" href="tailwind-build.css?v=2.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&family=Space+Grotesk:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css?v=2.0">
+
+    <style>
+        @keyframes floatMockup {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-float {
+            animation: floatMockup 7s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="tut-overlay" id="tutOverlay"></div>
+    <div class="tut-tooltip" id="tutTooltip"></div>
+
+    <div id="viewportGuard" class="viewport-guard" style="display: none;">
+        <div class="viewport-guard__panel">
+            <div class="viewport-guard__icon"><i class="fa-solid fa-desktop"></i></div>
+            <h2>Desktop Required</h2>
+            <p>OpenDeck currently needs a larger desktop or laptop screen for the editor and live preview.</p>
+            <p class="viewport-guard__meta" id="viewportGuardMeta"></p>
+            <p class="viewport-guard__required" id="viewportGuardRequired"></p>
+            <div class="viewport-guard__actions">
+                <button onclick="if(window.returnToLanding) window.returnToLanding()" class="viewport-guard__btn viewport-guard__btn--landing">
+                    Back to Landing
+                </button>
+                <button onclick="if(window.updateViewportGuard) window.updateViewportGuard()" class="viewport-guard__btn viewport-guard__btn--primary">
+                    I resized my screen
+                </button>
+                <a href="https://github.com/chrisglaske/opendeck" target="_blank" rel="noopener noreferrer" class="viewport-guard__btn viewport-guard__btn--secondary">
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="landingView"
+        class="fixed inset-0 z-[5000] flex flex-col overflow-y-auto overflow-x-hidden bg-[#020617] text-white scroll-smooth selection:bg-blue-500/30">
+        <div
+            class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdHRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] pointer-events-none z-0">
+        </div>
+        <div
+            class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none z-0">
+        </div>
+        <div
+            class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none z-0">
+        </div>
+
+        <nav id="landingNav" class="flex items-center justify-between p-6 max-w-7xl mx-auto w-full relative z-10 shrink-0">
+            <div class="flex items-center gap-3 group cursor-pointer">
+                <div
+                    class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-10 h-10 flex items-center justify-center font-bold text-white text-lg shadow-[0_0_15px_rgba(59,130,246,0.5)] group-hover:scale-105 transition-transform duration-300">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <span
+                    class="font-extrabold text-2xl tracking-tight text-white group-hover:text-blue-400 transition-colors">OpenDeck</span>
+            </div>
+            <div class="flex gap-4 items-center">
+                <a href="https://github.com/chrisglaske/opendeck" target="_blank" rel="noopener noreferrer"
+                    class="text-slate-400 hover:text-white px-4 py-2 rounded-lg transition-all font-semibold flex items-center gap-2 hover:bg-slate-800/50 hover:shadow-lg">
+                    <i class="fa-brands fa-github text-xl"></i> GitHub
+                </a>
+                <button onclick="startAppFromLanding()"
+                    class="bg-white hover:bg-slate-100 text-slate-900 px-6 py-2.5 rounded-full font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all hover:scale-105 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-rocket text-blue-600"></i> Launch Studio
+                </button>
+            </div>
+        </nav>
+
+        <main
+            class="flex-grow flex flex-col items-center text-center p-6 relative z-10 max-w-[1400px] mx-auto mt-8 md:mt-12 w-full">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/50 text-blue-300 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md shadow-xl">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Privacy-First & Open Source
+            </div>
+
+            <h1 id="landingHeadline" class="text-5xl md:text-[6rem] font-black tracking-tighter mb-6 leading-[1.05] max-w-4xl">
+                <span
+                    class="bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">Presentations,</span><br>
+                <span
+                    class="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Reimagined.</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl leading-relaxed font-light">
+                The modern, zero-config presentation builder. Create stunning tech and corporate decks instantly in your
+                browser. <strong class="text-slate-200 font-semibold">Everything stays on your machine.</strong>
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-5 mb-16">
+                <button onclick="startAppFromLanding()"
+                    class="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-full font-bold text-lg text-white transition-all hover:scale-105 shadow-[0_0_30px_rgba(59,130,246,0.4)] flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Start Building Free
+                </button>
+                <a href="https://github.com/chrisglaske/opendeck" target="_blank" rel="noopener noreferrer"
+                    class="px-8 py-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 rounded-full font-bold text-lg text-white transition-all hover:scale-105 flex items-center justify-center gap-3 shadow-lg backdrop-blur-md">
+                    <i class="fa-brands fa-github"></i> View Source
+                </a>
+            </div>
+
+            <div id="landingMobilePanel" class="hidden w-full max-w-xl mb-10 text-left bg-slate-900/75 border border-slate-700 rounded-2xl p-5 shadow-2xl">
+                <div class="text-[11px] font-bold uppercase tracking-[0.15em] text-blue-300 mb-2">Mobile Preview</div>
+                <h3 class="text-2xl font-extrabold text-white mb-2">Continue on Desktop</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">The full editor experience needs a larger screen, but you can still explore OpenDeck and access the project from your computer.</p>
+                <div class="mobile-preview-grid mb-4">
+                    <div class="mobile-preview-card">
+                        <div class="mobile-preview-card__head">Slide Studio</div>
+                        <div class="mobile-preview-card__title">Glass Hero Template</div>
+                        <div class="mobile-preview-card__line"></div>
+                        <div class="mobile-preview-card__line mobile-preview-card__line--short"></div>
+                    </div>
+                    <div class="mobile-preview-card">
+                        <div class="mobile-preview-card__head">Presentation Settings</div>
+                        <div class="mobile-preview-pills">
+                            <span>Theme</span>
+                            <span>Font</span>
+                            <span>Nav</span>
+                        </div>
+                    </div>
+                    <div class="mobile-preview-card mobile-preview-card--wide">
+                        <div class="mobile-preview-card__head">Export Options</div>
+                        <div class="mobile-preview-pills">
+                            <span>PDF Soon</span>
+                            <span>HTML</span>
+                            <span>.odeck</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="startAppFromLanding()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rocket"></i> Try Opening Studio
+                    </button>
+                    <a href="https://github.com/chrisglaske/opendeck" target="_blank" rel="noopener noreferrer" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold py-2.5 rounded-lg transition flex items-center justify-center gap-2 no-underline">
+                        <i class="fa-brands fa-github"></i> Read Documentation
+                    </a>
+                </div>
+            </div>
+
+            <div id="landingInteractiveMockup"
+                class="relative w-full max-w-6xl mx-auto mb-24 group animate-float flex flex-col md:flex-row gap-6 items-stretch">
+                <div id="mockupGlow"
+                    class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-[2rem] group-hover:bg-blue-600/20 transition-all duration-700 pointer-events-none">
+                </div>
+
+                <div id="mockupBorder"
+                    class="flex-[5] relative bg-slate-900 border border-slate-700 rounded-[1.5rem] shadow-2xl overflow-hidden transform transition-all duration-500 hover:border-blue-500/50 flex flex-col">
+                    <div
+                        class="w-full h-10 bg-slate-950/90 flex items-center px-4 gap-2 border-b border-slate-800 shrink-0">
+                        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                        <span
+                            class="ml-4 text-[10px] font-mono text-slate-500 font-bold uppercase tracking-widest">interactive-demo.odeck</span>
+                        <div class="ml-auto text-xs text-blue-400 font-bold animate-pulse"><i
+                                class="fa-solid fa-arrow-pointer mr-1"></i> Try typing below!</div>
+                    </div>
+                    <div id="mockupSlideBorder"
+                        class="flex-grow bg-[radial-gradient(circle_at_50%_50%,#111827_0%,#000000_100%)] p-12 text-left flex flex-col justify-center border-l-8 border-blue-500 transition-colors duration-300">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-8 outline-none focus:bg-white/5 hover:bg-white/5 rounded-lg p-2 -ml-2 transition-all cursor-text text-white border border-transparent focus:border-blue-500"
+                            contenteditable="true">Interactive Editor Magic</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                            <div class="space-y-6">
+                                <p class="text-slate-300 text-lg outline-none focus:bg-white/5 hover:bg-white/5 rounded-lg p-2 -ml-2 transition-all cursor-text leading-relaxed border border-transparent focus:border-blue-500"
+                                    contenteditable="true">Click any text on this slide to edit it directly. Use the
+                                    mock Inspector on the right to change the icon and theme color!</p>
+                                <ul class="space-y-4">
+                                    <li
+                                        class="flex items-center text-slate-300 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                                        <i
+                                            class="fa-solid fa-paint-roller text-blue-400 mr-4 mockup-icon-color transition-colors duration-300"></i>
+                                        <span
+                                            class="outline-none focus:bg-white/10 hover:bg-white/10 rounded px-1 cursor-text w-full"
+                                            contenteditable="true">Granular Color Controls</span>
+                                    </li>
+                                    <li
+                                        class="flex items-center text-slate-300 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                                        <i
+                                            class="fa-solid fa-desktop text-blue-400 mr-4 mockup-icon-color transition-colors duration-300"></i>
+                                        <span
+                                            class="outline-none focus:bg-white/10 hover:bg-white/10 rounded px-1 cursor-text w-full"
+                                            contenteditable="true">Dual-Window Speaker Notes</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div
+                                class="bg-slate-900 border border-slate-700 rounded-2xl p-8 text-center shadow-inner flex flex-col justify-center items-center h-full">
+                                <i id="mockupMainIcon"
+                                    class="fa-solid fa-list-check text-7xl text-blue-500 mb-6 opacity-80 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-300"></i>
+                                <h3 class="text-2xl font-bold text-white outline-none focus:bg-white/5 hover:bg-white/5 rounded p-1 cursor-text"
+                                    contenteditable="true">Live Sync</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex-[2] hidden md:flex flex-col bg-[#0f172a] border border-slate-700 rounded-[1.5rem] shadow-2xl overflow-hidden relative text-left">
+                    <div class="w-full h-10 bg-slate-950/90 flex items-center px-4 border-b border-slate-800 shrink-0">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><i
+                                class="fa-solid fa-sliders mr-2"></i> Properties</span>
+                    </div>
+                    <div class="p-5 flex flex-col gap-0 opacity-100">
+                        <div class="border-b border-slate-800 pb-4 mb-4">
+                            <div class="text-[0.65rem] font-bold uppercase text-slate-500 tracking-widest mb-3">Brand
+                                Theme Color</div>
+                            <div class="flex gap-3">
+                                <button onclick="updateMockupColor('#3B82F6', this)"
+                                    class="mockup-color-btn bg-blue-500 w-8 h-8 rounded ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0f172a] transition-all"></button>
+                                <button onclick="updateMockupColor('#10B981', this)"
+                                    class="mockup-color-btn bg-green-500 w-8 h-8 rounded border border-slate-600 transition-all hover:scale-110"></button>
+                                <button onclick="updateMockupColor('#F97316', this)"
+                                    class="mockup-color-btn bg-orange-500 w-8 h-8 rounded border border-slate-600 transition-all hover:scale-110"></button>
+                                <button onclick="updateMockupColor('#8B5CF6', this)"
+                                    class="mockup-color-btn bg-purple-500 w-8 h-8 rounded border border-slate-600 transition-all hover:scale-110"></button>
+                            </div>
+                        </div>
+                        <div class="border-b border-slate-800 pb-4 mb-4">
+                            <div class="text-[0.65rem] font-bold uppercase text-slate-500 tracking-widest mb-3">
+                                Highlight Box Icon</div>
+                            <div class="flex justify-between items-center gap-2 mb-3">
+                                <span class="text-xs color-slate-300">Icon Name</span>
+                                <input type="text" id="mockupIconInput" value="fa-list-check"
+                                    oninput="updateMockupIcon(this.value)"
+                                    class="w-32 bg-[#020617] text-xs text-white px-2 py-1.5 rounded border border-slate-700 font-mono focus:border-blue-500 outline-none">
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="updateMockupIcon('fa-rocket')"
+                                    class="bg-[#020617] border border-slate-700 text-slate-300 w-full py-1.5 rounded hover:border-blue-500 transition-colors"><i
+                                        class="fa-solid fa-rocket"></i></button>
+                                <button onclick="updateMockupIcon('fa-chart-line')"
+                                    class="bg-[#020617] border border-slate-700 text-slate-300 w-full py-1.5 rounded hover:border-blue-500 transition-colors"><i
+                                        class="fa-solid fa-chart-line"></i></button>
+                                <button onclick="updateMockupIcon('fa-shield-halved')"
+                                    class="bg-[#020617] border border-slate-700 text-slate-300 w-full py-1.5 rounded hover:border-blue-500 transition-colors"><i
+                                        class="fa-solid fa-shield-halved"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[0.65rem] font-bold uppercase text-slate-500 tracking-widest mb-3">Speaker
+                                Notes</div>
+                            <textarea
+                                class="bg-[#020617] border border-slate-700 rounded p-2 text-xs text-slate-400 w-full h-24 resize-none focus:border-blue-500 outline-none"
+                                placeholder="Type notes here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="landingFeatureGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl text-left shrink-0">
+                <div
+                    class="group bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-md hover:bg-slate-800 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-2 shadow-2xl">
+                    <div
+                        class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-bolt text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Lightning Fast</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">No accounts, no loading screens. Open the app and
+                        start typing immediately. Your workflow, uninterrupted.</p>
+                </div>
+                <div
+                    class="group bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-md hover:bg-slate-800 hover:border-green-500/50 transition-all duration-300 hover:-translate-y-2 shadow-2xl">
+                    <div
+                        class="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-shield-halved text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">100% Secure</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Your data never leaves your browser. LocalStorage
+                        powers everything, meaning absolute privacy for your company decks.</p>
+                </div>
+                <div
+                    class="group bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-md hover:bg-slate-800 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-2 shadow-2xl">
+                    <div
+                        class="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-chalkboard-user text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Pro Speaker View</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">Export standalone HTML that automatically syncs a
+                        dual-window presenter screen with notes and a live timer.</p>
+                </div>
+            </div>
+            <footer id="landingFooter" class="mt-24 pt-8 border-t border-slate-800/50 w-full text-center text-slate-500 text-sm">
+                OpenDeck - by Chris Glaske for the
+                open source community <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i>
+                <a href="https://github.com/chrisglaske/opendeck"
+                    class="text-blue-400 hover:text-blue-300 hover:underline">View on
+                    GitHub</a>
+                <span class="text-slate-700 mx-2">•</span>
+                <button onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">Privacy
+                    Policy</button>
+
+                <span id="cookieSeparator" class="text-slate-700 mx-2" style="display: none;">•</span>
+                <button id="cookieStatusBtn" onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();" style="display: none;"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">
+                    Analytics: <span id="cookieStatusText"></span>
+                </button>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        function updateMockupColor(hex, btnElement) {
+            document.querySelectorAll('.mockup-color-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'ring-offset-[#0f172a]');
+                btn.classList.add('border', 'border-slate-600', 'hover:scale-110');
+            });
+            btnElement.classList.remove('border', 'border-slate-600', 'hover:scale-110');
+            btnElement.classList.add('ring-2', 'ring-offset-2', 'ring-offset-[#0f172a]');
+            btnElement.style.setProperty('--tw-ring-color', hex);
+
+            document.getElementById('mockupSlideBorder').style.borderColor = hex;
+            document.getElementById('mockupMainIcon').style.color = hex;
+            document.getElementById('mockupMainIcon').style.filter = `drop-shadow(0 0 15px ${hex}66)`;
+            document.getElementById('mockupGlow').style.backgroundColor = hex + '1A';
+            document.querySelectorAll('.mockup-icon-color').forEach(i => i.style.color = hex);
+            document.getElementById('mockupBorder').style.borderColor = hex + '80';
+        }
+        function updateMockupIcon(iconClass) {
+            document.getElementById('mockupIconInput').value = iconClass;
+            document.getElementById('mockupMainIcon').className = `fa-solid ${iconClass} text-7xl mb-6 opacity-80 drop-shadow-lg transition-all duration-300`;
+        }
+    </script>
+
+    <div id="dashboardView" style="display:none;">
+        <header class="header">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="returnToLanding()"
+                title="Return to Landing Page">
+                <div
+                    class="bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h1
+                        class="font-bold text-xl tracking-tight leading-none text-white group-hover:text-blue-400 transition-colors">
+                        OpenDeck</h1>
+                    <span class="text-xs text-slate-400">Open Source Studio</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="startInteractiveTutorial()"
+                    class="text-slate-400 hover:text-white px-3 py-2 rounded-lg transition font-bold text-sm flex items-center gap-2 border border-transparent hover:border-slate-700 hover:bg-slate-800">
+                    <i class="fa-solid fa-graduation-cap text-yellow-500"></i> Guided Tour
+                </button>
+                <button onclick="openSettingsModal()"
+                    class="text-slate-400 hover:text-white px-3 py-2 rounded-lg transition font-bold text-sm flex items-center gap-2 border border-transparent hover:border-slate-700 hover:bg-slate-800"
+                    title="Global Settings">
+                    <i class="fa-solid fa-gear"></i> Global Settings
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <button onclick="createFolder()"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-yellow-500"></i> New Folder
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <label for="importOdeck"
+                    class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center gap-2 !mb-0 group relative">
+                    <i class="fa-solid fa-file-import text-blue-400 group-hover:scale-110 transition"></i> Import .odeck
+                </label>
+                <input type="file" id="importOdeck" accept=".odeck,.json" class="hidden"
+                    onchange="importProject(event)">
+                <span class="hidden xl:inline text-[11px] text-slate-500">Export .odeck from the editor header or deck card menu.</span>
+                <button id="btnNewPresentation" onclick="createNewProject()"
+                    class="text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(59,130,246,0.4)] transition flex items-center gap-2 hover:scale-105"
+                    style="background-color: var(--accent-color)">
+                    <i class="fa-solid fa-plus"></i> New Deck
+                </button>
+            </div>
+        </header>
+
+        <div
+            class="bg-blue-950/40 border-b border-blue-900/50 p-3 flex justify-center items-center text-sm text-blue-200 shrink-0 shadow-inner">
+            <i class="fa-solid fa-shield-halved text-blue-400 mr-3 text-lg"></i>
+            <span><strong>Secure Local Storage:</strong> Presentations are saved entirely within your browser.
+                <strong>Do not clear your cache</strong> or they will be deleted. Use the <strong>Export .odeck</strong>
+                feature on your cards to backup!</span>
+        </div>
+
+        <div class="flex-grow p-10 w-full max-w-[1600px] mx-auto flex flex-col relative">
+            <div id="dashHeader" style="display:none;" class="justify-between items-end mb-8 w-full">
+                <div>
+                    <h2 class="text-4xl font-extrabold text-white tracking-tight mb-2">Your Presentations</h2>
+                    <p class="text-slate-400 text-lg" id="dashboardStats"></p>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <div class="relative w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-[11px] text-slate-500"></i>
+                        <input type="text" id="searchBar" placeholder="Search presentations..."
+                            oninput="renderDashboard()"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:border-blue-500 outline-none transition-all shadow-inner">
+                    </div>
+                    <select id="sortSelect" onchange="renderDashboard()"
+                        class="w-48 bg-slate-900 border border-slate-700 text-white rounded-full px-4 py-2.5 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-inner appearance-none cursor-pointer"
+                        style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlPSIjOTRhM2I4Ij48cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTE5IDlsLTcgNy03LTciPjwvcGF0aD48L3N2Zz4='); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem;">
+                        <option value="newest">Sort: Newest First</option>
+                        <option value="oldest">Sort: Oldest First</option>
+                        <option value="alpha">Sort: A-Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="loadingSequence"
+                class="absolute inset-0 z-50 bg-[#020617] flex-col items-center justify-center text-slate-500"
+                style="display:none;">
+                <i
+                    class="fa-solid fa-hard-drive text-5xl text-blue-500 mb-6 animate-bounce shadow-blue-500 rounded-full"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="loadingText">Initializing workspace...</h3>
+                <div
+                    class="w-72 bg-slate-800 rounded-full h-3 mt-4 overflow-hidden shadow-inner border border-slate-700">
+                    <div class="bg-blue-500 h-full rounded-full w-0 transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                        id="loadingBar"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full pb-10"
+                id="projectGrid" style="display:none;"></div>
+            <footer class="mt-auto pt-10 pb-6 w-full text-center text-slate-500 text-sm border-t border-slate-800/50">
+                OpenDeck - by Chris Glaske for the
+                open source community <i class="fa-solid fa-heart text-red-500 mx-1 opacity-50"></i>
+                <a href="https://github.com/chrisglaske/opendeck"
+                    class="text-blue-400 hover:text-blue-300 hover:underline">View on
+                    GitHub</a>
+                <span class="text-slate-700 mx-2">•</span>
+                <button onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">Privacy
+                    Policy</button>
+
+                <span id="cookieSeparatorDash" class="text-slate-700 mx-2" style="display: none;">•</span>
+                <button id="cookieStatusBtnDash" onclick="event.preventDefault(); event.stopPropagation(); openCookieSettings();" style="display: none;"
+                    class="hover:text-slate-300 transition underline decoration-slate-700 underline-offset-4">
+                    Analytics: <span id="cookieStatusTextDash"></span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <div id="builderView">
+        <header class="header">
+            <div class="flex items-center gap-4">
+                <button onclick="returnToDashboard()"
+                    class="text-slate-400 hover:text-white transition flex items-center gap-2 font-bold text-sm bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 hover:bg-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> Dashboard
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <input type="text" id="projectTitleInput"
+                    class="!mb-0 !py-1 !px-2 !bg-transparent !border-transparent hover:!border-slate-700 focus:!border-slate-600 font-bold text-xl tracking-tight text-white w-64 rounded transition outline-none"
+                    onblur="updateProjectTitle(this.value)">
+                <span id="saveIndicator"
+                    class="text-xs font-mono text-slate-500 ml-2 flex items-center gap-1 transition-all duration-300 opacity-50"><i
+                        class="fa-solid fa-cloud-arrow-up text-green-500"></i> Saved</span>
+            </div>
+            <div class="flex items-center gap-3" id="tutHeaderControls">
+                <button onclick="openSettingsModal()"
+                    class="text-slate-400 hover:text-white p-2 rounded transition border border-transparent hover:border-slate-700 bg-slate-800 hover:bg-slate-700"
+                    title="Global Settings">
+                    <i class="fa-solid fa-gear text-lg"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                <button id="exportPdfBtn" disabled
+                    class="bg-slate-900 border border-slate-700 text-slate-500 px-3 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-2 cursor-not-allowed opacity-70"
+                    title="PDF export is a future feature">
+                    <i class="fa-solid fa-file-arrow-down text-slate-600"></i> PDF (Future Feature)
+                </button>
+                <button onclick="exportPresentation()"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
+                    title="Download Standalone HTML">
+                    <i class="fa-solid fa-code text-blue-400"></i> Download HTML
+                </button>
+                <button onclick="exportOdeck(activeProjectId)"
+                    class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2"
+                    title="Export .odeck Backup">
+                    <i class="fa-solid fa-file-export text-emerald-400"></i> Export .odeck
+                </button>
+                <button onclick="presentInBrowser()"
+                    class="text-white px-5 py-2 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)] transition flex items-center gap-2 hover:scale-105 ml-2"
+                    style="background-color: var(--accent-color)">
+                    <i class="fa-solid fa-play"></i> Present Now
+                </button>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <div class="sidebar-left bg-slate-900" id="tutSidebar">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Outline</span>
+                    <span id="slideCountBadge"
+                        class="text-xs bg-slate-800 px-2 py-1 rounded font-bold text-slate-300">0</span>
+                </div>
+                <div class="flex-grow overflow-y-auto p-2" id="slideList"></div>
+                <div class="p-4 border-t border-slate-800">
+                    <button onclick="openTemplateModal()"
+                        class="w-full text-white px-4 py-3 rounded-lg transition font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:brightness-110"
+                        style="background-color: var(--accent-color)">
+                        <i class="fa-solid fa-plus"></i> Add Slide
+                    </button>
+                </div>
+            </div>
+            <div class="preview-pane" id="previewArea">
+                <div class="preview-wrapper" id="livePreview"></div>
+            </div>
+            <div class="sidebar-right bg-slate-900 inspector-pane" id="tutInspector">
+                <div class="p-4 border-b border-slate-800 shrink-0 inspector-pane__header">
+                    <div>
+                        <div class="text-[0.65rem] font-bold text-slate-500 uppercase tracking-[0.24em] mb-1">Slide Studio</div>
+                        <h2 class="text-sm font-extrabold text-slate-100 tracking-wide flex items-center"><i
+                                class="fa-solid fa-sliders mr-2 text-slate-400"></i> Properties</h2>
+                    </div>
+                </div>
+                <div class="p-4 flex-grow overflow-y-auto inspector-pane__body" id="editorForm"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="releaseNotesModal">
+        <div class="modal-content" style="width: 640px; max-width: 92vw;">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-extrabold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-sparkles text-blue-400"></i>
+                    What's New · v2.1.3
+                </h2>
+                <button onclick="hideModal('releaseNotesModal')" class="text-slate-400 hover:text-white text-2xl transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-4 text-slate-300 text-sm leading-relaxed">
+                <p class="text-slate-400">Major stability and presenter updates shipped in this release:</p>
+                <div class="space-y-3">
+                    <div class="rounded-lg border border-slate-800 bg-slate-900/45 px-3 py-2.5">
+                        <div class="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-300">1. Presenter Sync Rebuild</div>
+                        <p class="mt-1 text-slate-300">Presenter Assistant now syncs more reliably between the main deck and Speaker View.</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-800 bg-slate-900/45 px-3 py-2.5">
+                        <div class="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-300">2. Speaker View Controls</div>
+                        <p class="mt-1 text-slate-300">Added slide jump list, focus mode, notes controls, and a manual timer with reset/targets.</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-800 bg-slate-900/45 px-3 py-2.5">
+                        <div class="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-300">3. Template Capacity Limits</div>
+                        <p class="mt-1 text-slate-300">Repeatable sections now enforce limits to keep slides readable across different displays.</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-800 bg-slate-900/45 px-3 py-2.5">
+                        <div class="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-300">4. Limit UX Improvements</div>
+                        <p class="mt-1 text-slate-300">Add buttons disable at capacity and inline guidance appears only when the limit is reached.</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-800 bg-slate-900/45 px-3 py-2.5">
+                        <div class="text-[11px] font-bold uppercase tracking-[0.14em] text-blue-300">5. Laptop Rendering Stability</div>
+                        <p class="mt-1 text-slate-300">Autofit and 4-card Feature Grid behavior were tuned for improved small-screen stability.</p>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex justify-end gap-3">
+                    <button onclick="hideModal('releaseNotesModal')"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold transition shadow-lg">
+                        Start Building
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tutorialPromptModal" style="display: none;">
+        <div class="modal-content" style="width: 560px; max-width: 92vw;">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-300">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-xl font-extrabold text-white">Would you like a quick tour?</h2>
+            </div>
+
+            <p class="text-sm text-slate-300 leading-relaxed mb-5">
+                OpenDeck can walk you through the core workflow in under a minute: editing slides, using the inspector, and exporting your work.
+            </p>
+
+            <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-4 mb-6 text-xs text-slate-400 leading-relaxed">
+                You can skip this now and start building immediately.
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button onclick="declineTutorialPrompt()"
+                    class="px-5 py-2.5 rounded-lg font-bold text-slate-300 hover:bg-slate-800 transition">
+                    Skip Tutorial
+                </button>
+                <button onclick="acceptTutorialPrompt()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Start Tutorial
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tutorialModal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="text-center mb-6">
+                <div
+                    class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                    <i class="fa-solid fa-graduation-cap text-white"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold mb-2" id="tutTitle">Loading...</h2>
+                <p class="text-slate-400" id="tutSubtitle">Loading...</p>
+            </div>
+            <div id="tutContent"
+                class="bg-slate-900 border border-slate-700 p-6 rounded-xl text-slate-300 space-y-4 text-sm mb-8 min-h-[150px] flex flex-col justify-center shadow-inner">
+            </div>
+            <div class="flex justify-between items-center border-t border-slate-800 pt-6">
+                <button onclick="skipTutorial()"
+                    class="text-slate-500 hover:text-slate-300 text-sm font-bold transition">Skip Tutorial</button>
+                <div class="flex gap-2" id="tutDots"></div>
+                <button onclick="nextTutorialStep()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold text-sm transition shadow-lg"
+                    id="tutNextBtn">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tutCompleteModal">
+        <div class="modal-content" style="width: 450px; text-align: center;">
+            <div
+                class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-[0_0_30px_rgba(34,197,94,0.4)]">
+                <i class="fa-solid fa-check text-white"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold mb-3 text-white">You're a Pro!</h2>
+            <p class="text-slate-400 mb-8 text-lg">The tutorial is complete. What would you like to do next?</p>
+            <div class="flex flex-col gap-4">
+                <button onclick="finishTutorialCreateNew()"
+                    class="w-full text-white px-6 py-3.5 rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.3)] transition hover:scale-105"
+                    style="background-color: var(--accent-color)"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>
+                    Create New Presentation</button>
+                <button onclick="finishTutorialDashboard()"
+                    class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-6 py-3.5 rounded-xl font-bold text-lg transition"><i
+                        class="fa-solid fa-layer-group mr-2"></i> Return to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="templateModal">
+        <div class="modal-content" style="width: 1100px;">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-extrabold text-white"><i
+                        class="fa-solid fa-layer-group mr-3 text-slate-400"></i> Slide Library</h2>
+                <button onclick="closeTemplateModal()" class="text-slate-400 hover:text-white text-2xl transition"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="flex border-b border-slate-700 mb-6">
+                <button onclick="switchTemplateTab('tech')" id="tabBtn_tech" class="template-tab active">Modern
+                    Tech</button>
+                <button onclick="switchTemplateTab('corp')" id="tabBtn_corp" class="template-tab">Corporate
+                    Edge</button>
+                <button onclick="switchTemplateTab('pitch')" id="tabBtn_pitch" class="template-tab">Creative
+                    Pitch</button>
+            </div>
+
+            <div id="tabContent_tech" class="grid grid-cols-3 gap-6">
+                <div class="template-card" onclick="addSlide('glass_intro')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="absolute -top-3 -left-4 w-14 h-14 rounded-full blur-2xl bg-blue-500/30"></div>
+                        <div class="absolute -bottom-4 -right-2 w-14 h-14 rounded-full blur-2xl bg-orange-500/20"></div>
+                        <div class="w-8 h-8 rounded-2xl border border-white/10 bg-white/5 mb-2 z-10"></div>
+                        <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
+                        <div class="flex gap-1 z-10 mt-1">
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                            <div class="h-2 w-10 rounded-full bg-slate-700"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Glass Hero</h3>
+                    <p class="text-xs text-slate-400">Cinematic intro with glass card treatment and supporting badges.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('split')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex border border-slate-700 p-2 gap-2 shadow-inner">
+                        <div class="w-1/2 flex flex-col justify-center gap-1.5">
+                            <div class="h-2 w-full bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-500 rounded"></div>
+                            <div class="h-1 w-4/5 bg-slate-500 rounded mb-1"></div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 rounded-full" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-2/3 bg-slate-600 rounded"></div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 rounded-full" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-1/2 bg-slate-600 rounded"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="w-1/2 bg-slate-800 border border-slate-600 rounded flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-0.5" style="background:var(--accent-color)">
+                            </div><i class="fa-solid fa-image text-slate-500"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Side-by-Side</h3>
+                    <p class="text-xs text-slate-400">Context text/bullets on left, highlighted box on right.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('grid')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col border border-slate-700 p-2 shadow-inner">
+                        <div class="h-2 w-1/2 bg-white rounded mb-2 mx-auto"></div>
+                        <div class="flex gap-2 flex-grow">
+                            <div
+                                class="flex-1 bg-slate-800 rounded border border-slate-600 flex flex-col items-center justify-center p-1">
+                                <div class="h-3 w-3 rounded-sm mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-full bg-white rounded mb-0.5"></div>
+                                <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                            </div>
+                            <div
+                                class="flex-1 bg-slate-800 rounded border border-slate-600 flex flex-col items-center justify-center p-1">
+                                <div class="h-3 w-3 rounded-sm mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-full bg-white rounded mb-0.5"></div>
+                                <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                            </div>
+                            <div
+                                class="flex-1 bg-slate-800 rounded border border-slate-600 flex flex-col items-center justify-center p-1">
+                                <div class="h-3 w-3 rounded-sm mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-full bg-white rounded mb-0.5"></div>
+                                <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Feature Grid</h3>
+                    <p class="text-xs text-slate-400">Display 2-4 cards in a grid layout. Great for features.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('list')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex border border-slate-700 p-2 gap-2 items-center shadow-inner">
+                        <div class="w-1/2 flex flex-col gap-2">
+                            <div class="h-2 w-full bg-white rounded mb-1"></div>
+                            <div
+                                class="w-full bg-slate-800 h-4 rounded border border-slate-600 flex justify-between items-center px-1">
+                                <div class="h-1 w-1/2 bg-slate-400 rounded"></div>
+                                <div class="h-1.5 w-1/4 rounded" style="background:var(--accent-color)"></div>
+                            </div>
+                            <div
+                                class="w-full bg-slate-800 h-4 rounded border border-slate-600 flex justify-between items-center px-1">
+                                <div class="h-1 w-1/2 bg-slate-400 rounded"></div>
+                                <div class="h-1.5 w-1/4 rounded" style="background:var(--accent-color)"></div>
+                            </div>
+                        </div>
+                        <div
+                            class="w-1/2 bg-slate-800 border border-slate-600 rounded h-full flex items-center justify-center">
+                            <i class="fa-solid fa-list-check text-xl" style="color:var(--accent-color)"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Status Checklist</h3>
+                    <p class="text-xs text-slate-400">A robust checklist format for requirements or compliances.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('code')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col border border-slate-700 p-2 shadow-inner">
+                        <div class="h-2 w-1/2 bg-white rounded mb-2"></div>
+                        <div
+                            class="flex-grow bg-slate-950 rounded border border-slate-800 flex flex-col overflow-hidden">
+                            <div class="h-3 w-full bg-slate-800 flex items-center px-1 gap-0.5">
+                                <div class="w-1 h-1 rounded-full bg-red-500"></div>
+                                <div class="w-1 h-1 rounded-full bg-yellow-500"></div>
+                                <div class="w-1 h-1 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="p-1 flex flex-col gap-1 mt-1">
+                                <div class="h-1 w-1/3 bg-slate-600 rounded"></div>
+                                <div class="h-1 w-2/3 bg-green-400 rounded"></div>
+                                <div class="h-1 w-1/2 bg-green-400 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Code / Terminal</h3>
+                    <p class="text-xs text-slate-400">Syntax block for showing scripts, JSON, or commands.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('cta')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner">
+                        <i class="fa-solid fa-rocket text-2xl text-white mb-2"></i>
+                        <div class="h-3 w-3/4 bg-white rounded mb-1"></div>
+                        <div
+                            class="h-4 w-1/3 bg-slate-800 border border-slate-600 rounded mt-2 flex items-center justify-center">
+                            <div class="h-1 w-1/2 rounded" style="background:var(--accent-color)"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Big Focus / CTA</h3>
+                    <p class="text-xs text-slate-400">Giant icon and massive text to draw attention to a link.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('intro')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 opacity-20"
+                            style="background: radial-gradient(circle at 50% 50%, var(--accent-color) 0%, transparent 70%);">
+                        </div>
+                        <div
+                            class="w-8 h-8 rounded-full border border-slate-500 flex items-center justify-center mb-2 z-10">
+                            <i class="fa-solid fa-desktop text-[10px] text-slate-300"></i>
+                        </div>
+                        <div class="h-2 w-2/3 bg-white rounded mb-1 z-10"></div>
+                        <div class="h-1.5 w-1/2 bg-slate-500 rounded z-10"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Title / Hero</h3>
+                    <p class="text-xs text-slate-400">Large centered text, perfect for opening introductions.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('comparison')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 grid grid-cols-2 gap-2 border border-slate-700 p-2 shadow-inner">
+                        <div class="rounded-lg border border-red-500/20 bg-slate-900/80 p-2">
+                            <div class="w-5 h-5 rounded-lg bg-red-500/20 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-5/6 bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg border border-emerald-500/20 bg-slate-900/80 p-2">
+                            <div class="w-5 h-5 rounded-lg bg-emerald-500/20 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-5/6 bg-slate-600 rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Comparison Panels</h3>
+                    <p class="text-xs text-slate-400">Frame old vs new, option A vs B, or risks vs gains.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('showcase_window')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 grid grid-cols-[0.9fr_1.1fr] gap-2 border border-slate-700 p-2 shadow-inner">
+                        <div class="flex flex-col justify-center">
+                            <div class="h-2 w-3/4 bg-white rounded mb-2"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-5/6 bg-slate-600 rounded mb-1"></div>
+                            <div class="h-1 w-2/3 bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg border border-slate-700 overflow-hidden bg-slate-900">
+                            <div class="h-3 bg-slate-800 flex items-center px-1 gap-1">
+                                <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="p-1.5 space-y-1.5">
+                                <div class="h-1 w-1/2 bg-slate-600 rounded"></div>
+                                <div class="h-1 w-5/6 bg-blue-400 rounded"></div>
+                                <div class="h-1 w-4/6 bg-blue-400 rounded"></div>
+                                <div class="h-1 w-3/6 bg-blue-400 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Showcase Window</h3>
+                    <p class="text-xs text-slate-400">Narrative copy paired with a polished macOS-style code window.</p>
+                </div>
+            </div>
+
+            <div id="tabContent_corp" class="grid grid-cols-3 gap-6 hidden">
+                <div class="template-card" onclick="addSlide('corp_title')">
+                    <div
+                        class="w-full h-24 bg-slate-100 rounded mb-4 flex flex-col justify-center px-4 border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="h-4 w-3/4 bg-slate-800 rounded mb-2"></div>
+                        <div class="h-1 w-12 rounded mb-4" style="background:var(--accent-color)"></div>
+                        <div class="h-2 w-1/2 bg-slate-400 rounded mb-1"></div>
+                        <div class="h-1.5 w-1/3 bg-slate-300 rounded mt-auto mb-2"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Executive Title</h3>
+                    <p class="text-xs text-slate-400">Sharp, clean title slide with an author attribution line.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('corp_quote')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center px-6 border border-slate-700 shadow-inner text-center">
+                        <i class="fa-solid fa-quote-left text-lg mb-2 opacity-50" style="color:var(--accent-color)"></i>
+                        <div class="h-2 w-full bg-white rounded mb-1"></div>
+                        <div class="h-2 w-4/5 bg-white rounded mb-3"></div>
+                        <div class="h-1.5 w-1/4 bg-slate-500 rounded"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Massive Quote</h3>
+                    <p class="text-xs text-slate-400">Highlight a customer quote or visionary statement.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('corp_image_text')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex border border-slate-700 shadow-inner overflow-hidden">
+                        <div class="w-1/2 h-full bg-slate-700 flex items-center justify-center"><i
+                                class="fa-solid fa-image text-slate-500"></i></div>
+                        <div class="w-1/2 p-2 flex flex-col justify-center">
+                            <div class="h-2 w-full bg-white rounded mb-2"></div>
+                            <div class="h-1 w-full bg-slate-500 rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-500 rounded mb-1"></div>
+                            <div class="h-1 w-2/3 bg-slate-500 rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Magazine Layout</h3>
+                    <p class="text-xs text-slate-400">Clean 50/50 split of an image and editorial text block.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('corp_basic')">
+                    <div
+                        class="w-full h-24 bg-slate-100 rounded mb-4 flex flex-col justify-start px-4 pt-4 border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="h-1.5 w-10 rounded-full mb-2" style="background:var(--accent-color)"></div>
+                        <div class="h-3 w-3/4 bg-slate-800 rounded mb-2"></div>
+                        <div class="h-1 w-full bg-slate-400 rounded mb-1"></div>
+                        <div class="h-1 w-5/6 bg-slate-400 rounded"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Title & Content</h3>
+                    <p class="text-xs text-slate-400">Classic free-form text layout for comprehensive thoughts.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('corp_team')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
+                        <div class="h-2 w-1/2 bg-white rounded mb-3"></div>
+                        <div class="flex gap-3">
+                            <div class="flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full border border-slate-500 mb-1"
+                                    style="border-color:var(--accent-color)"></div>
+                                <div class="w-6 h-1 bg-slate-500 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full border border-slate-500 mb-1"
+                                    style="border-color:var(--accent-color)"></div>
+                                <div class="w-6 h-1 bg-slate-500 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full border border-slate-500 mb-1"
+                                    style="border-color:var(--accent-color)"></div>
+                                <div class="w-6 h-1 bg-slate-500 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Meet the Team</h3>
+                    <p class="text-xs text-slate-400">Introduce your members with circular avatar cutouts.</p>
+                </div>
+            </div>
+
+            <div id="tabContent_pitch" class="grid grid-cols-3 gap-6 hidden">
+                <div class="template-card" onclick="addSlide('pitch_hero')">
+                    <div
+                        class="w-full h-24 bg-slate-800 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-900 to-transparent opacity-50"></div>
+                        <div class="h-4 w-4/5 bg-white rounded mb-2 z-10 shadow"></div>
+                        <div class="h-2 w-1/2 bg-white/70 rounded z-10"></div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Cinematic Hero</h3>
+                    <p class="text-xs text-slate-400">Full-bleed background image with massive overlay text.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('pitch_stats')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col items-center justify-center border border-slate-700 shadow-inner p-2">
+                        <div class="flex w-full justify-around mt-2">
+                            <div class="flex flex-col items-center">
+                                <div class="h-5 w-8 rounded mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1.5 w-6 bg-slate-500 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="h-5 w-8 rounded mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1.5 w-6 bg-slate-500 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="h-5 w-8 rounded mb-1" style="background:var(--accent-color)"></div>
+                                <div class="h-1.5 w-6 bg-slate-500 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Key Metrics</h3>
+                    <p class="text-xs text-slate-400">Three massive numbers to highlight growth or stats.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('pitch_timeline')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex flex-col justify-center border border-slate-700 shadow-inner px-2 relative">
+                        <div class="absolute w-full h-1 bg-slate-700 top-1/2 -mt-0.5 left-0"></div>
+                        <div class="flex justify-between relative z-10 px-2">
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full border-2 border-slate-900"
+                                    style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-4 bg-white mt-1 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full border-2 border-slate-900"
+                                    style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-4 bg-white mt-1 rounded"></div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full border-2 border-slate-900"
+                                    style="background:var(--accent-color)"></div>
+                                <div class="h-1 w-4 bg-white mt-1 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Journey Timeline</h3>
+                    <p class="text-xs text-slate-400">A horizontal progression to show roadmaps or history.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('pitch_pricing')">
+                    <div
+                        class="w-full h-24 bg-slate-900 rounded mb-4 flex justify-center items-end border border-slate-700 shadow-inner pb-2 px-2 gap-1.5 relative overflow-hidden">
+                        <div class="w-1/3 h-12 border border-slate-600 rounded-t flex flex-col items-center pt-2">
+                            <div class="w-3/4 h-1 bg-slate-500 rounded mb-1"></div>
+                            <div class="w-1/2 h-2 bg-white rounded"></div>
+                        </div>
+                        <div class="w-1/3 h-16 border-t-2 border-x-2 rounded-t flex flex-col items-center pt-2 relative bg-slate-800"
+                            style="border-color:var(--accent-color)">
+                            <div class="w-full h-1 bg-blue-500 absolute top-0"></div>
+                            <div class="w-3/4 h-1 bg-slate-300 rounded mb-1 mt-1"></div>
+                            <div class="w-1/2 h-2 bg-white rounded"></div>
+                        </div>
+                        <div class="w-1/3 h-12 border border-slate-600 rounded-t flex flex-col items-center pt-2">
+                            <div class="w-3/4 h-1 bg-slate-500 rounded mb-1"></div>
+                            <div class="w-1/2 h-2 bg-white rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Pricing Tiers</h3>
+                    <p class="text-xs text-slate-400">Three columns with a highlighted center plan.</p>
+                </div>
+                <div class="template-card" onclick="addSlide('roadmap_cards')">
+                    <div
+                        class="w-full h-24 bg-slate-950 rounded mb-4 grid grid-cols-3 gap-2 border border-slate-700 p-2 shadow-inner">
+                        <div class="rounded-lg bg-slate-900/80 border border-slate-700 relative p-2">
+                            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-blue-500"></div>
+                            <div class="h-2 w-1/2 bg-slate-500 rounded mt-2 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg bg-slate-900/80 border border-slate-700 relative p-2">
+                            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-purple-500"></div>
+                            <div class="h-2 w-1/2 bg-slate-500 rounded mt-2 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded"></div>
+                        </div>
+                        <div class="rounded-lg bg-slate-900/80 border border-slate-700 relative p-2">
+                            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-lg bg-orange-500"></div>
+                            <div class="h-2 w-1/2 bg-slate-500 rounded mt-2 mb-2"></div>
+                            <div class="h-1.5 w-3/4 bg-white rounded mb-1"></div>
+                            <div class="h-1 w-full bg-slate-600 rounded"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1">Roadmap Cards</h3>
+                    <p class="text-xs text-slate-400">Three polished stages for rollout, strategy, or product evolution.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="iconModal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold"><i class="fa-solid fa-icons mr-2 text-slate-400"></i> Select an Icon</h2>
+                <button onclick="closeIconModal()" class="text-slate-400 hover:text-white text-2xl"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="grid grid-cols-6 gap-3" id="iconGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div
+            class="modal-content !w-[600px] !p-0 !bg-transparent !border-0 !box-shadow-none flex flex-col justify-center max-h-[90vh]">
+            <div
+                class="bg-[#0f172a] border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                <div
+                    class="bg-slate-900 px-6 py-5 border-b border-slate-800 flex justify-between items-center shrink-0">
+                    <h2 class="text-lg font-extrabold text-white flex items-center"><i
+                            class="fa-solid fa-globe text-blue-500 mr-3"></i> Global Settings</h2>
+                    <button onclick="closeSettingsModal()" class="text-slate-500 hover:text-white transition"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="p-6 space-y-6 text-left overflow-y-auto custom-scrollbar">
+                    <p class="text-xs text-slate-400 leading-relaxed"><strong>Note:</strong> Per-presentation branding (color, font, nav text, watermark) is now configured in the <strong>Presentation Settings</strong> panel on the right. These global settings are for universal app features.</p>
+
+                    <div class="flex flex-col gap-3 border-t border-slate-800/80 pt-6 mt-2">
+                        <label
+                            class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest text-blue-400"><i
+                                class="fa-solid fa-wand-magic-sparkles mr-1"></i> Custom Fonts</label>
+
+                        <div class="flex flex-col gap-2 mt-3">
+                            <label class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Add Custom
+                                Google Font</label>
+                            <div class="bg-slate-900/50 border border-slate-700 p-4 rounded-lg space-y-3 shadow-inner">
+                                <p class="text-[11px] text-slate-400 leading-relaxed mb-3">
+                                    <strong class="text-white">1.</strong> Go to fonts.google.com and pick a font.<br>
+                                    <strong class="text-white">2.</strong> Click "Get Font" -> "Get embed code".<br>
+                                    <strong class="text-white">3.</strong> Copy <strong>ONLY</strong> the web link
+                                    inside the <strong>href="..."</strong> quotes and paste it below.
+                                </p>
+                                <input type="text" id="newFontUrl"
+                                    placeholder="e.g. https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap"
+                                    class="w-full bg-[#020617] border border-slate-700 text-white text-xs rounded-md px-3 py-2.5 outline-none focus:border-blue-500 font-mono transition-colors">
+                                <button onclick="addCustomFont()"
+                                    class="w-full bg-slate-800 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-md border border-slate-600 transition shadow-lg mt-1"><i
+                                        class="fa-solid fa-wand-magic-sparkles mr-1 text-yellow-500"></i> Extract & Save
+                                    Font</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
+                            <button onclick="hideModal('settingsModal'); openCookieSettings();"
+                                class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-shield-halved text-blue-400"></i> Privacy Policy & Analytics
+                            </button>
+                            <button onclick="clearAllData()"
+                                class="w-full bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Wipe Browser Storage (Reset App)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        <div class="modal-overlay" id="tagModal">
+            <div class="modal-content" style="width: 500px;">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                    <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-tags text-blue-500 mr-2"></i> Manage
+                        Tags
+                    </h2>
+                    <button onclick="hideModal('tagModal')" class="text-slate-500 hover:text-white transition"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Comma-Separated
+                            Tags</label>
+                        <input type="text" id="tagInput" placeholder="e.g. Sales, Q3, Client Pitch"
+                            class="w-full bg-[#020617] border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <p class="text-xs text-slate-500">Tags allow you to quickly search and filter presentations on your
+                        dashboard.</p>
+                </div>
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button onclick="hideModal('tagModal')"
+                        class="px-5 py-2.5 rounded-lg font-bold text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+                    <button onclick="saveTags()"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transition">Save
+                        Tags</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="cookieBanner"
+            style="z-index: 6000; display: none; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;"
+            class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 md:p-6 shadow-2xl">
+            <div class="text-slate-400 text-sm leading-relaxed" style="flex: 1 1 300px;">
+                <strong>Your Privacy:</strong> OpenDeck uses your browser's Local Storage strictly to save your
+                presentations on your device. We also use privacy-first, cookie-less analytics to monitor site
+                performance.
+                <button onclick="showModal('legalModal')" class="text-blue-400 hover:text-blue-300 underline ml-1">Read
+                    our
+                    Privacy Policy</button>.
+            </div>
+            <div class="flex gap-3 shrink-0" style="flex: 0 0 auto;">
+                <button onclick="handleCookieConsent(false)"
+                    class="px-5 py-2.5 rounded-lg font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Decline</button>
+                <button onclick="handleCookieConsent(true)"
+                    class="px-5 py-2.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-500 transition shadow-lg">Got
+                    it</button>
+            </div>
+        </div>
+
+        <div id="cookieSettingsModal" class="modal-overlay" style="z-index: 6000; display: none;" onclick="if(event.target === this) hideModal('cookieSettingsModal');">
+            <div class="modal-content" style="width: 650px; max-width: 90vw; padding: 2rem;" onclick="event.stopPropagation();">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white"><i
+                            class="fa-solid fa-shield-halved text-blue-400 mr-2"></i>
+                        Privacy Policy & Settings</h2>
+                    <button onclick="hideModal('cookieSettingsModal')"
+                        class="text-slate-400 hover:text-white transition w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 p-4 md:p-5 rounded-xl mb-6 shadow-inner">
+                    <p id="cookieSettingsText" class="text-slate-300 text-sm leading-relaxed mb-5">
+                        Loading...
+                    </p>
+
+                    <div
+                        class="flex items-center justify-between bg-slate-900 p-4 rounded-lg border border-slate-700 shadow-sm">
+                        <span class="text-white font-bold text-sm">Allow Cloudflare Analytics</span>
+
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="cookieToggle" class="sr-only"
+                                onchange="toggleCookieConsent(this.checked)">
+                            <div id="toggleTrack"
+                                class="w-12 h-6 bg-slate-700 rounded-full transition-colors duration-300">
+                            </div>
+                            <div id="toggleKnob"
+                                class="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform duration-300 transform shadow-md"
+                                style="transform: translateX(0px);"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div
+                    class="overflow-y-auto text-slate-300 text-sm space-y-4 pr-2 custom-scrollbar max-h-48 mb-6 bg-slate-900/30 p-5 rounded-xl border border-slate-800/50">
+                    <div>
+                        <h3 class="text-white font-bold mb-1 text-base">1. 100% Local Storage</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is a "Vanilla+" local-first
+                            application.
+                            Your presentations, slides, and settings are saved exclusively in your browser's
+                            LocalStorage.
+                            We do not transmit, save, or have access to your presentation data or any content you
+                            create.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold mb-1 text-base">2. Analytics</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">We use Cloudflare Web Analytics to measure
+                            website
+                            traffic and performance. This is a privacy-first analytics service that does
+                            <strong>not</strong> use cookies or track individual users across the web.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold mb-1 text-base">3. AGPL-3.0 License</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">OpenDeck is open-source software provided under the GNU Affero General Public License v3.0 (AGPL-3.0). The software is provided "as is", without warranty of any kind, express or implied.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-slate-800">
+                    <button onclick="hideModal('cookieSettingsModal')"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold transition shadow-lg">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/globals.js"></script>
+        <script src="js/storage.js"></script>
+        <script src="js/tutorial.js"></script>
+        <script src="js/editor.js"></script>
+        <script src="js/export.js"></script>
+        <script src="js/ui.js"></script>
+</body>
+
+</html>

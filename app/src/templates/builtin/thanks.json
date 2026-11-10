@@ -1,0 +1,133 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "thanks",
+    "name": "Thank you",
+    "group": "closing",
+    "keywords": [
+      "end",
+      "contact",
+      "goodbye",
+      "closing"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "thanks-1",
+          "type": "text",
+          "x": 134,
+          "y": 302,
+          "w": 809,
+          "h": 179,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Thank you"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 140,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "thanks-2",
+          "type": "text",
+          "x": 134,
+          "y": 594,
+          "w": 417,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "ana@northwind.co"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "text[1]",
+          "sample": true
+        },
+        {
+          "id": "thanks-3",
+          "type": "text",
+          "x": 135,
+          "y": 680,
+          "w": 416,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "northwind.co/deck"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "text[2]",
+          "sample": true
+        },
+        {
+          "id": "thanks-4",
+          "type": "logo",
+          "x": 1518,
+          "y": 929,
+          "w": 267,
+          "h": 65,
+          "rotation": 0,
+          "locked": false,
+          "role": "decor"
+        },
+        {
+          "id": "thanks-5",
+          "type": "shape",
+          "x": 1421,
+          "y": 173,
+          "w": 346,
+          "h": 346,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        }
+      ]
+    }
+  },
+  "assets": []
+}

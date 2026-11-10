@@ -1,0 +1,43 @@
+/* Pages are slide-sized, so a slide prints edge to edge at its real size and text stays text. */
+@page {
+  size: 1920px 1080px;
+  margin: 0;
+}
+
+.root {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.page {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  break-after: page;
+}
+
+.page:last-child {
+  break-after: auto;
+}
+
+@media screen {
+  /* Laid out (so pictures and fonts load) but never seen on screen. */
+  :global(#print-root) {
+    position: fixed;
+    top: 0;
+    left: -100000px;
+    pointer-events: none;
+  }
+}
+
+@media print {
+  :global(html[data-printing] body > :not(#print-root)) {
+    display: none !important;
+  }
+
+  :global(html[data-printing]),
+  :global(html[data-printing] body) {
+    margin: 0;
+    background: #fff;
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "workshop",
+  "name": "Workshop",
+  "order": 3,
+  "slides": [
+    {
+      "template": "title",
+      "texts": [
+        "WORKSHOP · HALF DAY",
+        "Design systems in practice",
+        "Three hours, one shared kit, and a deck you can reuse.",
+        "Northwind · Design workshop"
+      ]
+    },
+    "agenda",
+    "section",
+    "definition",
+    "steps",
+    "photo-grid",
+    "question",
+    "takeaways",
+    "thanks"
+  ]
+}

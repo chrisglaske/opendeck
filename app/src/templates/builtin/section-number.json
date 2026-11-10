@@ -1,0 +1,129 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "section-number",
+    "name": "Numbered section",
+    "group": "sections",
+    "keywords": [
+      "divider",
+      "chapter",
+      "part",
+      "number"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "section-number-1",
+          "type": "text",
+          "x": 135,
+          "y": 195,
+          "w": 575,
+          "h": 473,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "02"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 422,
+          "color": {
+            "theme": "accentText"
+          },
+          "opacity": 0.9,
+          "role": "number",
+          "sample": true
+        },
+        {
+          "id": "section-number-2",
+          "type": "line",
+          "x1": 135,
+          "y1": 672,
+          "x2": 1786,
+          "y2": 672,
+          "locked": false,
+          "stroke": {
+            "color": {
+              "theme": "accent"
+            },
+            "width": 6,
+            "dash": "solid"
+          },
+          "start": "none",
+          "end": "none",
+          "role": "decor"
+        },
+        {
+          "id": "section-number-3",
+          "type": "text",
+          "x": 134,
+          "y": 724,
+          "w": 1344,
+          "h": 112,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "The market"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 88,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "section-number-4",
+          "type": "text",
+          "x": 134,
+          "y": 886,
+          "w": 1152,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Who buys, how much, and why now."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "subtitle",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

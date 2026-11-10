@@ -1,0 +1,121 @@
+.subFlush {
+  margin-bottom: 0;
+}
+
+.outs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.out {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--muted);
+}
+.out b {
+  display: block;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.out > span:first-child {
+  width: 30px;
+  height: 30px;
+}
+
+/* The drawn speaker view: Graphite dark in both modes (data-mode="dark" on the root). */
+.speaker {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: var(--shadow-hero);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.speaker > * {
+  min-width: 0;
+}
+
+.top {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+}
+.top b {
+  color: var(--ink);
+}
+
+.timer {
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.now {
+  border: 1.5px solid var(--accent);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.side {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.next {
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.notes {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+.notes small {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.bot {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back {
+  color: var(--muted);
+}
+
+.nextBtn {
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}

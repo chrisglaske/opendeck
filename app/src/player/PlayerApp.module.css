@@ -1,0 +1,35 @@
+.root {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
+
+.empty {
+  margin: 0;
+  padding: 48px 24px;
+  text-align: center;
+  font: 16px/1.5 system-ui, sans-serif;
+  color: var(--ink);
+}
+
+/* Same dark pill as the control bar, just above it. */
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(5% + 48px);
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(20, 20, 22, 0.78);
+  color: #ededef;
+  font: 600 12px/1.2 var(--font-ui, Inter, system-ui, sans-serif);
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.hint[data-visible='false'] {
+  opacity: 0;
+}

@@ -1,0 +1,153 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "definition",
+    "name": "Definition",
+    "group": "teaching",
+    "keywords": [
+      "term",
+      "glossary",
+      "meaning",
+      "word"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "definition-1",
+          "type": "text",
+          "x": 135,
+          "y": 194,
+          "w": 240,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "DEFINITION"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "letterSpacing": 0.14,
+          "role": "overline",
+          "sample": true
+        },
+        {
+          "id": "definition-2",
+          "type": "text",
+          "x": 134,
+          "y": 291,
+          "w": 555,
+          "h": 157,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Latency"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 123,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "definition-3",
+          "type": "text",
+          "x": 134,
+          "y": 508,
+          "w": 290,
+          "h": 52,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "noun · /ˈleɪ.tən.si/",
+                  "italic": true
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "caption",
+          "sample": true
+        },
+        {
+          "id": "definition-4",
+          "type": "shape",
+          "x": 134,
+          "y": 594,
+          "w": 115,
+          "h": 8,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "definition-5",
+          "type": "text",
+          "x": 135,
+          "y": 648,
+          "w": 1190,
+          "h": 168,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "The delay between asking for something and starting to get it."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 48,
+          "role": "body",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

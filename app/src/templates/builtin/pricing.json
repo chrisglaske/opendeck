@@ -1,0 +1,498 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "pricing",
+    "name": "Pricing",
+    "group": "compare",
+    "keywords": [
+      "plans",
+      "cost",
+      "tiers",
+      "price"
+    ],
+    "order": 2,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "pricing-1",
+          "type": "text",
+          "x": 0,
+          "y": 97,
+          "w": 1920,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Simple pricing"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "pricing-2",
+          "type": "shape",
+          "x": 192,
+          "y": 324,
+          "w": 461,
+          "h": 583,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pricing-3",
+          "type": "text",
+          "x": 238,
+          "y": 376,
+          "w": 191,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "STARTER"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "letterSpacing": 0.14,
+          "role": "item.title[1]",
+          "sample": true
+        },
+        {
+          "id": "pricing-4",
+          "type": "text",
+          "x": 238,
+          "y": 464,
+          "w": 160,
+          "h": 119,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "$0"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 104,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[1]",
+          "sample": true
+        },
+        {
+          "id": "pricing-5",
+          "type": "text",
+          "x": 238,
+          "y": 627,
+          "w": 369,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "For trying it out"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[1]",
+          "sample": true
+        },
+        {
+          "id": "pricing-6",
+          "type": "shape",
+          "x": 238,
+          "y": 767,
+          "w": 220,
+          "h": 88,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pricing-7",
+          "type": "text",
+          "x": 284,
+          "y": 787,
+          "w": 128,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Choose"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pricing-8",
+          "type": "shape",
+          "x": 720,
+          "y": 281,
+          "w": 461,
+          "h": 670,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pricing-9",
+          "type": "text",
+          "x": 766,
+          "y": 341,
+          "w": 128,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "TEAM"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "onAccent"
+          },
+          "letterSpacing": 0.14,
+          "role": "item.title[2]",
+          "sample": true
+        },
+        {
+          "id": "pricing-10",
+          "type": "text",
+          "x": 766,
+          "y": 441,
+          "w": 200,
+          "h": 119,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "$12"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 104,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "item.value[2]",
+          "sample": true
+        },
+        {
+          "id": "pricing-11",
+          "type": "text",
+          "x": 766,
+          "y": 629,
+          "w": 369,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "per person / month"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "item.body[2]",
+          "sample": true
+        },
+        {
+          "id": "pricing-12",
+          "type": "shape",
+          "x": 766,
+          "y": 802,
+          "w": 220,
+          "h": 88,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "onAccent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pricing-13",
+          "type": "text",
+          "x": 812,
+          "y": 823,
+          "w": 128,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Choose"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "color": {
+            "theme": "accent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "pricing-14",
+          "type": "shape",
+          "x": 1248,
+          "y": 324,
+          "w": 461,
+          "h": 583,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "surface"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pricing-15",
+          "type": "text",
+          "x": 1294,
+          "y": 376,
+          "w": 210,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "BUSINESS"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "letterSpacing": 0.14,
+          "role": "item.title[3]",
+          "sample": true
+        },
+        {
+          "id": "pricing-16",
+          "type": "text",
+          "x": 1294,
+          "y": 464,
+          "w": 219,
+          "h": 119,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "$29"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 104,
+          "color": {
+            "theme": "accentText"
+          },
+          "role": "item.value[3]",
+          "sample": true
+        },
+        {
+          "id": "pricing-17",
+          "type": "text",
+          "x": 1294,
+          "y": 627,
+          "w": 369,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "per person / month"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "item.body[3]",
+          "sample": true
+        },
+        {
+          "id": "pricing-18",
+          "type": "shape",
+          "x": 1294,
+          "y": 767,
+          "w": 220,
+          "h": 88,
+          "rotation": 0,
+          "locked": false,
+          "shape": "rect",
+          "radius": "theme",
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "role": "decor"
+        },
+        {
+          "id": "pricing-19",
+          "type": "text",
+          "x": 1340,
+          "y": 787,
+          "w": 128,
+          "h": 53,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Choose"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 35,
+          "color": {
+            "theme": "onAccent"
+          },
+          "role": "decor",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

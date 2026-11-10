@@ -1,0 +1,87 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 520px;
+  padding: 0 28px 60px;
+}
+
+/* A small drawn laptop. */
+.ill {
+  position: relative;
+  width: 120px;
+  height: 78px;
+  margin-bottom: 26px;
+  border: 2px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--subtle);
+}
+.ill::after {
+  content: '';
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  bottom: -12px;
+  height: 8px;
+  border-radius: 0 0 8px 8px;
+  background: var(--line-strong);
+}
+.ill b {
+  position: absolute;
+  inset: 12px 14px;
+  border-radius: 5px;
+  background: var(--accent-tint);
+}
+.ill b::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  width: 46%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.h {
+  margin: 0 0 12px;
+  font: 800 26px/1.15 var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.p {
+  margin: 0 0 26px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.back {
+  align-self: flex-start;
+  border-radius: var(--r-xs);
+  color: var(--accent-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.back:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

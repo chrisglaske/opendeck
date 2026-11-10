@@ -1,0 +1,160 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "quote-photo",
+    "name": "Quote with photo",
+    "group": "quotes",
+    "keywords": [
+      "testimonial",
+      "review",
+      "customer",
+      "photo"
+    ],
+    "order": 1,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "quote-photo-1",
+          "type": "image",
+          "x": 1190,
+          "y": 0,
+          "w": 730,
+          "h": 1080,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 0,
+          "art": {
+            "kind": "photo",
+            "variant": 1
+          },
+          "sample": true,
+          "role": "picture[1]"
+        },
+        {
+          "id": "quote-photo-2",
+          "type": "text",
+          "x": 134,
+          "y": 65,
+          "w": 139,
+          "h": 310,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "“"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 211,
+          "color": {
+            "theme": "accent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "quote-photo-3",
+          "type": "text",
+          "x": 134,
+          "y": 303,
+          "w": 960,
+          "h": 267,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Our board asked who designed the deck. Nobody did."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 69,
+          "role": "quote",
+          "sample": true
+        },
+        {
+          "id": "quote-photo-4",
+          "type": "text",
+          "x": 134,
+          "y": 756,
+          "w": 250,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Tom Becker"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "author",
+          "sample": true
+        },
+        {
+          "id": "quote-photo-5",
+          "type": "text",
+          "x": 134,
+          "y": 831,
+          "w": 339,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Founder, Fieldnote"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "author.role",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

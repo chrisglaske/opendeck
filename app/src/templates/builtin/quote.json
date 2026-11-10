@@ -1,0 +1,161 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "quote",
+    "name": "Quote",
+    "group": "quotes",
+    "keywords": [
+      "testimonial",
+      "review",
+      "customer",
+      "saying"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "quote-1",
+          "type": "text",
+          "x": 134,
+          "y": 65,
+          "w": 171,
+          "h": 395,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "“"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 269,
+          "color": {
+            "theme": "accent"
+          },
+          "role": "decor",
+          "sample": true
+        },
+        {
+          "id": "quote-2",
+          "type": "text",
+          "x": 134,
+          "y": 324,
+          "w": 1536,
+          "h": 207,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "We rebuilt our whole sales deck in an afternoon, and it finally looks like us."
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 81,
+          "role": "quote",
+          "sample": true
+        },
+        {
+          "id": "quote-3",
+          "type": "image",
+          "x": 134,
+          "y": 778,
+          "w": 115,
+          "h": 115,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 58,
+          "art": {
+            "kind": "initials",
+            "text": "PN",
+            "variant": 1
+          },
+          "sample": true,
+          "role": "person.photo[1]"
+        },
+        {
+          "id": "quote-4",
+          "type": "text",
+          "x": 288,
+          "y": 783,
+          "w": 208,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Priya Nair"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "author",
+          "sample": true
+        },
+        {
+          "id": "quote-5",
+          "type": "text",
+          "x": 288,
+          "y": 853,
+          "w": 390,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "VP Marketing, Harbor"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "author.role",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

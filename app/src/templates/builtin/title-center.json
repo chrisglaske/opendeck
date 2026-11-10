@@ -1,0 +1,146 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "title-center",
+    "name": "Big title",
+    "group": "titles",
+    "keywords": [
+      "cover",
+      "keynote",
+      "talk",
+      "hero",
+      "centered"
+    ],
+    "order": 2,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "title-center-1",
+          "type": "shape",
+          "x": -115,
+          "y": -151,
+          "w": 576,
+          "h": 576,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent2"
+          },
+          "stroke": null,
+          "opacity": 0.7,
+          "role": "decor"
+        },
+        {
+          "id": "title-center-2",
+          "type": "shape",
+          "x": 1421,
+          "y": 643,
+          "w": 653,
+          "h": 653,
+          "rotation": 0,
+          "locked": false,
+          "shape": "ellipse",
+          "radius": 0,
+          "fill": {
+            "theme": "accent"
+          },
+          "stroke": null,
+          "opacity": 0.9,
+          "role": "decor"
+        },
+        {
+          "id": "title-center-3",
+          "type": "text",
+          "x": 0,
+          "y": 302,
+          "w": 1920,
+          "h": 44,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "KEYNOTE · DEVDAYS 2026"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "accentText"
+          },
+          "letterSpacing": 0.14,
+          "role": "overline",
+          "sample": true
+        },
+        {
+          "id": "title-center-4",
+          "type": "text",
+          "x": 231,
+          "y": 389,
+          "w": 1459,
+          "h": 157,
+          "rotation": 0,
+          "locked": false,
+          "style": "title",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ship smaller, ship daily"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 123,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "title-center-5",
+          "type": "text",
+          "x": 384,
+          "y": 680,
+          "w": 1152,
+          "h": 69,
+          "rotation": 0,
+          "locked": false,
+          "style": "body",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ana Ruiz · Staff engineer, Northwind"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "subtitle",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}

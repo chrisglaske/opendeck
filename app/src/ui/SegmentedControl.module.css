@@ -1,0 +1,50 @@
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-md);
+  background: var(--subtle);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-ui);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.option:hover {
+  color: var(--ink);
+}
+
+.option[aria-checked='true'] {
+  background: var(--raised);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Must follow the rule above, whose shadow would otherwise hide the focus ring. */
+.option:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.iconOnly {
+  padding: 5px 8px;
+}
+
+.fill {
+  display: flex;
+}
+
+.fill .option {
+  flex: 1 1 0;
+  justify-content: center;
+}

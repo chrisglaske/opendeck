@@ -1,0 +1,28 @@
+.frame {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  left: 6px;
+  top: -20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* Parked elements are dimmed; only they take the pointer. */
+.elements {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  pointer-events: none;
+}

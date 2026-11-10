@@ -1,0 +1,66 @@
+/* Sample pictures use only theme colors (--t-*), so they restyle with the theme. */
+.photo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--t-accent) 72%, var(--t-bg)) 0%,
+    var(--t-accent) 55%,
+    color-mix(in srgb, var(--t-accent) 70%, var(--t-text)) 100%
+  );
+}
+
+/* The sun. */
+.photo::before {
+  content: "";
+  position: absolute;
+  right: 18%;
+  top: 16%;
+  width: 16%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--t-accent2);
+}
+
+/* The hills. */
+.photo::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -2%;
+  height: 46%;
+  background: color-mix(in srgb, var(--t-accent) 45%, var(--t-text));
+  clip-path: polygon(0 100%, 0 55%, 22% 18%, 40% 52%, 58% 8%, 82% 48%, 100% 30%, 100% 100%);
+  opacity: 0.9;
+}
+
+.photo.alt {
+  background: linear-gradient(200deg, var(--t-accent2) 0%, color-mix(in srgb, var(--t-accent2) 60%, var(--t-accent)) 100%);
+}
+
+.photo.alt::before {
+  left: 16%;
+  right: auto;
+  background: var(--t-surface);
+}
+
+.initials {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--t-font-heading);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--t-on-accent);
+  background: linear-gradient(150deg, var(--t-accent), color-mix(in srgb, var(--t-accent) 55%, var(--t-text)));
+  user-select: none;
+}
+
+.initials.alt {
+  color: var(--t-text);
+  background: linear-gradient(150deg, var(--t-accent2), color-mix(in srgb, var(--t-accent2) 60%, var(--t-text)));
+}

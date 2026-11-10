@@ -1,0 +1,371 @@
+{
+  "format": "opendeck-template",
+  "version": 1,
+  "template": {
+    "id": "team",
+    "name": "Team of four",
+    "group": "people",
+    "keywords": [
+      "people",
+      "staff",
+      "faces",
+      "who"
+    ],
+    "order": 0,
+    "slide": {
+      "background": {
+        "color": {
+          "theme": "bg"
+        }
+      },
+      "elements": [
+        {
+          "id": "team-1",
+          "type": "text",
+          "x": 134,
+          "y": 130,
+          "w": 379,
+          "h": 94,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "The team"
+                }
+              ],
+              "align": "left",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "role": "title",
+          "sample": true
+        },
+        {
+          "id": "team-2",
+          "type": "image",
+          "x": 173,
+          "y": 367,
+          "w": 230,
+          "h": 230,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 115,
+          "art": {
+            "kind": "initials",
+            "text": "AR",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "person.photo[1]"
+        },
+        {
+          "id": "team-3",
+          "type": "text",
+          "x": 134,
+          "y": 670,
+          "w": 307,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Ana Ruiz"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[1]",
+          "sample": true
+        },
+        {
+          "id": "team-4",
+          "type": "text",
+          "x": 134,
+          "y": 756,
+          "w": 307,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "CEO"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.role[1]",
+          "sample": true
+        },
+        {
+          "id": "team-5",
+          "type": "image",
+          "x": 595,
+          "y": 367,
+          "w": 230,
+          "h": 230,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 115,
+          "art": {
+            "kind": "initials",
+            "text": "KO",
+            "variant": 1
+          },
+          "sample": true,
+          "role": "person.photo[2]"
+        },
+        {
+          "id": "team-6",
+          "type": "text",
+          "x": 557,
+          "y": 670,
+          "w": 307,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Kwame Osei"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[2]",
+          "sample": true
+        },
+        {
+          "id": "team-7",
+          "type": "text",
+          "x": 557,
+          "y": 756,
+          "w": 307,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "CTO"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.role[2]",
+          "sample": true
+        },
+        {
+          "id": "team-8",
+          "type": "image",
+          "x": 1018,
+          "y": 367,
+          "w": 230,
+          "h": 230,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 115,
+          "art": {
+            "kind": "initials",
+            "text": "MS",
+            "variant": 0
+          },
+          "sample": true,
+          "role": "person.photo[3]"
+        },
+        {
+          "id": "team-9",
+          "type": "text",
+          "x": 979,
+          "y": 670,
+          "w": 307,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Mei Sato"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[3]",
+          "sample": true
+        },
+        {
+          "id": "team-10",
+          "type": "text",
+          "x": 979,
+          "y": 756,
+          "w": 307,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Design"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.role[3]",
+          "sample": true
+        },
+        {
+          "id": "team-11",
+          "type": "image",
+          "x": 1440,
+          "y": 367,
+          "w": 230,
+          "h": 230,
+          "rotation": 0,
+          "locked": false,
+          "assetId": "",
+          "fit": "fill",
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1
+          },
+          "radius": 115,
+          "art": {
+            "kind": "initials",
+            "text": "LB",
+            "variant": 1
+          },
+          "sample": true,
+          "role": "person.photo[4]"
+        },
+        {
+          "id": "team-12",
+          "type": "text",
+          "x": 1402,
+          "y": 670,
+          "w": 307,
+          "h": 54,
+          "rotation": 0,
+          "locked": false,
+          "style": "heading",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Liam Byrne"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "size": 40,
+          "role": "person.name[4]",
+          "sample": true
+        },
+        {
+          "id": "team-13",
+          "type": "text",
+          "x": 1402,
+          "y": 756,
+          "w": 307,
+          "h": 55,
+          "rotation": 0,
+          "locked": false,
+          "style": "caption",
+          "paragraphs": [
+            {
+              "runs": [
+                {
+                  "text": "Sales"
+                }
+              ],
+              "align": "center",
+              "list": "none"
+            }
+          ],
+          "autoFit": true,
+          "color": {
+            "theme": "muted"
+          },
+          "role": "person.role[4]",
+          "sample": true
+        }
+      ]
+    }
+  },
+  "assets": []
+}
