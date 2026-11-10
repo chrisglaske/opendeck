@@ -170,3 +170,39 @@
     flex: none;
   }
 }
+
+/* Large screens: use more of the width and size the headline to match. */
+@media (min-width: 1700px) {
+  .grid {
+    max-width: 1800px;
+    gap: 72px;
+    padding: 56px 56px 96px;
+  }
+  .h {
+    font-size: 64px;
+  }
+  .lede {
+    max-width: 580px;
+    font-size: 20px;
+  }
+  .trust {
+    font-size: 14.5px;
+  }
+}
+
+@media (min-width: 2200px) {
+  .grid {
+    max-width: 2240px;
+    gap: 96px;
+  }
+  .h {
+    font-size: 78px;
+  }
+  .lede {
+    max-width: 700px;
+    font-size: 24px;
+  }
+  .trust {
+    font-size: 16px;
+  }
+}
