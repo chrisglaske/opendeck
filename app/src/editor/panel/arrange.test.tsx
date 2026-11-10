@@ -9,6 +9,7 @@ import { EditorProvider } from '../EditorContext'
 import { EditorShell } from '../EditorShell'
 import { createEditorStore } from '../store'
 import type { EditorStore } from '../store'
+import { setEditorMode } from '../mode/editorMode'
 
 function shape(x: number, y: number, w = 100, h = 100): ShapeEl {
   return { ...createShape('rect'), x, y, w, h, radius: 0 }
@@ -204,5 +205,18 @@ describe('arrange shortcuts', () => {
     expect(els(s)).toHaveLength(2)
     expect(els(s)[1]).toMatchObject({ x: 124, y: 124 })
     expect(s.getState().selection.ids).toEqual([els(s)[1].id])
+  })
+})
+
+describe('panel tab after a visit to Simple', () => {
+  afterEach(() => setEditorMode('advanced'))
+  it('opens on Style again when switching back to Advanced', async () => {
+    setEditorMode('advanced')
+    setup([shape(0, 0)])
+    await openArrange()
+    expect(screen.getByRole('tab', { name: 'Arrange' })).toHaveAttribute('aria-selected', 'true')
+    act(() => setEditorMode('simple'))
+    act(() => setEditorMode('advanced'))
+    expect(screen.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true')
   })
 })

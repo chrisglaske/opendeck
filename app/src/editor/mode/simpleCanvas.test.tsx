@@ -230,6 +230,22 @@ describe('locked items in Simple', () => {
     expect(screen.getByText('Locked. Unlock it in Advanced.').closest('[data-outline]')).toBeNull()
   })
 
+  it('selecting a locked item announces where to unlock it, for screen readers', () => {
+    const a = shape(100, 100, { locked: true })
+    const s = setup([a])
+    expect(screen.getByRole('status')).toHaveTextContent('')
+    select(s, a.id)
+    expect(screen.getByRole('status')).toHaveTextContent('Locked. Unlock it in Advanced.')
+  })
+
+  it('Advanced announces nothing about locks', () => {
+    setEditorMode('advanced')
+    const a = shape(100, 100, { locked: true })
+    const s = setup([a])
+    select(s, a.id)
+    expect(screen.queryByText('Locked. Unlock it in Advanced.')).not.toBeInTheDocument()
+  })
+
   it('Advanced shows no unlock hint', () => {
     setEditorMode('advanced')
     const a = shape(100, 100, { locked: true })

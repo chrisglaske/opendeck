@@ -274,7 +274,11 @@ export function ungroup(d: Deck, slideId: string, groupId: string): { deck: Deck
     if (i < 0) return list
     const g = list[i] as GroupEl
     if (g.type !== 'group') return list
-    const kids = g.children.map((ch) => childToParent(ch, g))
+    // A locked group's items stay locked, so ungrouping never unlocks anything.
+    const kids = g.children.map((ch) => {
+      const moved = childToParent(ch, g)
+      return g.locked && !moved.locked ? { ...moved, locked: true } : moved
+    })
     ids = kids.map((k) => k.id)
     return [...list.slice(0, i), ...kids, ...list.slice(i + 1)]
   })

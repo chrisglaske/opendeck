@@ -7,6 +7,12 @@ import { addSlideFromTemplate, slideFromTemplate } from './instantiate'
 const ids = (els: SlideElement[]): string[] => els.flatMap((e) => [e.id, ...(e.type === 'group' ? ids(e.children) : [])])
 
 describe('slides from templates', () => {
+  it('never starts a slide with items parked beside it, even from a hand-edited template', () => {
+    const t = structuredClone(builtinTemplate('title')!)
+    t.slide.elements = t.slide.elements.map((e, i) => (i === 0 ? { ...e, aside: true as const } : e))
+    expect(slideFromTemplate(t).elements.some((e) => e.aside)).toBe(false)
+  })
+
   it('adds a template slide after the current one with fresh ids', () => {
     const d = createDeck()
     const a = d.slides[0], b = createSlide()

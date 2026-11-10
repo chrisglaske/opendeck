@@ -7,6 +7,8 @@ import type { Template } from './types'
 function fresh(el: SlideElement): SlideElement {
   const copy = structuredClone(el)
   copy.id = newId()
+  // Parking is something a person does to a slide; a template never starts with it.
+  delete copy.aside
   if (copy.type === 'group') copy.children = copy.children.map(fresh)
   return copy
 }

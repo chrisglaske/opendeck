@@ -1,5 +1,5 @@
 import { Group, PanelRightClose } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { findElement } from '../../model/ops'
 import { IconButton, TabPanel, Tabs } from '../../ui'
 import { useEditor } from '../EditorContext'
@@ -18,6 +18,8 @@ export function Panel({ onHide }: { onHide(): void }) {
   const ids = useEditor((s) => s.selection.ids)
   const [tab, setTab] = useState<'style' | 'arrange'>('style')
   const { simple } = useEditorMode()
+  // Coming back from Simple, start on Style rather than wherever the panel was left.
+  useEffect(() => { if (simple) setTab('style') }, [simple])
 
   const first = ids.length ? findElement(slide, ids[0])?.el : undefined
   // Simple keeps the panel on the slide; the selection's controls live in its quick bar.

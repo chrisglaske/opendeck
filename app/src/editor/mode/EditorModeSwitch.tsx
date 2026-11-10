@@ -17,6 +17,8 @@ export function EditorModeSwitch() {
     markNoteSeen()
     setNoteOpen(false)
   }
+  // A stray press elsewhere only hides the note for this page; Esc, Got it and the switch end it for good.
+  const close = (reason?: 'outside' | 'escape') => (reason === 'outside' ? setNoteOpen(false) : dismiss())
 
   return (
     <span ref={setAnchor} className={styles.wrap}>
@@ -30,7 +32,7 @@ export function EditorModeSwitch() {
         }}
       />
       {simple && noteOpen && anchor && (
-        <Popover anchor={anchor} label="You're in Simple mode" onClose={dismiss} className={styles.note}>
+        <Popover anchor={anchor} label="You're in Simple mode" onClose={close} className={styles.note}>
           <p className={styles.title}>You're in Simple mode</p>
           <p className={styles.body}>
             Fill in templates, swap pictures and drag things around. Need fonts, layers, exact positions or effects? Switch to

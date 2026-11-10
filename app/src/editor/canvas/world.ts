@@ -10,7 +10,7 @@ import type { GroupEl, Slide, SlideElement } from '../../model/types'
 export type WorldItem = {
   id: string
   el: SlideElement
-  /** True when the element or any group around it is locked. */
+  /** True when the element, any group around it, or (for a group) anything inside it is locked. */
   locked: boolean
   /** The id of the group the element sits in, or null at the top level. */
   parentId: string | null
@@ -21,6 +21,8 @@ function parentToChild<T extends SlideElement>(el: T, g: GroupEl): T {
   const turned = g.rotation % 360 === 0 ? el : rotateAround(el, { x: g.x + g.w / 2, y: g.y + g.h / 2 }, -g.rotation)
   return moveElement(turned, -g.x, -g.y)
 }
+
+const holdsLocked = (el: SlideElement): boolean => el.type === 'group' && el.children.some((c) => c.locked || holdsLocked(c))
 
 export function worldItem(slide: Slide, id: string): WorldItem | null {
   const found = findElement(slide, id)
@@ -35,7 +37,7 @@ export function worldItem(slide: Slide, id: string): WorldItem | null {
   return {
     id,
     el,
-    locked: found.el.locked || groups.some((g) => g.locked),
+    locked: found.el.locked || groups.some((g) => g.locked) || holdsLocked(found.el),
     parentId: groups.length ? groups[groups.length - 1].id : null,
     toLocal(world) {
       let local = world
