@@ -3,7 +3,7 @@
 Good-looking presentations, without the fuss. Pick a template, type over it, and try a different look in one click. OpenDeck runs entirely in your browser: no account, no server, and your decks stay on your computer.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-![Version](https://img.shields.io/badge/Version-3.0.1-green)
+![Version](https://img.shields.io/badge/Version-3.0.2-green)
 
 **Use it at [opendeck.work](https://opendeck.work/).**
 
