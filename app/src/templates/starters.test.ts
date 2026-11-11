@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { sanitizeDeck } from '../model/sanitize'
 import { builtinTemplate } from './builtins'
-import type { TextEl } from '../model/types'
+import type { SlideElement, TextEl } from '../model/types'
 import { createStarterDeck, STARTER_DECKS, starterSlideTemplate } from './starters'
 
 describe('starter decks', () => {
@@ -56,3 +56,25 @@ describe('sample text', () => {
     for (const brand of ['Stripe', 'Figma', 'tinyqueue']) expect(all).not.toContain(brand)
   })
 })
+
+describe('Tech talk sample text', () => {
+  const texts = (deckId: string, i: number) => {
+    const out: string[] = []
+    const walk = (e: SlideElement) => {
+      if (e.type === 'group') e.children.forEach(walk)
+      else if (e.type === 'text') out.push(e.paragraphs.map((p) => p.runs.map((r) => r.text).join('')).join('\n'))
+    }
+    createStarterDeck(deckId).slides[i].elements.forEach(walk)
+    return out
+  }
+  it('talks about shipping, not borrowed text from the other starters', () => {
+    expect(texts('tech-talk', 2)).toContain('Why small wins')
+    expect(texts('tech-talk', 3)).toContain('Teams that ship daily fix problems four times faster.')
+    expect(texts('tech-talk', 7)).toContain('Keep changes small enough to review fast')
+    const own = [2, 3, 7].flatMap((i) => texts('tech-talk', i))
+    const others = ['pitch', 'quarterly'].flatMap((id) => createStarterDeck(id).slides.flatMap((_, i) => texts(id, i)))
+    const borrowed = own.filter((t) => t.length > 12 && t !== 'Three things to remember' && others.includes(t))
+    expect(borrowed).toEqual([])
+  })
+})
+

@@ -13,11 +13,28 @@
     },
     {
       "template": "agenda",
-      "notes": "Show the shape of the talk so people know where you're going."
+      "notes": "Show the shape of the talk so people know where you're going.",
+      "texts": [
+        "Today",
+        "01",
+        "Why small wins",
+        "02",
+        "Shipping daily",
+        "03",
+        "What broke",
+        "04",
+        "Our tools",
+        "05",
+        "Questions"
+      ]
     },
     {
       "template": "statement",
-      "notes": "State the idea plainly, then pause. Everything after this backs it up."
+      "notes": "State the idea plainly, then pause. Everything after this backs it up.",
+      "texts": [
+        "Teams that ship daily fix problems four times faster.",
+        "Northwind engineering report, 2026"
+      ]
     },
     {
       "template": "architecture",
@@ -33,7 +50,16 @@
     },
     {
       "template": "takeaways",
-      "notes": "Three takeaways, one sentence each. Say them, then move on."
+      "notes": "Three takeaways, one sentence each. Say them, then move on.",
+      "texts": [
+        "Three things to remember",
+        "1",
+        "Keep changes small enough to review fast",
+        "2",
+        "Ship behind a switch, turn it on later",
+        "3",
+        "Measure time to fix, not releases"
+      ]
     },
     {
       "template": "questions",
