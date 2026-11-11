@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { mediaStub } from './test/setup'
 
 const outdated = vi.hoisted(() => ({ listeners: new Set<() => void>() }))
 vi.mock('./storage/idbStore', async (importOriginal) => ({
@@ -88,6 +89,30 @@ describe('the app address (/app/)', () => {
     at('/app/', '#/deck/missing-id')
     render(<App />)
     expect(await screen.findByRole('heading', { name: 'Deck not found' })).toBeInTheDocument()
+  })
+
+  it.each(['', '#/home', '#/trash', '#/deck/missing-id'])('opened on a phone at %s, shows the "needs a computer" note', async (hash) => {
+    mediaStub.matches = true
+    try {
+      at('/app/', hash)
+      render(<App />)
+      expect(await screen.findByRole('heading', { name: "OpenDeck's editor needs a computer." })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: 'Make your first deck' })).toBeNull()
+    } finally {
+      mediaStub.matches = false
+    }
+  })
+
+  it('keeps the editor open when a window is narrowed after it loaded', async () => {
+    at('/app/', '#/home')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: 'Make your first deck' })).toBeInTheDocument()
+    act(() => mediaStub.set(true))
+    try {
+      expect(screen.getByRole('heading', { name: 'Make your first deck' })).toBeInTheDocument()
+    } finally {
+      mediaStub.set(false)
+    }
   })
 })
 

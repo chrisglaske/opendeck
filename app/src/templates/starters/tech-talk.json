@@ -3,14 +3,41 @@
   "name": "Tech talk",
   "order": 2,
   "slides": [
-    "title-center",
-    "speaker",
-    "agenda",
-    "statement",
-    "architecture",
-    "code",
-    "window",
-    "takeaways",
-    "questions"
+    {
+      "template": "title-center",
+      "notes": "These are your speaker notes. Only you see them, in speaker view; the audience sees just the slides. Replace them with what you want to say. Start with a promise: what people will be able to do after this talk."
+    },
+    {
+      "template": "speaker",
+      "notes": "Thirty seconds about you, only what makes you worth listening to on this topic."
+    },
+    {
+      "template": "agenda",
+      "notes": "Show the shape of the talk so people know where you're going."
+    },
+    {
+      "template": "statement",
+      "notes": "State the idea plainly, then pause. Everything after this backs it up."
+    },
+    {
+      "template": "architecture",
+      "notes": "Trace one request through the diagram from left to right."
+    },
+    {
+      "template": "code",
+      "notes": "Read the code out loud line by line, slower than feels natural."
+    },
+    {
+      "template": "window",
+      "notes": "Show what changed for users, not how hard it was to build."
+    },
+    {
+      "template": "takeaways",
+      "notes": "Three takeaways, one sentence each. Say them, then move on."
+    },
+    {
+      "template": "questions",
+      "notes": "Point people to the slides link so they don't have to take photos."
+    }
   ]
 }

@@ -3,15 +3,45 @@
   "name": "Pitch deck",
   "order": 0,
   "slides": [
-    "title-photo",
-    "statement",
-    "image-text",
-    "big-number",
-    "stats",
-    "timeline",
-    "pricing",
-    "team-bios",
-    "quote",
-    "cta"
+    {
+      "template": "title-photo",
+      "notes": "These are your speaker notes. Only you see them, in speaker view; the audience sees just the slides. Replace them with what you want to say. Open with the problem in one sentence before you name the company."
+    },
+    {
+      "template": "statement",
+      "notes": "Pause after reading the number. Let the room take it in before you explain why it matters."
+    },
+    {
+      "template": "image-text",
+      "notes": "Tell the customer story in three beats: where they started, what changed, the result."
+    },
+    {
+      "template": "big-number",
+      "notes": "Say the number once, slowly. Then give the one reason it keeps growing."
+    },
+    {
+      "template": "stats",
+      "notes": "Pick the stat your audience cares about most and spend your time there."
+    },
+    {
+      "template": "timeline",
+      "notes": "Keep this quick: each year is one sentence. The point is momentum, not history."
+    },
+    {
+      "template": "pricing",
+      "notes": "Point to the plan most teams choose and why."
+    },
+    {
+      "template": "team-bios",
+      "notes": "One line per person: why they are the right person for this."
+    },
+    {
+      "template": "quote",
+      "notes": "Read the quote as written, then say who said it and why their opinion counts."
+    },
+    {
+      "template": "cta",
+      "notes": "Say exactly what you want next: a call, an intro, a decision. Then stop talking."
+    }
   ]
 }
