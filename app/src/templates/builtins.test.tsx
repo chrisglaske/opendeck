@@ -80,3 +80,13 @@ describe('built-in templates', () => {
     expect(err).not.toHaveBeenCalled()
   })
 })
+
+describe('Takeaways template', () => {
+  it('gives every takeaway the same room, so a longer second or third line is not shrunk', () => {
+    const t = BUILTIN_TEMPLATES.find((x) => x.id === 'takeaways')!
+    const items = slideFromTemplate(t).elements.filter((e) => e.role?.startsWith('item.title'))
+    expect(items).toHaveLength(3)
+    expect(new Set(items.map((e) => bounds(e).w)).size).toBe(1)
+    expect(bounds(items[0]).w).toBeGreaterThanOrEqual(1300)
+  })
+})
