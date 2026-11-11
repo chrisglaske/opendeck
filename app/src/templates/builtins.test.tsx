@@ -90,3 +90,34 @@ describe('Takeaways template', () => {
     expect(bounds(items[0]).w).toBeGreaterThanOrEqual(1300)
   })
 })
+
+describe('room for longer text', () => {
+  // Boxes sized to their sample text shrink anything longer that people type. Items in the
+  // same list get the same width, and a box on a card fills the card with even padding.
+  const flat = (els: SlideElement[]): SlideElement[] => els.flatMap((e) => (e.type === 'group' ? flat(e.children) : [e]))
+  const listOf = (role?: string) => /^(.*)\[\d+\]$/.exec(role ?? '')?.[1]
+  it.each(BUILTIN_TEMPLATES.map((t) => [t.id, t] as const))('%s', (_id, t) => {
+    const els = flat(slideFromTemplate(t).elements)
+    const lists = new Map<string, number[]>()
+    for (const e of els) {
+      const list = e.type === 'text' ? listOf(e.role) : undefined
+      if (list) lists.set(list, [...(lists.get(list) ?? []), bounds(e).w])
+    }
+    for (const [list, widths] of lists) expect(new Set(widths).size, `${list} widths ${widths}`).toBe(1)
+    for (const e of els) {
+      if (e.type !== 'text' || !listOf(e.role)) continue
+      const b = bounds(e)
+      const cards = els
+        .filter((c) => c.type === 'shape')
+        .map(bounds)
+        .filter((c) => c.x <= b.x && c.y <= b.y && c.x + c.w >= b.x + b.w && c.y + c.h >= b.y + b.h && c.w * c.h > b.w * b.h)
+        .sort((p, q) => p.w * p.h - q.w * q.h)
+      if (!cards.length) continue
+      const card = cards[0]
+      const left = b.x - card.x
+      const right = card.x + card.w - (b.x + b.w)
+      if (left > 100) continue // text beside a badge or icon inside the card
+      expect(Math.abs(left - right), `${e.role} padding ${left}/${right}`).toBeLessThanOrEqual(2)
+    }
+  })
+})
