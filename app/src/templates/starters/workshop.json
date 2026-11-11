@@ -10,15 +10,40 @@
         "Design systems in practice",
         "Three hours, one shared kit, and a deck you can reuse.",
         "Northwind · Design workshop"
-      ]
+      ],
+      "notes": "These are your speaker notes. Only you see them, in speaker view; the audience sees just the slides. Replace them with what you want to say. Welcome everyone, cover breaks and timing, and say what they'll leave with."
     },
-    "agenda",
-    "section",
-    "definition",
-    "steps",
-    "photo-grid",
-    "question",
-    "takeaways",
-    "thanks"
+    {
+      "template": "agenda",
+      "notes": "Point out where the hands-on parts are, so people know when to open their laptops."
+    },
+    {
+      "template": "section",
+      "notes": "Use the section slide to reset attention after a break."
+    },
+    {
+      "template": "definition",
+      "notes": "Ask for an example from the room before you show the definition."
+    },
+    {
+      "template": "steps",
+      "notes": "Do each step live while people follow along. Check in after step two."
+    },
+    {
+      "template": "photo-grid",
+      "notes": "Use the photos to tell a short story about how the team works."
+    },
+    {
+      "template": "question",
+      "notes": "Give people thirty seconds to answer before you reveal it."
+    },
+    {
+      "template": "takeaways",
+      "notes": "Ask each person to pick the takeaway they'll try first."
+    },
+    {
+      "template": "thanks",
+      "notes": "Share where to find the slides and how to reach you afterwards."
+    }
   ]
 }

@@ -5,10 +5,10 @@ import { builtinTemplate } from './builtins'
 import { slideFromTemplate } from './instantiate'
 
 /**
- * A starter slide: a built-in template id, or a template whose text boxes get their own sample
- * text (in document order; boxes past the end keep the template's text).
+ * A starter slide: a built-in template id, or a template with its own sample speaker notes
+ * and/or its own sample text (in document order; boxes past the end keep the template's text).
  */
-export type StarterSlide = string | { template: string; texts: string[] }
+export type StarterSlide = string | { template: string; texts?: string[]; notes?: string }
 export type StarterDeck = { id: string; name: string; slides: StarterSlide[] }
 
 const files = import.meta.glob<{ id: string; name: string; order: number; slides: StarterSlide[] }>('./starters/*.json', { eager: true, import: 'default' })
@@ -42,7 +42,9 @@ export function createStarterDeck(id: string): Deck {
     const t = builtinTemplate(starterSlideTemplate(s))
     if (!t) return []
     const slide = slideFromTemplate(t)
-    return [typeof s === 'string' ? slide : withTexts(slide, s.texts)]
+    if (typeof s === 'string') return [slide]
+    const filled = s.texts ? withTexts(slide, s.texts) : slide
+    return [s.notes ? { ...filled, notes: s.notes } : filled]
   })
   return slides.length ? { ...deck, slides } : deck
 }

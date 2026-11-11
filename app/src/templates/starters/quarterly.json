@@ -3,14 +3,41 @@
   "name": "Quarterly review",
   "order": 1,
   "slides": [
-    "title",
-    "agenda",
-    "kpis",
-    "stats",
-    "bullets",
-    "comparison",
-    "roadmap",
-    "takeaways",
-    "questions"
+    {
+      "template": "title",
+      "notes": "These are your speaker notes. Only you see them, in speaker view; the audience sees just the slides. Replace them with what you want to say. Set expectations: how long this takes and when you'll take questions."
+    },
+    {
+      "template": "agenda",
+      "notes": "Walk through the agenda in a few seconds; don't present it item by item."
+    },
+    {
+      "template": "kpis",
+      "notes": "Lead with the headline: did we hit our targets? Then go number by number."
+    },
+    {
+      "template": "stats",
+      "notes": "Explain what moved each number, not just the number itself."
+    },
+    {
+      "template": "bullets",
+      "notes": "Pick one item to demo or show if there's time."
+    },
+    {
+      "template": "comparison",
+      "notes": "Keep the before side short; spend your time on what changed."
+    },
+    {
+      "template": "roadmap",
+      "notes": "Be clear about what's committed and what's still a guess."
+    },
+    {
+      "template": "takeaways",
+      "notes": "If people remember only one thing, which one should it be? Say it again here."
+    },
+    {
+      "template": "questions",
+      "notes": "Repeat each question before you answer it, so everyone hears it."
+    }
   ]
 }

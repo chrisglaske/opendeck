@@ -1,4 +1,5 @@
 import type { ColorRef, DerivedColor, FontRef, TextEl, TextStyleId, ThemeColorToken } from './types'
+import { contrastRatio, mixHex } from './contrast'
 
 export type ThemeTextStyle = { font: FontRef; size: number; weight: number; lineHeight: number; letterSpacing: number }
 /** Where a deck's theme came from, so the editor can mark it current and spot a newer brand kit. */
@@ -66,11 +67,27 @@ export function fontFamilyOf(el: TextEl, t: Theme): string {
   return `var(--t-font-${el.font ?? t.text[el.style].font})`
 }
 
+/**
+ * Text color for things drawn on accent2 (like the second style of sample avatar). Some
+ * themes use a dark accent2 close to the text color, so the theme's text, background or
+ * white is picked, whichever reads best across the accent2 gradient.
+ */
+function onAccent2(c: Theme['colors']): string {
+  try {
+    const ends = [c.accent2, mixHex(c.accent2, c.text, 60)]
+    const score = (fg: string) => Math.min(...ends.map((e) => contrastRatio(fg, e)))
+    return [c.text, c.bg, '#FFFFFF'].reduce((best, fg) => (score(fg) > score(best) ? fg : best))
+  } catch {
+    return c.text
+  }
+}
+
 /** CSS custom properties for a theme, set on the slide root through the React style prop. */
 export function themeVars(t: Theme): Record<string, string> {
   const out: Record<string, string> = {}
   for (const [k, v] of Object.entries(t.colors)) out[`--t-${kebab(k)}`] = v
   out['--t-accent-tint'] = `color-mix(in srgb, ${t.colors.accent} 14%, ${t.colors.bg})`
+  out['--t-on-accent2'] = onAccent2(t.colors)
   const body = fontStack(t.fonts.body, SYSTEM_FALLBACK)
   out['--t-font-heading'] = fontStack(t.fonts.heading, body)
   out['--t-font-body'] = body

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fontFamilyOf, OPENDECK_THEME, radiusPx, resolveColor, textStyleOf, themeVars } from './theme'
 import { createLogo, createShape, createText } from './factory'
+import { contrastRatio, mixHex } from './contrast'
 
 describe('resolveColor', () => {
   it('maps a theme token to its CSS variable', () => {
@@ -21,6 +22,17 @@ describe('themeVars', () => {
   })
   it('derives the accent tint', () => {
     expect(vars['--t-accent-tint']).toBe('color-mix(in srgb, #6C4CF5 14%, #FCFBF8)')
+  })
+  it('picks a readable color for text on accent2, even when accent2 is as dark as the text', () => {
+    const boardroom = { ...OPENDECK_THEME, colors: { ...OPENDECK_THEME.colors, text: '#0F2235', bg: '#FFFFFF', accent2: '#0F2235' } }
+    const on = themeVars(boardroom)['--t-on-accent2']
+    for (const end of ['#0F2235', mixHex('#0F2235', '#0F2235', 60)]) expect(contrastRatio(on, end)).toBeGreaterThanOrEqual(4.5)
+    // A light accent2 keeps dark text.
+    expect(vars['--t-on-accent2']).toBe(OPENDECK_THEME.colors.text)
+  })
+  it('falls back to the text color when accent2 is not a plain hex', () => {
+    const odd = { ...OPENDECK_THEME, colors: { ...OPENDECK_THEME.colors, accent2: 'red' } }
+    expect(themeVars(odd)['--t-on-accent2']).toBe(OPENDECK_THEME.colors.text)
   })
   it('exposes fonts and radius', () => {
     expect(vars['--t-font-heading']).toContain('Manrope')

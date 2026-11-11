@@ -61,6 +61,6 @@
 }
 
 .initials.alt {
-  color: var(--t-text);
+  color: var(--t-on-accent2);
   background: linear-gradient(150deg, var(--t-accent2), color-mix(in srgb, var(--t-accent2) 60%, var(--t-text)));
 }

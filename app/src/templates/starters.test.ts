@@ -36,4 +36,23 @@ describe('starter decks', () => {
     const d = createStarterDeck('workshop')
     expect(sanitizeDeck(JSON.parse(JSON.stringify(d)))).toMatchObject({ ok: true, repaired: 0 })
   })
+
+  it('every starter slide comes with short sample speaker notes, and the first one says what notes are', () => {
+    for (const s of STARTER_DECKS) {
+      const d = createStarterDeck(s.id)
+      for (const slide of d.slides) {
+        expect(slide.notes.trim().length, `${s.id} slide`).toBeGreaterThan(20)
+        expect(slide.notes.length, `${s.id} slide`).toBeLessThan(400)
+      }
+      expect(d.slides[0].notes).toMatch(/only you/i)
+      expect(sanitizeDeck(JSON.parse(JSON.stringify(d)))).toMatchObject({ ok: true, repaired: 0 })
+    }
+  })
+})
+
+describe('sample text', () => {
+  it('names no real companies', () => {
+    const all = JSON.stringify(STARTER_DECKS.map((s) => createStarterDeck(s.id)))
+    for (const brand of ['Stripe', 'Figma', 'tinyqueue']) expect(all).not.toContain(brand)
+  })
 })

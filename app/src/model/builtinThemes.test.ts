@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { BUILTIN_THEMES, builtinTheme, CORNER_PRESETS } from './builtinThemes'
-import { contrastRatio } from './contrast'
-import { OPENDECK_THEME } from './theme'
+import { contrastRatio, mixHex } from './contrast'
+import { OPENDECK_THEME, themeVars } from './theme'
 
 describe('built-in themes', () => {
   it('has the six approved themes', () => {
@@ -53,5 +53,14 @@ describe('built-in themes', () => {
     expect(CORNER_PRESETS.map((p) => [p.id, p.label, p.px])).toEqual([
       ['square', 'Square', 0], ['slight', 'Slight', 12], ['soft', 'Soft', 27], ['round', 'Round', 46],
     ])
+  })
+})
+
+describe('initials on accent2', () => {
+  it.each(BUILTIN_THEMES.map((t) => [t.name, t] as const))('%s keeps sample avatar initials readable', (_n, t) => {
+    const on = themeVars(t)['--t-on-accent2']
+    for (const end of [t.colors.accent2, mixHex(t.colors.accent2, t.colors.text, 60)]) {
+      expect(contrastRatio(on, end)).toBeGreaterThanOrEqual(3)
+    }
   })
 })
