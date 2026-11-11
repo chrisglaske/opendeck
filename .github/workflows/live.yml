@@ -1,0 +1,44 @@
+# Builds the site from this repository and checks that opendeck.work serves exactly those files,
+# on pushes to main that change the site, once a day, and on request. It only reads public URLs, so it needs no secrets.
+name: live site matches this code
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'v1/**'
+      - '.github/workflows/live.yml'
+  schedule:
+    - cron: '23 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Build the site
+        run: npm ci && npm run build:site
+      # Cloudflare deploys a push a few minutes later, so a push gets 20 minutes to go live; other runs check once.
+      - name: Compare with opendeck.work
+        run: |
+          tries=1
+          if [ "$GITHUB_EVENT_NAME" = push ]; then tries=40; fi
+          for try in $(seq 1 "$tries"); do
+            npm run --silent verify:live && exit 0
+            if [ "$try" -lt "$tries" ]; then sleep 30; fi
+          done
+          exit 1

@@ -4,10 +4,11 @@ Good-looking presentations, without the fuss. Pick a template, type over it, and
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 ![Version](https://img.shields.io/badge/Version-3.0.3-green)
+[![Live site matches this code](https://img.shields.io/github/actions/workflow/status/chrisglaske/opendeck/live.yml?branch=main&label=live%20site%20matches%20this%20code)](https://github.com/chrisglaske/opendeck/actions/workflows/live.yml)
 
 **Use it at [opendeck.work](https://opendeck.work/).**
 
-![OpenDeck: a slide with a chart and three numbers, next to the theme picker](app/public/og-image.png)
+![OpenDeck: good-looking decks, without the fuss. The same slide shown in three themes](app/public/og-image.png)
 
 ## Features
 
@@ -23,6 +24,7 @@ Good-looking presentations, without the fuss. Pick a template, type over it, and
 - Your decks, pictures and fonts are stored in your browser (IndexedDB) and never leave your computer.
 - There are no accounts and no server that stores your work.
 - Visitor counts (Cloudflare Web Analytics) load only if you allow them, and you can turn them off at any time from Privacy (at the bottom of the start page, and in the Home sidebar). They never see your decks.
+- **The live site is this code.** Building this repository gives exactly the files opendeck.work serves. A [check](https://github.com/chrisglaske/opendeck/actions/workflows/live.yml) compares them byte for byte on every change to the site and once a day, and you can run it yourself: `cd app && npm ci && npm run build:site && npm run verify:live`.
 
 ## Decks from the previous version
 
@@ -42,6 +44,7 @@ npm test             # unit tests
 npm run typecheck
 npm run test:e2e     # end-to-end tests (Playwright; builds the site first)
 npm run build:site   # production build in app/dist, with the previous version at /v1/
+npm run verify:live  # after build:site: checks opendeck.work serves exactly that build
 ```
 
 The previous version's files are in `v1/` and are copied into the build as they are.

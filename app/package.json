@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "build:site": "npm run build && node scripts/check-public.mjs && node scripts/app-page.mjs && node scripts/copy-v1.mjs",
     "preview": "vite preview",
+    "verify:live": "node scripts/verify-live.mjs",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test"
